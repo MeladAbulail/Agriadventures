@@ -9,7 +9,8 @@ https://www.figma.com/file/IbBJ1g6QU92nXlkxRTru7N/Master-Piece?type=design&node-
 
 
 ## Trello Link
-This is my personal To-Do list if you want to check out my progress !
+This is my personal To-Do list if you want to check out my progress!
+[Link](https://trello.com/invite/b/g4j5S06n/ATTI1e0817056113d511bda8f4909c002c67452AAD1A/master-piece)
 
 ## Technologies and Skills
 This project is built using the following technologies and skills:
