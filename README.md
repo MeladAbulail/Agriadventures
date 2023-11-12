@@ -8,7 +8,7 @@ Adgriadventure is a website dedicated to agricultural tourism. It offers a varie
 
 ## Organization Link
 
-[Check our work!](https://github.com/Adgriadventures/Masterpiece).
+[Check our work!](https://github.com/Adgriadventures/Agriadventures).
 
 
 ## Figma Link
