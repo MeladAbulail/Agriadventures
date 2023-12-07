@@ -1,35 +1,17 @@
 const { Products } = require('../Models/Tables');
-const multer = require("multer");
-const path = require("path");
-
-//! Storage Image By Multer Start
-let lastFileSequence = 0;
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "productsImages");
-  },
-  filename: (req, file, cb) => {
-    lastFileSequence++;
-    const newFileName = `${Date.now()}_${lastFileSequence}${path.extname(file.originalname)}`;
-    cb(null, newFileName);
-  }
-});
-
-const addImage = multer({ storage: storage });
-const imageProduct = addImage.single("image");
-
 
 //! Add New Product Start
 const addProduct = async (req, res) => {
   try {
-    const { productName, description, price } = req.body;
-    const imageProductName = req.file.filename;
+    const { productName, description, price, category } = req.body;
+    const imageUrl = res.locals.site;
 
     const newProduct = await Products.create({
       productName,
       description,
       price,
-      imageProductName,
+      imageUrl,
+      category
     });
 
     res.status(201).json({
@@ -71,8 +53,8 @@ const updateProduct = async (req, res) => {
 
     //! Check if a new image is uploaded
     if (req.file) {
-      const newImageName = req.file.filename;
-      existingProduct.imageProductName = newImageName;
+      const newImageName = res.locals.site;
+      existingProduct.imageUrl = newImageName;
     }
 
     //! Save the changes
@@ -145,16 +127,10 @@ const getProducts = async (req, res) => {
       },
     });
 
-    //! Map through the products to construct the image_url for each product
-    const productsWithImageUrls = products.map(product => ({
-      ...product.toJSON(),
-      image_url: `http://localhost:4000/productsImages/${product.imageProductName}`,
-    }));
-
     res.status(200).json({
       success: true,
       message: "Products retrieved successfully",
-      products: productsWithImageUrls,
+      products: products,
     });
   } catch (error) {
     console.error('An error occurred while fetching products:', error);
@@ -180,16 +156,12 @@ const getProductById = async (req, res) => {
         message: "Product Not Found",
       });
     } else {
-      const image_url = `http://localhost:4000/productsImages/${existingProduct.imageProductName}`;
       const product = await Products.findByPk(productId);
 
       res.status(200).json({
         success: true,
         message: "Product retrieved successfully",
-        product: {
-          ...product.toJSON(),
-          image_url: image_url,
-        },
+        product: product,
       });
     }
   } catch (error) {
@@ -205,7 +177,6 @@ const getProductById = async (req, res) => {
 
 module.exports = {
   addProduct,
-  imageProduct,
   updateProduct,
   deleteProduct,
   getProducts,

@@ -2,25 +2,7 @@ const jwt = require("jsonwebtoken");
 const joi = require("joi");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const { User } = require("../Models/Tables");
-const multer = require("multer");
-const path = require("path");
-
-//! Storage Image By Multer Start
-let lastFileSequence = 0;
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "profileImages");
-  },
-  filename: (req, file, cb) => {
-    lastFileSequence++;
-    const newFileName = `${Date.now()}_${lastFileSequence}${path.extname(file.originalname)}`;
-    cb(null, newFileName);
-  }
-});
-
-const addImage = multer({ storage: storage });
-const imageUser = addImage.single("image");
+const { User, Ratings_And_Reviews } = require("../Models/Tables");
 
 //! Create A New User (Registration)
 const registerUser = async (req, res) => {
@@ -32,6 +14,7 @@ const registerUser = async (req, res) => {
       lastName: joi.string().required().min(3).max(15),
       email: joi.string().email().required(),
       password: joi.string().min(6).max(20),
+      confirmPassword: joi.string().min(6).max(20),
       gender: joi.string().valid("male", "female").insensitive().required()
     });
 
@@ -91,6 +74,7 @@ const registerUser = async (req, res) => {
       success: true,
       message: "User has been registered successfully.",
       token: token,
+      userId: newUser.userId
     });
   } catch (error) {
     console.error("An error occurred during the registration process:", error);
@@ -129,11 +113,11 @@ const loginUser = async (req, res) => {
     }
 
     const payload = {
-      first_name: user.first_name,
-      last_name: user.last_name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
-      user_type: user.user_type,
-      user_id: user.user_id,
+      userRole: user.userRole,
+      userId: user.userId,
     };
 
     // Generate JWT token
@@ -143,6 +127,7 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       message: 'Login successful.',
       token: token,
+      userId: user.userId
     });
 
   } catch(error) {
@@ -151,38 +136,41 @@ const loginUser = async (req, res) => {
   }
 }
 
-//! Controllers For Users
 //! Get All Users
 const getAllUsers = async (req, res) => {
   try {
+    const { page = 1, pageSize = 5 } = req.query;
 
-    const users = await User.findAll({
+    const offset = (page - 1) * pageSize;
+    const users = await User.findAndCountAll({
       where: {
-        isDeleted: false
-      }
-    })
-  
+        isDeleted: false,
+      },
+      limit: pageSize,
+      offset: offset,
+    });
+
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
-      users: users.map((user) => user.toJSON())
-    })
-    
-  } catch(error) {
-    console.error("An error occurred while fetching Users:")
+      users: users.rows.map((user) => user.toJSON()),
+      totalCount: users.count,
+      totalPages: Math.ceil(users.count / pageSize),
+    });
+  } catch (error) {
+    console.error("An error occurred while fetching Users:", error);
     res.status(500).json({
-      succes: false,
+      success: false,
       message: "An error occurred while fetching Users",
-      error: error.message
-    })
+      error: error.message,
+    });
   }
-}
+};
 
 //! Get User By Id 
 const getUserById = async (req, res) => {
-  const userId = req.params.userId; 
+  const userId = req.user.userId;
   try {
-
     //! Check If User Existing
     const existingUser = await User.findOne({ where: { userId: userId } });
 
@@ -192,11 +180,10 @@ const getUserById = async (req, res) => {
         message: "User Not Found",
       });
     } else {
-      const user = await User.findByPk(userId);
       res.status(200).json({
         success: true,
         message: "User retrieved successfully",
-        user: user.toJSON(),
+        user: existingUser
       });
     }
   } catch (error) {
@@ -209,17 +196,49 @@ const getUserById = async (req, res) => {
   }
 };
 
+//! Get Admin Users
+const getAdminUsers = async (req, res) => {
+  try {
+    const Admins = await User.findAll({
+      where: { userRole: "Admin" }
+    });
+
+    if(!Admins) { 
+      return res.status(404).json({
+        succes: false,
+        message: "Not Found Admins",
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Admins retrieved successfully",
+      Admins: Admins
+    });
+  } catch (error) {
+    console.error("An error occurred while fetching Admins:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching Admins",
+      error: error.message,
+    });
+  }
+};
+
+
 //! Update User According UserId
 const updateUserById = async (req, res) => {
-  const userId = req.params.userId 
-  const { firstName, lastName, gender, password} = req.body
+  const userId = req.user.userId;
+  const { firstName, lastName, gender, password } = req.body;
 
   //! Validate user input
   const userSchema = joi.object({
-    firstName: joi.string().required().min(3).max(15),
-    lastName: joi.string().required().min(3).max(15),
+    firstName: joi.string().min(3).max(15),
+    lastName: joi.string().min(3).max(15),
     password: joi.string().min(5).max(20),
-    gender: joi.string().valid("male", "female").insensitive().required(),
+    gender: joi.string().valid("male", "female").insensitive(),
+    image: joi.allow(),
+    email: joi.allow(),
   });
 
   const { error } = userSchema.validate(req.body);
@@ -230,9 +249,13 @@ const updateUserById = async (req, res) => {
   }
 
   try {
-
     //! Check If User Existing
     const existingUser = await User.findOne({ where: { userId: userId } });
+    const ratingsAndReviews = await Ratings_And_Reviews.findAll({
+      where: {
+        userId: userId
+      }
+    })
 
     if (!existingUser) {
       return res.status(404).json({
@@ -240,25 +263,38 @@ const updateUserById = async (req, res) => {
         message: "User Not Found",
       });
     } else {
+      //! Hash the password if provided
+      if (password) {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        existingUser.password = hashedPassword;
+      }
 
-      //! Hash the password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+      //! Update the User details if provided
+      if (firstName) {
+        existingUser.firstName = firstName;
+        ratingsAndReviews.firstName = firstName;
+      }
 
-      //! Update the User details
-      existingUser.firstName = firstName;
-      existingUser.lastName = lastName;
-      existingUser.gender = gender;
-      existingUser.password = hashedPassword;
+      if (lastName) {
+        existingUser.lastName = lastName;
+        ratingsAndReviews.lastName = lastName;
+      }
 
-      //! Check if a new image is uploaded
+      if (gender) {
+        existingUser.gender = gender;
+      }
+
+      //! Update the image if provided
       if (req.file) {
-        const newImageName = req.file.filename;
-        existingUser.imageName = newImageName;
+        const imageName = res.locals.site;
+        existingUser.imageUrl = imageName;
+        ratingsAndReviews.imageUrl = imageName;
       }
 
       //! Save the changes
       await existingUser.save();
+      await ratingsAndReviews.save();
 
       res.status(200).json({
         success: true,
@@ -266,7 +302,6 @@ const updateUserById = async (req, res) => {
         User: existingUser.toJSON(),
       });
     }
-
   } catch (error) {
     console.error('An Error Occurred While Fetching User:', error);
     res.status(500).json({
@@ -275,7 +310,9 @@ const updateUserById = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
+
+
 
 //! Delete User By Id 
 const deleteUserById = async (req, res) => {
@@ -324,6 +361,6 @@ module.exports = {
   getAllUsers,
   getUserById,
   updateUserById,
-  imageUser,
-  deleteUserById
+  deleteUserById,
+  getAdminUsers
 };

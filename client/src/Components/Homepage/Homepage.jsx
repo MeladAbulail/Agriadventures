@@ -4,8 +4,11 @@ import Locations from './Locations'
 import newloc from './newloc'
 import Aboutussection from './Aboutussection'
 import NewEvents from './NewEvents'
-import PopularEvents from './PopularEvents'
-import PackageEvents from './PackageEvents'
+import Activities from './Activities'
+import Products from './Products'
+import AddPlace from './AddPlace'
+import AddProduct from './AddProduct'
+import SubmitLoc from './SubmitLoc'
 
 function Homepage() {
   return (
@@ -15,9 +18,11 @@ function Homepage() {
       <hr></hr>
       <NewEvents/>
       <hr className='mt-32'></hr>
-      <PopularEvents/>
+      <Activities/>
       <hr className='mt-32'></hr>
-      <PackageEvents/>
+      <SubmitLoc/>
+      <hr className='mt-32'></hr>
+      <Products/>
       <hr className='mt-32'></hr>
       <Aboutussection/>
     </div>

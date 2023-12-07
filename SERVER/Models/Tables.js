@@ -40,10 +40,9 @@ const User = sequelize.define("User", {
     allowNull: false,
     defaultValue: false,
   },
-  imageName: {
-    type: DataTypes.STRING,
+  imageUrl: {
+    type: DataTypes.TEXT,
     allowNull: true,
-    defaultValue: "1699856659448_1.jpg",
   },
 });
 
@@ -68,23 +67,45 @@ const Locations = sequelize.define('Locations', {
   description: {
     type: DataTypes.STRING,
   },
-  category: {
+  location: {
     type: DataTypes.STRING,
+    allowNull: false,
   },
   openingHours: {
     type: DataTypes.STRING,
   },
+  visitDate: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   price: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  rating: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   isDeleted: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   },
-  locationImageName: {
-    type: DataTypes.STRING,
+  ViewThePlace: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  imageUrl: {
+    type: DataTypes.TEXT,
     allowNull: true, 
   },
 });
@@ -92,7 +113,7 @@ const Locations = sequelize.define('Locations', {
 
 //! Ratings and Reviews Taple Model 
 const Ratings_And_Reviews = sequelize.define('Ratings_And_Reviews', {
-  RatingsAndReviewsId: {
+  ratingsAndReviewsId: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -106,13 +127,33 @@ const Ratings_And_Reviews = sequelize.define('Ratings_And_Reviews', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  userComment: {
+  locationName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  comment: {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  locationRating: {
+  rating: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  imageUrl: {
+    type: DataTypes.TEXT,
+    allowNull: true, 
+  },
+  firstName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  lastName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  postDate: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   isDeleted: {
     type: DataTypes.BOOLEAN,
@@ -135,6 +176,10 @@ const Activities = sequelize.define('Activities', {
     allowNull: false,
   },
   locationName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  visitDate: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -165,7 +210,7 @@ const Activities = sequelize.define('Activities', {
   },
 });
 
-//? Done
+//? Done 
 //! Contact Table Model 
 const Contact_us = sequelize.define('Contact_us', {
   contactUsId: {
@@ -177,6 +222,10 @@ const Contact_us = sequelize.define('Contact_us', {
   userId: {
     type: DataTypes.INTEGER,
     allowNull: true,
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   email: {
     type: DataTypes.STRING,
@@ -217,41 +266,40 @@ const Reservation = sequelize.define('Reservation', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  reservationDate: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
   visitDate: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   numberOfVisitors: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  reservationDetails: {
-    type: DataTypes.TEXT,
-  },
-  reservationStatus: {
+  locationName: {
     type: DataTypes.STRING,
-  },
-  paymentInformation: {
-    type: DataTypes.STRING,
+    allowNull: false,
   },
   price: {
     type: DataTypes.FLOAT,
   },
-  paymentMethod: {
+  cardholder: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  country: {
     type: DataTypes.STRING,
   },
-  contactInformation: {
+  state: {
     type: DataTypes.STRING,
+  },
+  address: {
+    type: DataTypes.STRING,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   phone: {
     type: DataTypes.STRING,
-  },
-  additionalComments: {
-    type: DataTypes.TEXT,
   },
   isDeleted: {
     type: DataTypes.BOOLEAN,
@@ -260,6 +308,7 @@ const Reservation = sequelize.define('Reservation', {
   },
 });
 
+//? Done
 //! Cart Table Model 
 const Cart = sequelize.define('Cart', {
   cartId: {
@@ -284,12 +333,16 @@ const Cart = sequelize.define('Cart', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  totalPrice: {
-    type: DataTypes.FLOAT,
+  category: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
-  imageProductName: {
+  productName: {
     type: DataTypes.STRING, 
+    allowNull: false,
+  },
+  imageUrl: {
+    type: DataTypes.TEXT, 
     allowNull: false,
   },
   isDeleted: {
@@ -300,7 +353,7 @@ const Cart = sequelize.define('Cart', {
 });
 
 
-//? Done
+//? Done 
 //! Products Table Model 
 const Products = sequelize.define('Products', {
   productId: {
@@ -313,6 +366,10 @@ const Products = sequelize.define('Products', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  category: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   description: {
     type: DataTypes.STRING,
   },
@@ -320,8 +377,8 @@ const Products = sequelize.define('Products', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  imageProductName: {
-    type: DataTypes.STRING,
+  imageUrl: {
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   isDeleted: {
@@ -331,6 +388,7 @@ const Products = sequelize.define('Products', {
   },
 });
 
+//? Done
 //! Orders Table Model 
 const Orders = sequelize.define('Orders', {
   orderId: {
@@ -352,13 +410,32 @@ const Orders = sequelize.define('Orders', {
     allowNull: false,
     defaultValue: "Pending",
   },
+  cardholder: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  country: {
+    type: DataTypes.STRING,
+  },
+  state: {
+    type: DataTypes.STRING,
+  },
+  address: {
+    type: DataTypes.STRING,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  phone: {
+    type: DataTypes.STRING,
+  },
   isDeleted: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   },
 });
-
 
 //! Function For User TAble Modul
 const CreateUsersTable = () => {
@@ -386,7 +463,7 @@ const CreateLocationsTable = () => {
 const CreateRatingsAndReviewsTable = () => {
   Ratings_And_Reviews.sync({ alter: true })
     .then(() => {
-      console.log("Locations Table Created");
+      console.log("Ratings_And_Reviews Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -397,7 +474,7 @@ const CreateRatingsAndReviewsTable = () => {
 const CreateActivitiesTable = () => {
   Activities.sync({ alter: true })
     .then(() => {
-      console.log("User Table Created");
+      console.log("Activities Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -408,7 +485,7 @@ const CreateActivitiesTable = () => {
 const CreateContactUsTable = () => {
   Contact_us.sync({ alter: true })
     .then(() => {
-      console.log("Locations Table Created");
+      console.log("Contact_us Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -419,7 +496,7 @@ const CreateContactUsTable = () => {
 const CreateReservationTable = () => {
   Reservation.sync({ alter: true })
     .then(() => {
-      console.log("User Table Created");
+      console.log("Reservation Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -430,7 +507,7 @@ const CreateReservationTable = () => {
 const CreateCartTable = () => {
   Cart.sync({ alter: true })
     .then(() => {
-      console.log("User Table Created");
+      console.log("Cart Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -441,7 +518,7 @@ const CreateCartTable = () => {
 const CreateProductsTable = () => {
   Products.sync({ alter: true })
     .then(() => {
-      console.log("User Table Created");
+      console.log("Products Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -452,7 +529,7 @@ const CreateProductsTable = () => {
 const CreateOrdersTable = () => {
   Orders.sync({ alter: true })
     .then(() => {
-      console.log("User Table Created");
+      console.log("Orders Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);

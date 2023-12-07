@@ -1,6 +1,126 @@
 {
   "users": [
     {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john.doe@example.com",
+      "password": "plaintext_password_here",
+      "createdAt": "2023-11-22T12:34:56.789Z",
+      "updatedAt": "2023-11-22T12:34:56.789Z"
+    },
+    {
+      "id": 2,
+      "username": "melad",
+      "email": "meladabolailllllllll@gmail.com",
+      "password": "123456",
+      "createdAt": "2023-11-22T13:22:48.134Z",
+      "updatedAt": "NOT_UPDATED"
+    },
+    {
+      "firstName": "Melad",
+      "lastName": "Abulail",
+      "email": "www@gmail.com",
+      "password": "12345",
+      "gender": "Male",
+      "id": 3
+    },
+    {
+      "firstName": "melad",
+      "lastName": "ooo",
+      "email": "pppp@gmail.com",
+      "password": "mmm",
+      "gender": "Female",
+      "id": 4
+    },
+    {
+      "firstName": "aaa",
+      "lastName": "aaa",
+      "email": "melad.k.abulail@gmail.com",
+      "password": "123",
+      "gender": "Male",
+      "id": 5
+    },
+    {
+      "firstName": "aaaa",
+      "lastName": "aaww",
+      "email": "bailhsd@gmail.com",
+      "password": "aaaaaa",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:06:03.585Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 6
+    },
+    {
+      "firstName": "sadasas",
+      "lastName": "asdsda",
+      "email": "asdsabha@gmail.com",
+      "password": "123456",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:06:44.601Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 7
+    },
+    {
+      "firstName": "aaa",
+      "lastName": "aaa",
+      "email": "sss@gmail.com",
+      "password": "mmmiii",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:08:13.602Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 8
+    },
+    {
+      "firstName": "odatdgbaflf",
+      "lastName": "hfdsbfvsdu",
+      "email": "ooolll@gmail.com",
+      "password": "123456789",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:09:45.138Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 9
+    },
+    {
+      "firstName": "Melad",
+      "lastName": "Abulail",
+      "email": "12345678@gmail.com",
+      "password": "qqqqqq",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:10:05.401Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 10
+    },
+    {
+      "firstName": "Melad",
+      "lastName": "Abulail",
+      "email": "melad.k.abulail@gmail.com",
+      "password": "oooooo",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:13:44.465Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 11
+    },
+    {
+      "firstName": "sdasdsa",
+      "lastName": "dasdadss",
+      "email": "doasvflh@gmail.com",
+      "password": "111111",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:14:03.481Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 12
+    },
+    {
+      "firstName": "aaa",
+      "lastName": "aaa",
+      "email": "aaaaaaaaaaaaaaaaa@gmail.com",
+      "password": "123456",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:15:24.883Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 13
+    },
+    {
       "firstName": "aaa",
       "lastName": "aaa",
       "email": "sdadasd@gmail.com",
@@ -69,6 +189,16 @@
       "createdAt": "2023-11-23T08:21:26.060Z",
       "updatedAt": "NOT UPDATED",
       "id": 20
+    },
+    {
+      "firstName": "aa",
+      "lastName": "aaaa",
+      "email": "lll@gmail.com",
+      "password": "mmmmmm",
+      "gender": "Male",
+      "createdAt": "2023-11-23T08:23:25.872Z",
+      "updatedAt": "NOT UPDATED",
+      "id": 21
     }
   ],
   "Contactus": [
@@ -221,44 +351,20 @@
   ],
   "cart": [
     {
-      "productId": 7,
-      "name": "White Gold Plated Princess",
-      "price": 9.99,
-      "quantity": 37,
-      "image": "https://fakestoreapi.com/img/71YAIFU48IL._AC_UL640_QL65_ML3_.jpg",
-      "id": 1
-    },
-    {
-      "productId": 10,
-      "name": "SanDisk SSD PLUS 1TB Internal SSD - SATA III 6 Gb/s",
-      "price": 109,
+      "productId": 3,
+      "name": "Mens Cotton Jacket",
+      "price": 55.99,
       "quantity": 1,
-      "image": "https://fakestoreapi.com/img/61U7T1koQqL._AC_SX679_.jpg",
-      "id": 2
+      "image": "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
+      "id": 9
     },
     {
-      "productId": 11,
-      "name": "Silicon Power 256GB SSD 3D NAND A55 SLC Cache Performance Boost SATA III 2.5",
-      "price": 109,
+      "productId": 1,
+      "name": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+      "price": 109.95,
       "quantity": 1,
-      "image": "https://fakestoreapi.com/img/71kWymZ+c+L._AC_SX679_.jpg",
-      "id": 3
-    },
-    {
-      "productId": 8,
-      "name": "Pierced Owl Rose Gold Plated Stainless Steel Double",
-      "price": 10.99,
-      "quantity": 1,
-      "image": "https://fakestoreapi.com/img/51UDEzMJVpL._AC_UL640_QL65_ML3_.jpg",
-      "id": 4
-    },
-    {
-      "productId": 9,
-      "name": "WD 2TB Elements Portable External Hard Drive - USB 3.0 ",
-      "price": 64,
-      "quantity": 6,
-      "image": "https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg",
-      "id": 5
+      "image": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+      "id": 10
     }
   ],
   "New": [

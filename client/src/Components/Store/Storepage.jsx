@@ -1,38 +1,34 @@
-// Install axios for making API requests: npm install axios
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-const StorePage = () => {
+const StorePage = (setCart) => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [minRating, setMinRating] = useState('');
-  const [maxRating, setMaxRating] = useState('');
 
   useEffect(() => {
-    axios.get('https://fakestoreapi.com/products')
+    axios.get('http://localhost:4000/Get_All_Products')
       .then(response => {
-        setProducts(response.data);
-        setFilteredProducts(response.data);
+        setProducts(response.data.products);
+        setFilteredProducts(response.data.products);
       })
       .catch(error => console.error('Error fetching products:', error));
   }, []);
 
   useEffect(() => {
     const filtered = products.filter(product =>
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      product.productName && product.productName.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedCategory === 'all' || product.category === selectedCategory) &&
       (minPrice === '' || parseFloat(product.price) >= parseFloat(minPrice)) &&
-      (maxPrice === '' || parseFloat(product.price) <= parseFloat(maxPrice)) &&
-      (minRating === '' || parseFloat(product.rating.rate) >= parseFloat(minRating)) &&
-      (maxRating === '' || parseFloat(product.rating.rate) <= parseFloat(maxRating))
+      (maxPrice === '' || parseFloat(product.price) <= parseFloat(maxPrice))
     );
     setFilteredProducts(filtered);
-  }, [searchTerm, selectedCategory, minPrice, maxPrice, minRating, maxRating, products]);
+  }, [searchTerm, selectedCategory, minPrice, maxPrice, products]);
 
   const categories = [...new Set(products.map(product => product.category))];
 
@@ -41,25 +37,49 @@ const StorePage = () => {
     setSelectedCategory('all');
     setMinPrice('');
     setMaxPrice('');
-    setMinRating('');
-    setMaxRating('');
     setFilteredProducts(products);
   };
-  
+
   const addToCart = (product) => {
-    // Send a POST request to add the item to the cart on the server
-    axios.post('http://localhost:5000/cart', {
-      productId: product.id,
-      name: product.title,
-      price: product.price,
-      quantity: 1, // You can set the quantity to 1 initially
-      image: product.image,
-    })
-    .then(response => {
-      console.log('Item added to cart:', response.data);
-    })
-    .catch(error => console.error('Error adding item to cart:', error));
+    const token = Cookies.get("token");
+  
+    // Check if product.id is defined
+    if (product.productId === undefined) {
+      console.error("Product ID is undefined. Cannot add item to cart.");
+      return;
+    }
+  
+    const config = {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+  
+    axios
+      .post(
+        "http://localhost:4000/Add_To_Cart",
+        {
+          productId: product.productId,
+        },
+        config
+      )
+      .then((response) => {
+        if (response.data.success) {
+          console.log("Item added to cart:", response.data);
+          // Update the cart state
+          setCart(response.data.cartItems);
+        } else {
+          console.error("Failed to add item to cart. Server response:", response.data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding item to cart:", error);
+        // Handle error (e.g., show an error message to the user)
+      });
   };
+  
+  
 
   return (
     <div className="flex mx-20 mt-32 mb-32">
@@ -105,31 +125,6 @@ const StorePage = () => {
             />
           </div>
         </div>
-        <div>
-          <p className="mb-2 font-bold">Filter by Rating Range</p>
-          <div className="flex mb-4">
-            <input
-              type="number"
-              placeholder="Min Rating"
-              value={minRating}
-              onChange={(e) => setMinRating(e.target.value)}
-              className="w-1/2 p-2 mr-2 border rounded"
-              min="0"
-              max="5"
-              step="0.1"
-            />
-            <input
-              type="number"
-              placeholder="Max Rating"
-              value={maxRating}
-              onChange={(e) => setMaxRating(e.target.value)}
-              className="w-1/2 p-2 border rounded"
-              min="0"
-              max="5"
-              step="0.1"
-            />
-          </div>
-        </div>
         <button
           onClick={resetFilters}
           className="px-4 py-2 font-bold text-gray-800 bg-gray-300 rounded hover:bg-gray-400"
@@ -142,51 +137,24 @@ const StorePage = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.map((product) => (
             <div
-              key={product.id}
+              key={product.productId}
               className="w-full max-w-xs bg-white border border-gray-200 rounded-lg shadow"
             >
-              <a href="#">
-                <img
-                  className="object-cover p-4 rounded-t-lg max-h-40"
-                  src={product.image}
-                  alt={product.title}
-                />
-              </a>
+              <img
+                className="object-cover p-4 rounded-t-lg max-h-40 max-w-80"
+                src={product.imageUrl}
+                alt={product.productName}
+              />
               <div className="px-4 pb-4">
-                <Link to={`/ProductDetails/${product.id}`}>
                   <h5 className="text-lg font-semibold tracking-tight text-gray-900">
-                    {product.title}
+                    {product.productName}
                   </h5>
-                </Link>
-                <div className="flex items-center mt-1 mb-3">
-                  <div className="flex items-center space-x-1 rtl:space-x-reverse">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg
-                        key={star}
-                        className={`w-3 h-3 ${
-                          star <= product.rating.rate
-                            ? "text-yellow-300"
-                            : "text-gray-200"
-                        }`}
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 22 20"
-                      >
-                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded ms-2">
-                    {product.rating.rate}
-                  </span>
-                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-gray-900">
-                    ${product.price}
+                    $ {product.price}
                   </span>
                   <div className="flex">
-                    <Link to={`/ProductDetailsPage/${product.id}`}>
+                    <Link to={`/ProductDetailsPage/${product.productId}`}>
                       <button className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center mr-2">
                         View Item
                       </button>

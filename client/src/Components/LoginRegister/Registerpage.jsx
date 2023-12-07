@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Registerpage = () => {
   const [formData, setFormData] = useState({
@@ -58,6 +59,15 @@ const Registerpage = () => {
 
         const response = await axios.post(url, formDataToSend);
         console.log('User created successfully:', response.data);
+
+        const token = response.data.token;
+        const userId = response.data.userId;
+  
+        // Save the token and userId in cookies with a 1-hour expiration
+        Cookies.set('token', token, { expires: 1 / 24 });
+        Cookies.set('userId', userId, { expires: 1 / 24 });
+        
+        axios.defaults.headers.common['Authorization'] = token;
 
         setRegistrationSuccess(true);
 

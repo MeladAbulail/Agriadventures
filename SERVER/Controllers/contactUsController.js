@@ -4,23 +4,10 @@ const addNewMessage = async (req, res) => {
   try {
     const { username, email, message } = req.body;
 
-    //! Find the existing user based on the email
-    const existingUser = await User.findOne({
-      where: {
-        email: email,
-      },
-    });
-
-    //! Check if the user exists
-    if (!existingUser) {
-      return res.status(400).json({ error: 'User with the provided email does not exist' });
-    }
-
     //! Create a new message and associate it with the user
     const newMessage = await Contact_us.create({
       email,
       message,
-      userId: existingUser.userId, 
       username
     });
 
@@ -30,6 +17,7 @@ const addNewMessage = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 const getMessageByEmail = async (req, res) => {
   try {

@@ -1,49 +1,85 @@
-import React from "react";
-import Heroimage from "./aaaa.jpg"
-import { Link } from "react-router-dom";
+import React, { useState ,useEffect} from "react";
+import Heroimage from "./aaaa.jpg";
 
 const Hero = () => {
-  return (
-    <div className="my-2 ">
-      <section class="py-10 bg-white lg:py-0 h-fit ">
-        <div class="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
-          <div class="grid items-stretch grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12 xl:gap-x-24">
-            <div class="h-full pr-12 lg:order-2 lg:mb-30">
-              <div class="mt-40 h-full lg:h-auto">
-                <img
-                className="my-32 "
-                  class=" rounded-3xl "
-                  src="https://images.unsplash.com/photo-1484557985045-edf25e08da73?q=80&w=1973&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  alt=""
-                />
-              </div>
-            </div>
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-            <div class="flex  justify-start py-0 lg:order-1 sm:py-16 lg:py-24 xl:py-40">
-              <div>
-                <h2 class="mt-2 text-3xl font-bold leading-tight text-[#17403C] sm:text-4xl lg:text-5xl lg:leading-tight">
-                  Adgriadventure
-                </h2>
-                <p class="text-xl leading-relaxed text-black mt-9">
-                  We are a website dedicated to agricultural tourism. It offers
-                  a variety of unique and educational experiences that allow you
-                  to learn about where your food comes from and connect with the
-                  people who produce it.
-                </p>
-                <Link to="/Category"><a
-                  href="#"
-                  title=""
-                  class="inline-flex items-center justify-center px-6 py-4 mt-12 text-base font-semibold text-black transition-all duration-200 bg-[#80B500] rounded-2xl hover:bg-[#679200] focus:bg-[#17403C]"
-                  role="button"
-                >
-                  {" "}
-                  Start now{" "}
-                </a></Link>
-              </div>
+  const slides = [
+    {
+      image:
+        "https://images.unsplash.com/photo-1498191923457-88552caeccb3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D.png",
+      label: "Collection of Activities",
+      content: "Exploring diverse outdoor pursuits, from hiking and camping to creative endeavors like painting and music, to cultivate a well-rounded set of skills and experiences..",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      label: "High Quality Products",
+      content: "Providing unparalleled value through the sale of premium, high-quality products designed to meet and exceed customer expectations.",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2232&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      label: "Exceptional Customer Experience  ",
+      content: "Dedicated to delivering an exceptional customer experience by providing the finest products, unparalleled quality, and top-notch service.",
+    },
+  ];
+
+  const totalSlides = slides.length;
+
+  const nextSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide - 1 + totalSlides) % totalSlides);
+  };
+
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      nextSlide();
+    }, 6000); 
+
+    return () => clearInterval(intervalId); 
+  }, [currentSlide]);
+
+  return (
+    <div>
+      <div className="relative overflow-hidden h-[500px]">
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transform transition-transform ease-in-out duration-500 ${
+              index === currentSlide ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <img
+              src={slide.image}
+              alt={`Slide ${index + 1}`}
+              className="w-full h-[500px] object-cover"
+            />
+            <div className="absolute inset-x-[15%] bottom-5 py-5 text-center text-white">
+              <h5 className="text-xl">{slide.label}</h5>
+              <p>{slide.content}</p>
             </div>
           </div>
-        </div>
-      </section>
+        ))}
+
+<button
+          className="absolute bottom-0 left-0 top-0 z-10 flex items-center justify-center w-[15%] text-white opacity-50 hover:opacity-90 focus:outline-none"
+          onClick={prevSlide}
+        >
+          <span className="text-4xl">&#9664;</span>
+        </button>
+
+        <button
+          className="absolute bottom-0 right-0 top-0 z-10 flex items-center justify-center w-[15%] text-white opacity-50 hover:opacity-90 focus:outline-none"
+          onClick={nextSlide}
+        >
+          <span className="text-4xl">&#9654;</span>
+        </button>
+      </div>
     </div>
   );
 };

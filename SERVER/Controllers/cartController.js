@@ -1,28 +1,12 @@
 const { Cart, Products } = require("../Models/Tables");
-const multer = require('multer');
-const path = require('path');
-
-// Storage Image By Multer Start
-let lastFileSequence = 0;
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'activitieImages');
-  },
-  filename: (req, file, cb) => {
-    lastFileSequence++;
-    const newFileName = `${Date.now()}_${lastFileSequence}${path.extname(file.originalname)}`;
-    cb(null, newFileName);
-  },
-});
-
-const addImage = multer({ storage: storage });
-const imageItem = addImage.single('image');
 
 //! Add Product To Cart
+// cartController.js
+
 const addProductToCart = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const productId = req.params.productId;
+    const productId = req.body.productId;
 
     // Get product details
     const product = await Products.findOne({
@@ -46,31 +30,33 @@ const addProductToCart = async (req, res) => {
       await existingCartItem.save();
     } else {
       // Add a new item to the cart
-      const newCartItem = await Cart.create({
+      await Cart.create({
         userId: userId,
         productId: productId,
         price: product.price,
         quantity: 1,
-        totalPrice: parseFloat(product.price),
+        imageUrl: product.imageUrl, 
+        productName: product.productName,
+        category: product.category
       });
     }
 
     return res.status(200).json({ success: true, message: "Product added to cart successfully." });
   } catch (error) {
-    console.error("An error occurred while adding product to cart:", error);
-    res.status(500).json({ error: "Internal server error." });
+    console.error("An error occurred while adding the product to the cart:", error);
+    res.status(500).json({ error: "Failed to add the product to the cart." });
   }
 };
+
 
 //! Soft Delete From Cart
 const softDeleteFromCart = async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const cartItemId = req.params.cartItemId; // Assuming you have a parameter for the cart item ID
+    const cartId = req.params.cartId; 
 
     // Check if the cart item exists
     const cartItem = await Cart.findOne({
-      where: { userId: userId, cartId: cartItemId, isDeleted: false },
+      where: { cartId: cartId, isDeleted: false },
     });
 
     if (!cartItem) {
@@ -90,40 +76,72 @@ const softDeleteFromCart = async (req, res) => {
   }
 };
 
-//! Update Cart Item
-const updateCartItem = async (req, res) => {
+//! Soft Delete From Cart According userId
+const softDeleteFromCartByUserId = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const cartItemId = req.params.cartItemId; // Assuming you have a parameter for the cart item ID
 
-    // Check if the cart item exists
-    const cartItem = await Cart.findOne({
-      where: { userId: userId, cartId: cartItemId, isDeleted: false },
+    // Find all cart items for the user that are not soft deleted
+    const cartItems = await Cart.findAll({
+      where: { userId: userId, isDeleted: false },
     });
 
-    if (!cartItem) {
-      return res.status(404).json({ error: "Cart item not found." });
+    // Check if any cart items are found
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(404).json({ error: "Cart items not found." });
     }
 
-    // Update quantity and total price based on the request body
-    const { quantity } = req.body;
-
-    if (quantity && typeof quantity === "number" && quantity > 0) {
-      cartItem.quantity = quantity;
-      cartItem.totalPrice = quantity * parseFloat(cartItem.price);
-
-      // Save the changes
+    // Loop through each cart item and perform the soft delete
+    for (const cartItem of cartItems) {
+      cartItem.isDeleted = true;
       await cartItem.save();
-
-      return res.status(200).json({ success: true, message: "Cart item updated successfully." });
-    } else {
-      return res.status(400).json({ error: "Invalid quantity value." });
     }
+
+    return res.status(200).json({ success: true, message: "Items deleted from cart successfully." });
   } catch (error) {
-    console.error("An error occurred while updating the cart item:", error);
+    console.error("An error occurred while soft deleting from cart:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 };
+
+
+//! Update Cart Item
+const updateCartItem = async (req, res) => {
+  try {
+    const cartId = req.params.cartId;
+
+    // Check if the cart item exists
+    const cartItem = await Cart.findByPk(cartId);
+
+    // Validate the cart item
+    if (!cartItem || cartItem.isDeleted) {
+      return res.status(404).json({ error: "Cart item not found." });
+    }
+
+    // Update quantity
+    const { quantity } = req.body;
+    console.log(quantity)
+
+    // Validate quantity
+    if (isNaN(quantity) || quantity <= 0) {
+      return res.status(400).json({ error: "Invalid quantity." });
+    }
+
+    cartItem.quantity = quantity;
+
+    // Save the changes
+    await cartItem.save();
+
+    // Respond with success message
+    return res.status(200).json({ message: "Cart item updated successfully." });
+
+  } catch (error) {
+    console.error("An error occurred while updating the cart item:", error);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+
 
 //! Get All Cart Items
 const getCartItems = async (req, res) => {
@@ -167,12 +185,12 @@ const getCartItems = async (req, res) => {
 //! Get All Item According UserId
 const getCartItemsByUserId = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.user.userId;
 
     // Retrieve cart items for the specified user
     const cartItems = await Cart.findAll({
       where: { userId: userId, isDeleted: false },
-      include: [Products], // Assuming there is an association between Cart and Products
+      order: [['cartId', 'ASC']],
     });
 
     // If there are no cart items, you can return an empty array or a specific message
@@ -181,30 +199,29 @@ const getCartItemsByUserId = async (req, res) => {
     }
 
     // Map the cart items to a format suitable for response
-    const formattedCartItems = cartItems.map((cartItem) => {
+    const cartItemsWithImageUrls = cartItems.map((cartItem) => {
+      const plainItem = cartItem.get({ plain: true }); // Use get method to convert to plain object
       return {
-        cartItemId: cartItem.cartId, // Assuming you want to return a cartItemId
-        productId: cartItem.productId,
-        productName: cartItem.Product.productName, // Assuming there is an association between Cart and Products
-        price: cartItem.price,
-        quantity: cartItem.quantity,
-        totalPrice: cartItem.totalPrice,
+        cartId: plainItem.cartId,
+        userId: plainItem.userId,
+        productId: plainItem.productId,
+        price: plainItem.price,
+        quantity: plainItem.quantity,
+        category: plainItem.category,
+        productName: plainItem.productName,
+        imageUrl: plainItem.imageUrl, 
       };
     });
 
     return res.status(200).json({
       success: true,
       message: "Cart items retrieved successfully.",
-      cartItems: formattedCartItems,
+      cartItems: cartItemsWithImageUrls,
     });
   } catch (error) {
     console.error("An error occurred while getting cart items:", error);
     res.status(500).json({ error: "Internal server error." });
   }
-};
-
-module.exports = {
-  getCartItemsByUserId,
 };
 
 
@@ -214,5 +231,6 @@ module.exports = {
   softDeleteFromCart,
   updateCartItem,
   getCartItems,
-  getCartItemsByUserId
+  getCartItemsByUserId,
+  softDeleteFromCartByUserId
 };

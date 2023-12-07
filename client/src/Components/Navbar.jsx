@@ -1,234 +1,140 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FaUser, FaSignInAlt, FaBars, FaTimes, FaShoppingCart } from 'react-icons/fa';
+import Cookies from 'js-cookie';
 
-const Nav = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+function Navbar() {
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setLoggedIn] = useState(false);
 
-  function check() {
-    if (window.localStorage.getItem('token')) {
-      console.log("S");
-      return true;
-    } else {
-      return false;
-    }
-  }
+  useEffect(() => {
+    const tokenExists = Cookies.get('token');
+    setLoggedIn(!!tokenExists);
+  }, []);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setMenuOpen(!isMenuOpen);
   };
 
+  console.log('Rendering with isLoggedIn:', isLoggedIn);
+
   return (
-    <div className="fixed top-0 z-50 w-full bg-white">
-      <header>
-        {/* <!-- lg+ --> */}
-        <div className="bg-white">
-          <div className="px-4 mx-auto sm:px-6 lg:px-8">
-            <nav className="relative flex items-center justify-between h-14 lg:h-18 ">
-              <div className="hidden lg:flex lg:items-center lg:space-x-10 ">
-              <Link to="/" title="" className="text-2xl font-bold text-black ">
-                  {" "}
-                  Adgriadventure{" "}
+    <div>
+      <div className="flex flex-wrap place-items-center">
+        <section className="relative mx-auto">
+          <nav className="flex justify-between w-screen text-black bg-white">
+            <div className="flex items-center w-full px-5 py-6 xl:px-12">
+              <Link to="/">
+                <a className="text-3xl font-bold font-heading">
+                  Agriadventures
+                </a>
+              </Link>
+
+              <ul className="hidden px-4 mx-auto space-x-12 text-sm font-semibold md:flex font-heading">
+                <Link to="/">
+                  <li>
+                    <a className="hover:text-[#a3e635] uppercase">Home</a>
+                  </li>
                 </Link>
-                <Link to="/" title="" className="text-base font-medium text-black">
-                  {" "}
-                  Home{" "}
+                <Link to="/Category">
+                  <li>
+                    <a className="hover:text-[#a3e635] uppercase">Category</a>
+                  </li>
                 </Link>
-                <Link to="/Category" title="" className="text-base font-medium text-black">
-                  {" "}
-                  Category
+                <Link to="/Store">
+                  <li>
+                    <a className="hover:text-[#a3e635] uppercase">Shop</a>
+                  </li>
                 </Link>
-                <Link to="/Store" title="" className="text-base font-medium text-black">
-                  {" "}
-                  Store
+                <Link to="/Gallery">
+                  <li>
+                    <a className="hover:text-[#a3e635] uppercase">Gallery</a>
+                  </li>
                 </Link>
-                <Link to="Gallery" title="" className="text-base font-medium text-black">
-                  {" "}
-                  Gallery
+                <Link to="/Aboutus">
+                  <li>
+                    <a className="hover:text-[#a3e635] uppercase">About us</a>
+                  </li>
                 </Link>
-                <Link to="/Aboutus" title="" className="text-base font-medium text-black">
-                  {" "}
-                  About us
+                <Link to="/Contactus">
+                  <li>
+                    <a className="hover:text-[#a3e635] uppercase">Contact Us</a>
+                  </li>
                 </Link>
-                <Link to="/Contactus" title="" className="text-base font-medium text-black">
-                  {" "}
-                  Contact us
+              </ul>
+
+              <div className="items-center hidden space-x-5 xl:flex">
+                <Link to="/cart">
+                  <a className="hover:text-[#a3e635]">
+                    <FaShoppingCart size={24} />
+                  </a>
                 </Link>
-              </div>
-              <div className="flex items-center ml-auto space-x-10">
-                {check() ? (
-                  <Link
-                    to="/Profile"
-                    title=""
-                    className="flex items-center justify-center w-10 h-10 text-black"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                      />
-                    </svg>{" "}
+
+                {isLoggedIn ? (
+                  <Link to="/Profile">
+                    <a className="flex items-center hover:text-[#a3e635]">
+                      <FaUser size={24} />
+                      <span className="ml-2">Profile</span>
+                    </a>
                   </Link>
-                  
                 ) : (
-                  <Link
-                    to="/Signin"
-                    title=""
-                    className="text-base font-medium text-black"
-                  >
-                    {" "}
-                    Sign in
+                  <Link to="/Signin">
+                    <a className="uppercase hover:text-[#a3e635]">
+                      <FaSignInAlt size={24} />
+                      <span className="ml-2">Sign In</span>
+                    </a>
                   </Link>
                 )}
-                <Link
-                  to="/Cart"
-                  title=""
-                  className="flex items-center justify-center w-10 h-10 text-black"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </Link>{" "}
-              </div>
-              <button
-                type="button"
-                onClick={toggleMenu}
-                className="inline-flex p-2 ml-5 text-black transition-all duration-200 rounded-md lg:hidden focus:bg-gray-100 hover:bg-gray-100"
-              >
-                <svg
-                  className="w-6 h-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 6h16M4 12h16m-7 6h7"
-                  />
-                </svg>
-              </button>
-            </nav>
-          </div>
-        </div>
-
-        {/* <!-- xs to lg --> */}
-        <nav
-          className={`py-4 bg-transparent lg:hidden ${
-            isMenuOpen ? "block" : "hidden"
-          }`}
-        >
-          <div class="px-4 mx-auto sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-              <p class="text-sm font-semibold tracking-widest text-gray-400 uppercase">
-                Menu
-              </p>
-
-              <button
-                type="button"
-                class="inline-flex p-2 text-black transition-all duration-200 rounded-md focus:bg-gray-100 hover:bg-gray-100"
-                onClick={toggleMenu}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class={`mt-6 ${isMenuOpen ? "block" : "hidden"}`}>
-              <div class="flex flex-col space-y-2">
-                <Link to="/"><a
-                  href="#"
-                  title=""
-                  class="py-2 text-base font-medium text-black transition-all duration-200 focus:text-blue-600"
-                >
-                  {" "}
-                  Home
-                </a>
-                </Link>
-
-                <Link to="/Category"><a
-                  href="#"
-                  title=""
-                  class="py-2 text-base font-medium text-black transition-all duration-200 focus:text-blue-600"
-                >
-                  {" "}
-                  Category
-                </a>
-                </Link>
-
-                <Link to="/"><a
-                  href="#"
-                  title=""
-                  class="py-2 text-base font-medium text-black transition-all duration-200 focus:text-blue-600"
-                >
-                  {" "}
-                  Store
-                </a>
-                </Link>
-
-                <Link to="/Profile"><a
-                  href="#"
-                  title=""
-                  class="py-2 text-base font-medium text-black transition-all duration-200 focus:text-blue-600"
-                >
-                  {" "}
-                  Profile
-                </a>
-                </Link>
-              </div>
-
-              <hr class="my-4 border-gray-200" />
-
-              <div class="flex flex-col space-y-2">
-                <Link to="Signin"><a
-                  href="#"
-                  title=""
-                  class="py-2 text-base font-medium text-black transition-all duration-200 focus:text-blue-600"
-                >
-                  {" "}
-                  Login
-                </a>
-                </Link>
               </div>
             </div>
-          </div>
-          
-        </nav>
-      </header>
+
+            <a
+              className="flex items-center mr-6 xl:hidden"
+              onClick={toggleMenu}
+            >
+              {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+              <span className="absolute flex ml-4 -mt-5">
+                <span className="absolute inline-flex w-3 h-3 bg-pink-400 rounded-full opacity-75 animate-ping"></span>
+                <span className="relative inline-flex w-3 h-3 bg-pink-500 rounded-full"></span>
+              </span>
+            </a>
+          </nav>
+        </section>
+      </div>
+
+      <div className={`xl:hidden ${isMenuOpen ? "block" : "hidden"}`}>
+        <ul className="p-4 text-black bg-white">
+          <Link to="/">
+            <li>
+              <a className="uppercase hover:text-[#a3e635]">Home</a>
+            </li>
+          </Link>
+          <Link to="/Category">
+            <li>
+              <a className="uppercase hover:text-[#a3e635]">Category</a>
+            </li>
+          </Link>
+          <Link to="/Store">
+            <li>
+              <a className="uppercase hover:text-[#a3e635]">Shop</a>
+            </li>
+          </Link>
+          <Link to="/Gallery">
+            <li>
+              <a className="uppercase hover:text-[#a3e635]">Gallery</a>
+            </li>
+          </Link>
+          <Link to="/Signin">
+            <li>
+              <a className="uppercase hover:text-[#a3e635]">
+                {isLoggedIn ? "Profile" : "Sign In"}
+              </a>
+            </li>
+          </Link>
+        </ul>
+      </div>
     </div>
   );
-};
+}
 
-export default Nav;
+export default Navbar;

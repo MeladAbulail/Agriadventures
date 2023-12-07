@@ -1,9 +1,8 @@
-// NewEvents.js
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-function PackageEvents() {
+function NewEvents() {
   const containerRef = useRef(null);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -12,13 +11,13 @@ function PackageEvents() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/Activity');
-        console.log('API Response:', response.data);
+        const response = await axios.get('http://localhost:4000/Get_Location_By_Date');
+        console.log('API Response:', response.data.Locations);
 
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          setLocations(response.data);
+        if (Array.isArray(response.data.Locations) && response.data.Locations.length > 0) {
+          setLocations(response.data.Locations);
         } else {
-          console.error('No data or invalid data structure:', response.data);
+          console.error('No data or invalid data structure:', response.data.Locations);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -27,8 +26,6 @@ function PackageEvents() {
 
     fetchData();
   }, []);
-
-  console.log('Locations in Render:', locations);
 
   const handleMouseDown = (e) => {
     setStartX(e.pageX - containerRef.current.offsetLeft);
@@ -51,27 +48,15 @@ function PackageEvents() {
   };
 
   return (
-    <div className="flex mt-32 ml-32 mr-10">
-      <div className="flex flex-col ml-10">
-        <h1 className="mb-10 text-6xl font-black">New</h1>
-        <p className="items-center mt-auto text-3xl font-medium mb-11">
-          Here is some of our latest Locations
-        </p>
-        <div className="flex items-center mt-auto">
-          <img
-            className="w-10 h-10 grayscale"
-            draggable="false"
-            src="https://img.icons8.com/flat-round/000000/arrow-right"
-            alt="arrow-right"
-          />
-          <p className="ml-2 text-3xl font-medium">Explore all Locations</p>
-        </div>
+    <div className="flex flex-col mx-0 mt-5 md:mx-40">
+      <div className="mb-4">
+        <h1 className="mb-4 text-4xl font-bold md:text-6xl">New Activities</h1>
       </div>
 
       <div
         ref={containerRef}
         className="flex overflow-x-hidden scrolling-touch"
-        style={{ cursor: 'grab', width: '100%' }}
+        style={{ cursor: "grab", width: "100%" }}
         onMouseDown={(e) => handleMouseDown(e)}
         onMouseMove={(e) => handleMouseMove(e)}
         onMouseUp={() => handleMouseUp()}
@@ -81,22 +66,24 @@ function PackageEvents() {
           locations.map((location) => (
             <Link
               key={location.locationId}
-              to={`/Eventdetailspage/${location.id}`}
-              draggable="false" // Disable dragging on the Link element
-              style={{ textDecoration: 'none' }} // Optional: Remove the default link styling
+              to={`/ActivitiesDetails/${location.locationId}`}
+              draggable="false"
+              style={{ textDecoration: "none" }}
             >
               <article
-                className="relative flex flex-col justify-end flex-shrink-0 px-8 pt-40 pb-8 mx-4 overflow-hidden rounded-2xl w-96"
-                draggable="false" // Disable dragging on the article element
+                className="relative flex flex-col justify-end flex-shrink-0 w-64 h-64 px-4 pt-24 pb-4 mx-2 overflow-hidden md:px-8 md:mx-4 rounded-2xl md:w-96"
+                draggable="false"
               >
                 <img
-                  src={location.ImageURL}
-                  alt={`Image ${location.id}`}
+                  src={location.imageUrl}
+                  alt={`Image ${location.locationName}`}
                   className="absolute inset-0 object-cover w-full h-full"
-                  draggable="false" // Disable dragging on the image element
+                  draggable="false"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
-                <h3 className="z-10 mt-3 text-3xl font-bold text-white">{location.name}</h3>
+                <h3 className="z-10 mt-2 text-xl font-bold text-white md:text-3xl">
+                  {location.locationName}
+                </h3>
               </article>
             </Link>
           ))
@@ -104,8 +91,22 @@ function PackageEvents() {
           <p>No data available</p>
         )}
       </div>
+
+      <div className="mt-5 mb-10 ml-auto">
+        
+        <div className="flex items-center">
+        <Link to='./Category'><img
+            className="w-6 h-6 grayscale"
+            draggable="false"
+            src="https://img.icons8.com/flat-round/000000/arrow-right"
+            alt="arrow-right"/></Link>
+            
+          <Link to='./Category'><p className="ml-2 text-lg md:text-xl">Explore all Activities</p></Link>
+        </div>
+      </div>
+      
     </div>
   );
 }
 
-export default PackageEvents;
+export default NewEvents;

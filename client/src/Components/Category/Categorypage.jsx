@@ -18,27 +18,33 @@ const CategoryPage = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5000/Activity')
+      .get('http://localhost:4000/Get_All_Locations')
       .then((response) => {
-        setActivities(response.data);
-        setFilteredActivities(response.data);
+        setActivities(response.data.Locations);
+        
+        // Check for location query parameter and apply filter
+        const searchParams = new URLSearchParams(location.search);
+        const locationParam = searchParams.get('location');
+  
+        if (locationParam) {
+          setFilters((prevFilters) => ({ ...prevFilters, location: locationParam }));
+          applyFilters(); // Apply filters when locationParam is present
+        } else {
+          setFilteredActivities(response.data.Locations);
+        }
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
+  }, [location.search]);
 
-    // Check for location query parameter and apply filter
-    const searchParams = new URLSearchParams(location.search);
-    const locationParam = searchParams.get('location');
-    if (locationParam) {
-      setFilters({ ...filters, location: locationParam });
-    }
-
-    applyFilters(); // Apply filters on page load
-  }, [location.search]); // Run the effect when the location.search changes
+  useEffect(() => {
+    applyFilters();
+  }, [filters]);
 
   const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
 
   const applyFilters = () => {
@@ -46,7 +52,7 @@ const CategoryPage = () => {
 
     if (filters.activityName !== '') {
       filtered = filtered.filter((activity) =>
-        activity.name.toLowerCase().includes(filters.activityName.toLowerCase())
+        activity.locationName?.toLowerCase().includes(filters.activityName.toLowerCase())
       );
     }
 
@@ -67,7 +73,7 @@ const CategoryPage = () => {
     }
 
     if (filters.location !== '') {
-      filtered = filtered.filter((activity) => activity.location === filters.location);
+      filtered = filtered.filter((activity) => activity.category === filters.location);
     }
 
     setFilteredActivities(filtered);
@@ -91,8 +97,7 @@ const CategoryPage = () => {
   };
 
   const handleReadMoreClick = (id) => {
-    // Navigate to Eventdetailspage with the selected activity's ID
-    navigate(`/Eventdetailspage/${id}`);
+    navigate(`/ActivitiesDetails/${id}`);
   };
 
   return (
@@ -171,12 +176,6 @@ const CategoryPage = () => {
           </select>
         </div>
         <button
-          onClick={applyFilters}
-          className="p-2 mx-2 bg-blue-500 rounded-md ext-white hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
-        >
-          Apply Filters
-        </button>
-        <button
           onClick={clearFilters}
           className="p-2 mx-2 mt-2 text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:border-red-300"
         >
@@ -184,25 +183,24 @@ const CategoryPage = () => {
         </button>
       </div>
       <div className="w-full p-4 md:w-3/4">
-        <h2 className="mb-4 text-xl font-bold">Activities</h2>
-        {filteredActivities.map(activity => (
+        <h2 className="mb-4 text-xl font-bold">Locations</h2>
+        {filteredActivities.map((activity) => (
           <div key={activity.id} className="flex flex-col items-center p-4 mb-4 border rounded-md md:flex-row">
             <img
               src={activity.imageUrl}
-              alt={activity.name}
+              alt={activity.locationName}
               className="mb-4 rounded-md md:mr-4 md:mb-0"
               style={{ width: '100px', height: 'auto' }}
             />
             <div className="md:flex-grow">
-              <h3 className="text-lg font-semibold">{activity.name}</h3>
+              <h3 className="text-lg font-semibold">{activity.locationName}</h3>
               <p className="mb-2 text-gray-600">{truncateDescription(activity.description)}</p>
               <div className="flex flex-col items-center justify-between md:flex-row">
                 <div>
                   <p className="text-gray-600">Price: ${activity.price}</p>
-                  <p className="text-gray-600">Rating: {activity.rating}</p>
                 </div>
                 <button
-                  onClick={() => handleReadMoreClick(activity.id)}
+                  onClick={() => handleReadMoreClick(activity.locationId)}
                   className="p-2 mt-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:border-green-300 md:mt-0"
                 >
                   Read more

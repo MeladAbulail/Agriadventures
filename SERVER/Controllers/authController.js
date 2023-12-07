@@ -23,7 +23,7 @@ const checkUser = async (email) => {
 };
 
 authenticateWithGoogle = (req, res) => {
-  res.send('<a href="/auth/google">Authenticate with Google</a>');
+  res.redirect('/auth/google');
 };
 
 googleLogin = passport.authenticate('google', { scope: ['email', 'profile'] });

@@ -1,339 +1,343 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const ProfilePage = () => {
-  const navigate = useNavigate();
   const [userData, setUserData] = useState({});
+  const [orderHistory, setOrderHistory] = useState([]);
+  const [visitHistory, setVisitHistory] = useState([]);
   const [editing, setEditing] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+  const [editedUserData, setEditedUserData] = useState({
+    firstName: '',
+    lastName: '',
+    gender: '',
+    password: '',
+    image: '', 
   });
-  const [confirmationMessage, setConfirmationMessage] = useState('');
-  const [cancelSettings, setCancelSettings] = useState(false);
-
-  // Retrieve token from local storage
-  const token = localStorage.getItem('token');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => setUserData(response.data))
-      .catch((error) => console.error('Error fetching user data:', error));
-  }, [token]);
+    const token = Cookies.get("token");
+
+    const config = {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/Get_User_By_Id', config);
+        setUserData(response.data.user);
+        console.log(response.data.user)
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    const fetchOrderHistory = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/Get_Order_By_userId`, config);
+        setOrderHistory(response.data);
+      } catch (error) {
+        console.error('Error fetching order history:', error);
+      }
+    };
+
+    const fetchVisitHistory = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/Get_Reservations_By_UserId`, config);
+        setVisitHistory(response.data);
+      } catch (error) {
+        console.error('Error fetching visit history:', error);
+      }
+    };
+
+    fetchUserData();
+    fetchOrderHistory();
+    fetchVisitHistory();
+  }, []);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+
+    const config = {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/Get_User_By_Id', config);
+        setUserData(response.data.user);
+        console.log(response.data.user)
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchUserData();
+  }, [userData.image_url, userData.firstName, userData.lastName, userData.gender]);
 
   const handleEditClick = () => {
     setEditing(!editing);
+    setEditedUserData({
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      gender: userData.gender || '',
+      password: '',
+      image: userData.image_url || '',
+      email: userData.email,
+    });
   };
 
-  const handleSaveClick = () => {
-    axios
-      .patch(
-        'http://localhost:5000/users/updateUserData',
-        {
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          gender: userData.gender,
-          email: userData.email,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setUserData(response.data);
-        setConfirmationMessage('Data Updated');
-      })
-      .catch((error) => {
-        console.error('Error updating user data:', error);
-      })
-      .finally(() => {
-        setEditing(false);
-        setSettingsOpen(false);
+  const handleInputChange = (e) => {
+    const { name, type } = e.target;
+    const value = type === 'file' ? e.target.files[0] : e.target.value;
+    setEditedUserData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+  
+  const token = Cookies.get("token");
+  const config = {
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+  };
+  
+
+  const handleSaveClick = async () => {
+
+    try {
+      const formData = new FormData();
+      Object.entries(editedUserData).forEach(([key, value]) => {
+        formData.append(key, value);
       });
+  
+      console.log('Before axios.put - formData:', formData);
+      const response = await axios.put(`http://localhost:4000/Update_User_By_Id`, formData, config);
+      console.log(config)
+      console.log('After axios.put - response:', response);
+  
+      if (response.status === 200) {
+        // Update userData with the edited data
+        setUserData(response.data.User);
+        // Close the form
+        setEditing(false);
+      } else {
+        console.error('Failed to update user data');
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
   };
-
-  const handleSettingsClick = () => {
-    setSettingsOpen(!settingsOpen);
-    setCancelSettings(false);
-  };
-
-  const handleCancelSettingsClick = () => {
-    setSettingsOpen(false);
-    setCancelSettings(true);
-  };
+  
+  
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setSettingsOpen(false);
-    navigate('/');
-  };
-
-  const handleSettingsSaveClick = () => {
-    if (cancelSettings) {
-      setSettingsOpen(false);
-      return;
-    }
-
-    if (passwordData.oldPassword !== userData.password) {
-      console.error('Old password is incorrect.');
-      return;
-    }
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      console.error('New password and confirm password do not match.');
-      return;
-    }
-
-    axios
-      .patch(
-        'http://localhost:5000/users/updatePassword',
-        { newPassword: passwordData.newPassword },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response.data);
-        setSettingsOpen(false);
-        navigate('/profile');
-      })
-      .catch((error) => {
-        console.error('Error updating password:', error);
-      });
+    Cookies.remove('token');
+    Cookies.remove('userId');
+    window.location.href = '/';
   };
 
   return (
-    <div className="flex flex-col h-screen my-20 ml-2 mr-2 bg-gray-100 lg:flex-row lg:ml-10 lg:mr-32">
+    <div className="flex flex-col min-h-screen mx-2 my-20 text-gray-800 bg-white lg:flex-row">
       {/* Left Section */}
-      <div className="w-full p-6 bg-white border-b border-gray-300 lg:w-1/4 lg:border-r lg:h-full">
-        {/* Profile Image */}
-        <img
-          src="https://www.kasandbox.org/programming-images/avatars/marcimus-purple.png"
-          alt="Profile"
-          className="object-cover w-32 h-32 mx-auto mb-6 rounded-full"
-        />
-
-        {/* Navigation List */}
+      <div className="hidden p-6 lg:w-1/4 lg:block">
+      <img
+        src={userData.imageUrl}
+        alt={userData.firstName}
+        className="object-cover w-32 h-32 mx-auto mb-6 rounded-full"
+      />
         <ul className="space-y-2">
           <li>
-            <a
-              href="/profile"
-              className="block text-blue-500 hover:underline"
-            >
-              Profile
-            </a>
-          </li>
-          <li>
             <button
-              className="block text-blue-500 hover:underline focus:outline-none"
-              onClick={handleSettingsClick}
+              className="w-full px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+              onClick={handleLogout}
             >
-              Change Password
-            </button>
-          </li>
-          <li>
-            <a href="#" className="block text-blue-500 hover:underline">
-              Order History
-            </a>
-          </li>
-          <li>
-            <a href="#" className="block text-blue-500 hover:underline">
-              Activities
-            </a>
-          </li>
-          <li>
-            <a href="#" className="block text-red-500 hover:underline">
               Logout
-            </a>
+            </button>
           </li>
         </ul>
       </div>
 
       {/* Right Section */}
-      <div className="flex-1 p-6 bg-white">
+      <div className="flex-1 p-2 overflow-hidden">
         {/* User Data */}
-        <div className="mb-8">
-          <h2 className="mb-4 text-2xl font-semibold">User Data</h2>
-          {editing ? (
-            // Content when editing is true
-            <>
-              <label className="block mb-2">
-                First Name:
-                <input
-                  type="text"
-                  value={userData.firstName}
-                  onChange={(e) =>
-                    setUserData({
-                      ...userData,
-                      firstName: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300"
-                />
-              </label>
-              <label className="block mb-2">
-                Last Name:
-                <input
-                  type="text"
-                  value={userData.lastName}
-                  onChange={(e) =>
-                    setUserData({
-                      ...userData,
-                      lastName: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300"
-                />
-              </label>
-              <label className="block mb-2">
-                Email:
-                <input
-                  type="email"
-                  value={userData.email}
-                  onChange={(e) =>
-                    setUserData({
-                      ...userData,
-                      email: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300"
-                />
-              </label>
-              <label className="block mb-2">
-                Gender:
-                <select
-                  value={userData.gender}
-                  onChange={(e) =>
-                    setUserData({
-                      ...userData,
-                      gender: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300"
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </label>
+        <div className="p-2 mb-2 overflow-x-auto bg-gray-100 rounded-lg shadow-md">
+          <h2 className="mb-2 text-2xl font-semibold">Personal Information</h2>
+          {Object.keys(userData).length > 0 ? (
+            editing ? (
+              <div className="flex flex-col space-y-4">
+                <label className="flex flex-col">
+                  <span className="text-gray-700">First Name</span>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={editedUserData.firstName}
+                    onChange={handleInputChange}
+                    className="p-2 border rounded-md focus:outline-none focus:border-indigo-500"
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <span className="text-gray-700">Last Name</span>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={editedUserData.lastName}
+                    onChange={handleInputChange}
+                    className="p-2 border rounded-md focus:outline-none focus:border-indigo-500"
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <span className="text-gray-700">Password</span>
+                  <input
+                    type="password"
+                    name="password"
+                    value={editedUserData.password}
+                    onChange={handleInputChange}
+                    className="p-2 border rounded-md focus:outline-none focus:border-indigo-500"
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <span className="text-gray-700">Gender</span>
+                  <select
+                    name="gender"
+                    value={editedUserData.gender}
+                    onChange={handleInputChange}
+                    className="p-2 border rounded-md focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </label>
+                <label className="flex flex-col">
+                  <span className="text-gray-700">Image</span>
+                  <input
+                    type="file"
+                    name="image"
+                    id="image"
+                    onChange={handleInputChange}
+                    className="p-2 border rounded-md focus:outline-none focus:border-indigo-500"
+                  />
+                </label>
+              </div>
+            ) : (
+              <div className="flex flex-col space-y-2">
+                <p>
+                  <span className="font-semibold text-gray-700">First Name:</span>{" "}
+                  {userData.firstName}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-700">Last Name:</span>{" "}
+                  {userData.lastName}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-700">Gender:</span>{" "}
+                  {userData.gender || "Not specified"}
+                </p>
+                {/* Assuming there is an email property in userData */}
+                <p>
+                  <span className="font-semibold text-gray-700">Email:</span>{" "}
+                  {userData.email}
+                </p>
+              </div>
+            )
+          ) : (
+            <p>Loading user data...</p>
+          )}
+          <div className="flex mt-2 space-x-2">
+            <button
+              className={`px-2 py-1 text-white ${
+                editing ? "bg-red-500" : "bg-indigo-500"
+              } rounded focus:outline-none`}
+              onClick={handleEditClick}
+            >
+              {editing ? "Cancel" : "Edit"}
+            </button>
+            {editing && (
               <button
-                className="px-4 py-2 text-white bg-blue-500 rounded"
+                className="px-2 py-1 text-white bg-green-500 rounded focus:outline-none"
                 onClick={handleSaveClick}
               >
-                Save
+                Save Edit
               </button>
-            </>
-          ) : (
-            <>
-              <p className="mb-2">
-                <strong>First Name:</strong> {userData.firstName}
-              </p>
-              <p className="mb-2">
-                <strong>Last Name:</strong> {userData.lastName}
-              </p>
-              <p className="mb-2">
-                <strong>Email:</strong> {userData.email}
-              </p>
-              <p className="mb-2">
-                <strong>Gender:</strong> {userData.gender}
-              </p>
-            </>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Edit and Logout Buttons */}
-        <div className="flex flex-col items-center space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
+        {/* Order History Table */}
+        <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="mb-2 text-2xl font-semibold">Order History</h2>
+          <table className="w-full bg-white border border-collapse border-gray-300 table-fixed">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2 border">Order ID</th>
+                {/* <th className="p-2 border">Product</th>
+                <th className="p-2 border">Quantity</th> */}
+                <th className="p-2 border">Total Price</th>
+                <th className="p-2 border">Order Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderHistory.map((order) => (
+                <tr key={order.id}>
+                  <td className="p-2 border">{order.orderId}</td>
+                  {/* Replace 'product' with the actual property name in your data */}
+                  {/* <td className="p-2 border">{order.productName}</td>
+                  <td className="p-2 border">{order.quantity}</td> */}
+                  <td className="p-2 border">${order.totalPrice}</td>
+                  <td className="p-2 border">
+                    {new Date(order.createdAt).toLocaleString()}
+                  </td>
+                  {/* .toFixed(2) */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Visit History Table */}
+        <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="mb-2 text-2xl font-semibold">Visit History</h2>
+          <table className="w-full bg-white border border-collapse border-gray-300 table-fixed">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2 border">Visit ID</th>
+                <th className="p-2 border">Location</th>
+                <th className="p-2 border">Price</th>
+                <th className="p-2 border">Number Of Visitors</th>
+                <th className="p-2 border">Visit Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visitHistory.map((visit) => (
+                <tr key={visit.id}>
+                  <td className="p-2 border">{visit.reservationId}</td>
+                  <td className="p-2 border">{visit.locationName}</td>
+                  <td className="p-2 border">{visit.price}</td>
+                  <td className="p-2 border">{visit.numberOfVisitors}</td>
+                  <td className="p-2 border">
+                    {new Date(visit.visitDate).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Logout Button
+        <div className="flex justify-end">
           <button
-            className="px-4 py-2 text-white bg-blue-500 rounded"
-            onClick={handleEditClick}
-          >
-            {editing ? 'Cancel' : 'Edit'}
-          </button>
-          <button
-            className="px-4 py-2 text-white bg-red-500 rounded"
+            className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
             onClick={handleLogout}
           >
             Logout
           </button>
-        </div>
+        </div> */}
       </div>
-
-      {/* Settings Sidebar */}
-      {settingsOpen && (
-        <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="w-full p-6 bg-white border-r border-gray-300 lg:w-1/4">
-            <h2 className="mb-4 text-2xl font-semibold">Change Password</h2>
-            <label className="block mb-2">
-              Old Password:
-              <input
-                type="password"
-                value={passwordData.oldPassword}
-                onChange={(e) =>
-                  setPasswordData({
-                    ...passwordData,
-                    oldPassword: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300"
-              />
-            </label>
-            <label className="block mb-2">
-              New Password:
-              <input
-                type="password"
-                value={passwordData.newPassword}
-                onChange={(e) =>
-                  setPasswordData({
-                    ...passwordData,
-                    newPassword: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300"
-              />
-            </label>
-            <label className="block mb-2">
-              Confirm Password:
-              <input
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={(e) =>
-                  setPasswordData({
-                    ...passwordData,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300"
-              />
-            </label>
-            <button
-              className="px-4 py-2 mx-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-              onClick={handleSettingsSaveClick}
-            >
-              Save
-            </button>
-            <button
-              className="px-4 py-2 mx-2 mt-2 text-white bg-red-500 rounded hover:bg-red-600"
-              onClick={handleCancelSettingsClick}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

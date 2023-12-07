@@ -1,4 +1,3 @@
-// middleware/authenticateToken.js
 const jwt = require("jsonwebtoken");
 
 function authorize(allowedRoles) {
@@ -11,9 +10,17 @@ function authorize(allowedRoles) {
     try {
       const secretKey = process.env.SECRET_KEY;
       const decodedToken = jwt.verify(token, secretKey);
-      const user_type = decodedToken.user_type;
 
-      if (allowedRoles.includes(user_type)) {
+      // Check token expiration
+      if (decodedToken.exp && Date.now() >= decodedToken.exp * 1000) {
+        return res.status(401).json({ message: "Access is forbidden. Token has expired." });
+      }
+
+      const userRole = decodedToken.userRole;
+      const userId = decodedToken.userId;
+
+      if (allowedRoles.includes(userRole)) {
+        req.user = { userId, userRole }; // Attach user information to the request
         next();
       } else {
         res.status(403).json({ message: 'Access is prohibited. You do not have permission.' });
@@ -28,6 +35,3 @@ function authorize(allowedRoles) {
 module.exports = {
   authorize
 };
-
-
-
