@@ -3,21 +3,19 @@ const { Locations, Ratings_And_Reviews } = require('../Models/Tables');
 //! Add New Location Start
 const addLocation = async (req, res) => {
   try {
-    const { locationName, owner, description, location, openingHours, price, visitDate, phone, email } = req.body;
+    const { locationName, owner, description, openingHours, price, visitDate, phone, email, location } = req.body;
     const imageUrl = res.locals.site;
-    const rating = null
     const newLocation = await Locations.create({
       locationName,
       owner,
       description,
-      location,
       openingHours,
       price,
       imageUrl,
       visitDate,
       phone,
       email,
-      rating,
+      location
     });
 
     res.status(201).json({
@@ -129,6 +127,7 @@ const getAllLocations = async (req, res) => {
       where: {
         isDeleted: false, ViewThePlace: true
       },
+      order: [['locationId', 'ASC']],
     });
 
     res.status(200).json({
@@ -230,35 +229,38 @@ const getLocationByViewThePlace = async (req, res) => {
 
 //! Update View The Place
 const viewThePlace = async (req, res) => {
-  
   try {
-    const { viewThePlace } = req.body
-    const locationId = req.params.locationId;
+    const locationId = req.params.locationId; 
 
     //! Check if the location exists
-    const existingLocation = await Locations.findByPk(locationId);
+    const Location = await Locations.findByPk(locationId);
 
-    if (!existingLocation) {
+    if (!Location) {
       return res.status(404).json({
         success: false,
         message: 'Location not found',
       });
     }
 
-    existingLocation.viewThePlace = viewThePlace
+    //! Soft delete the Location
+    await Locations.update(
+      { ViewThePlace: true },
+      { where: { locationId: locationId } }
+    );
 
     //! Save the changes
-    await existingLocation.save();
+    await Location.save();
 
     res.status(200).json({
       success: true,
-      message: 'Location updated successfully',
+      message: 'Location soft deleted successfully',
+      product: Location.toJSON(),
     });
   } catch (error) {
-    console.error('An error occurred while updating the Location:', error);
+    console.error('An error occurred while soft deleting the Location:', error);
     res.status(500).json({
       success: false,
-      message: 'An error occurred while updating the Location',
+      message: 'An error occurred while soft deleting the Location',
       error: error.message,
     });
   }

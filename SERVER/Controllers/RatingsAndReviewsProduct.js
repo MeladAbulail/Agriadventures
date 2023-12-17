@@ -1,11 +1,11 @@
-const { Ratings_And_Reviews, User, Reservation } = require('../Models/Tables');
+const { Ratings_And_Reviews_Product, User, Cart, Products } = require('../Models/Tables');
 
-//! Get all ratings and reviews According locationId
-const getRatingsAndReviewsByLocationId = async (req, res) => {
-  const locationId = req.params.locationId
+//! Get all ratings and reviews According productId
+const getRatingsAndReviewsByProduct = async (req, res) => {
+  const productId = req.params.productId
   try {
-    const ratingsAndReviews = await Ratings_And_Reviews.findAll({
-      where: { locationId: locationId, isDeleted: false }
+    const ratingsAndReviews = await Ratings_And_Reviews_Product.findAll({
+      where: { productId: productId, isDeleted: false }
     });
     res.json({
       success: true,
@@ -29,7 +29,7 @@ const getRatingAndReviewByUserId = async (req, res) => {
     return "You Must Log In First"
   }
   try {
-    const ratingAndReview = await Ratings_And_Reviews.findAll({
+    const ratingAndReview = await Ratings_And_Reviews_Product.findAll({
       where: { userId: userId, isDeleted: false }
     });
     res.json({
@@ -49,53 +49,69 @@ const getRatingAndReviewByUserId = async (req, res) => {
 
 //! Add New Rating And Review
 const addNewRatingAndReview = async (req, res) => {
-  const { locationId, locationName, comment, rating, postDate } = req.body;
-  const userId = req.user.userId;
-  if(!userId) {
-    return "You Must Log In First"
-  }
-  const reservation = await Reservation.findByPk(userId)
-  if (!reservation) {
-    return res.status(400).json({ 
-      message: "You have not visited the place yet and cannot rate or comment", 
-      reservation: reservation
-    });
-  }
   try {
-    const userData = await User.findByPk(userId)
-    const newRatingAndReview = await Ratings_And_Reviews.create({
-      locationId,
+    const { productId, productName, comment, rating, postDate } = req.body;
+    const userId = req.user.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "You must log in first" });
+    }
+
+    const cart = await Cart.findOne({
+      where: { userId: userId, productId: productId },
+    });
+
+    if (!cart) {
+      return res.status(400).json({ success: false, message: "You have not visited the place yet and cannot rate or comment" });
+    }
+
+    const userData = await User.findByPk(userId);
+
+    const newRatingAndReview = await Ratings_And_Reviews_Product.create({
+      productId,
       userId,
-      locationName, 
+      productName,
       comment,
       rating,
       postDate,
-      imageUrl:userData.imageUrl,
+      imageUrl: userData.imageUrl,
       firstName: userData.firstName,
-      lastName: userData.lastName
+      lastName: userData.lastName,
     });
+
+    const products = await Products.findByPk(productId);
+
+    const numberOfResidents = (( products.numberOfResidents) + 1)
+    const totalStars = products.totalStars + rating;
+    const evaluation = (totalStars / numberOfResidents)
+
+    await products.update({ evaluation: evaluation, numberOfResidents: numberOfResidents, totalStars: totalStars });
+
+    await products.save();
+
     res.status(200).json({
       success: true,
-      Message: "New Rating And Review Retrieved Successfully",
-      newRatingAndReview: newRatingAndReview
+      message: "New Rating And Review Retrieved Successfully",
+      newRatingAndReview: newRatingAndReview,
     });
   } catch (error) {
-    console.error('An error occurred while Add New Ratings And Reviews:', error);
+    console.error('An error occurred while adding new ratings and reviews:', error);
     res.status(500).json({
-      Success: false,
-      Message: "An error occurred while Add New Ratings And Reviews",
-      Error: error.Message
+      success: false,
+      message: "An error occurred while adding new ratings and reviews",
+      error: error.message,
     });
   }
 };
 
+
 //! Update rating and review
 const updateRatingAndReview = async (req, res) => {
-  const ratingsAndReviewsId = req.params.ratingsAndReviewsId;
+  const ratingsAndReviewsProductId = req.params.ratingsAndReviewsProductId;
   const { comment, rating } = req.body; // Assuming comment and rating are part of the request body
 
   try {
-    const updateRatingAndReview = await Ratings_And_Reviews.findByPk(ratingsAndReviewsId);
+    const updateRatingAndReview = await Ratings_And_Reviews_Product.findByPk(ratingsAndReviewsProductId);
 
     if (!updateRatingAndReview) {
       return res.status(404).json({ error: 'Rating and Review not found' });
@@ -132,9 +148,9 @@ const updateRatingAndReview = async (req, res) => {
 
 //! Delete rating and review
 const deleteRatingAndReview = async (req, res) => {
-  const ratingsAndReviewsId = req.params.ratingsAndReviewsId;
+  const ratingsAndReviewsProductId = req.params.ratingsAndReviewsProductId;
   try {
-    const ratingAndReview = await Ratings_And_Reviews.findByPk(ratingsAndReviewsId);
+    const ratingAndReview = await Ratings_And_Reviews_Product.findByPk(ratingsAndReviewsProductId);
     if (!ratingAndReview) {
       return res.status(404).json({ error: 'Rating and Review not found' });
     }
@@ -156,7 +172,7 @@ const deleteRatingAndReview = async (req, res) => {
 };
 
 module.exports = {
-  getRatingsAndReviewsByLocationId,
+  getRatingsAndReviewsByProduct,
   getRatingAndReviewByUserId,
   addNewRatingAndReview,
   updateRatingAndReview,

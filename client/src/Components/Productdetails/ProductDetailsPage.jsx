@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import  ProductRating from './ProductRating'
+import DisplayProductComment from './DisplayProductComment'
 
 const ProductDetailsPage = ({ setCart }) => {
   const { productId } = useParams();
@@ -106,8 +108,14 @@ const ProductDetailsPage = ({ setCart }) => {
         <h3 className="mb-2 text-xl font-bold">Product Description</h3>
         <p>{product.description}</p>
       </div>
+      <ProductRating
+        productId={product.productId}
+        productName={product.productName}
+      />
+      <DisplayProductComment />
     </div>
   );
+  
 };
 
 export default ProductDetailsPage;

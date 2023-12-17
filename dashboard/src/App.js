@@ -8,6 +8,9 @@ import Messages from './Components/Messages';
 import ConfirmPlace from './Components/ConfirmPlace';
 import ActivitiesTable from './Components/ActivitiesTable';
 import LoginPage from './Components/LoginPage';
+import ConfirmProduct from './Components/ConfirmProduct'
+import AddPlace from './Components/AddPlace'
+import AddProduct from './Components/AddProduct'
 
 import './App.css';
 
@@ -19,7 +22,8 @@ function App() {
     <div className="bg-white App">
       <div className="flex ">
         <BrowserRouter>
-          {token ? <div><Sidebar/></div> :<div className='z-10'> <Sidebar/> </div>}
+          {token ? <Sidebar  className="w-10% h-full"/> : null}
+          <div className='w-11/12'>
           <div className="w-full">
             <Routes>
               <Route path="/" element={<LoginPage />} />
@@ -28,7 +32,11 @@ function App() {
               <Route path="/ProductsTable" element={<ProductsTable />} />
               <Route path="/Messages" element={<Messages />} />
               <Route path="/ConfirmPlace" element={<ConfirmPlace />} />
+              <Route path="/ConfirmProduct" element={<ConfirmProduct />} />
+              <Route path="/AddPlace" element={<AddPlace/>} />
+              <Route path="/AddProduct" element={<AddProduct/>} />
             </Routes>
+            </div>
           </div>
         </BrowserRouter>
       </div>

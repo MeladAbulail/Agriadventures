@@ -20,7 +20,7 @@ function authorize(allowedRoles) {
       const userId = decodedToken.userId;
 
       if (allowedRoles.includes(userRole)) {
-        req.user = { userId, userRole }; // Attach user information to the request
+        req.user = { userId, userRole }; 
         next();
       } else {
         res.status(403).json({ message: 'Access is prohibited. You do not have permission.' });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -17,39 +17,17 @@ function Signinpage() {
     });
   };
 
+  const handleGoogleLogin = () => {
+    // Redirect to the server route for Google authentication
+    window.location.href = 'http://localhost:4000/auth/google';
+  };
+
   const redirectToLanding = () => {
     window.location.href = '/';
   };
 
-  const saveTokenAndRedirect = (token) => {
-    Cookies.set('token', token, { expires: 1 / 24 }); // 1 hour expiration
-    axios.defaults.headers.common['Authorization'] = token;
-    redirectToLanding();
-  };
-
   const loginUrl = 'http://localhost:4000/Login';
 
-  const handleLoginByGoogle = async (response, res) => {
-    console.log('Response from server:', response.data);
-
-    if (response.data) {
-      console.log('User authenticated successfully');
-
-      const token = response.data.token;
-      const userId = response.data.userId;
-
-      Cookies.set('token', token, { expires: 1 / 24 });
-      Cookies.set('userId', userId, { expires: 1 / 24 });
-
-      // Include the token in the request headers for subsequent requests
-      axios.defaults.headers.common['Authorization'] = token;
-
-      redirectToLanding();
-    } else {
-      console.log('Invalid email or password');
-    }
-  };
-    
   const handleSignIn = async (e) => {
     e.preventDefault();
   
@@ -144,9 +122,9 @@ function Signinpage() {
             Sign in
           </button>
         </form>
-        <Link to="http://localhost:4000/auth/google">
-        <button onClick={handleLoginByGoogle}>Continue with Google</button>
-        </Link>
+        <div>
+          <button onClick={handleGoogleLogin}> Login with Google </button>
+        </div>
         <p className="text-center">
           Don't have an account?{' '}
           <Link to="/Register">

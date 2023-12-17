@@ -127,6 +127,13 @@ function Footer(){
                     </a>
                   </p>
                 </Link>
+                <Link to="/FAQ">
+                  <p class="mb-4">
+                    <a href="#!" class="text-black hover:text-[#80B500]">
+                      FAQ
+                    </a>
+                  </p>
+                </Link>
               </div>
 
               <div class="">
@@ -143,7 +150,7 @@ function Footer(){
                 <Link to="/Profile">
                   <p class="mb-4">
                     <a href="#!" class="text-black  hover:text-[#80B500]">
-                    Profile
+                      Profile
                     </a>
                   </p>
                 </Link>
@@ -154,16 +161,23 @@ function Footer(){
                     </a>
                   </p>
                 </Link>
-                <Link to="/Submitplacepage">
+                <Link to="/AddPlace">
                   <p class="mb-4">
                     <a href="#!" class="text-black hover:text-[#80B500]">
-                     Submit Place
+                      Add a Place
+                    </a>
+                  </p>
+                </Link>
+                <Link to="/AddPlace">
+                  <p class="mb-4">
+                    <a href="#!" class="text-black hover:text-[#80B500]">
+                      Add a Product
                     </a>
                   </p>
                 </Link>
               </div>
 
-              <div >
+              <div>
                 <h6 class="mb-4 flex justify-center font-semibold uppercase md:justify-start text-[#80B500]">
                   Contact
                 </h6>
@@ -226,11 +240,12 @@ function Footer(){
           </div>
           <hr></hr>
           <div class="bg-[#F2F5F8] p-6 text-center ">
-            <Link to="/"><span>&copy; 2023 Copyright:</span>
-            <a class="font-semibold text-black hover:text-[#80B500] " href="">
-              {" "}
-              Agriadventure{" "}
-            </a>
+            <Link to="/">
+              <span>&copy; 2023 Copyright:</span>
+              <a class="font-semibold text-black hover:text-[#80B500] " href="">
+                {" "}
+                Agriadventure{" "}
+              </a>
             </Link>
           </div>
           <hr></hr>

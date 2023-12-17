@@ -1,16 +1,15 @@
 const multer = require("multer");
-const path = require("path");
 const express = require('express');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const admin = require('firebase-admin');
-const serviceAccount = require('../serviceAccountKey.json');
+const ServiceAccountKey = require('../Models/ServiceAccountKey.json');
 
 const app = express();
 app.use(express.static('public'));
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(ServiceAccountKey),
   storageBucket: 'gs://agri-adventure-406920.appspot.com',
 });
 

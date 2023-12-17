@@ -130,22 +130,23 @@ function AddPlace() {
         </div>
 
         <div className="mb-4">
-              <label className="block text-gray-700">Location:</label>
-              <select
-                className="w-full p-2 border rounded"
-                value={formData.location}
-                id="location"
-                name="location"
-                onChange={handleChange}
-              >
-                <option value="Zarqa">Zarqa</option>
-                <option value="Amman">Amman</option>
-                <option value="Aqaba">Aqaba</option>
-                <option value="Ajloun">Ajloun</option>
-                <option value="Madaba">Madaba</option>
-                <option value="Irbid">Irbid</option>
-              </select>
-            </div>
+          <label className="block text-gray-700">Location:</label>
+          <select
+            className="w-full p-2 border rounded"
+            value={formData.location}
+            id="location"
+            name="location"
+            onChange={handleChange}
+          >
+            <option>Select Location</option>
+            <option value="Zarqa" >Zarqa</option>
+            <option value="Amman">Amman</option>
+            <option value="Aqaba">Aqaba</option>
+            <option value="Ajloun">Ajloun</option>
+            <option value="Madaba">Madaba</option>
+            <option value="Irbid">Irbid</option>
+          </select>
+        </div>
 
         <div className="flex flex-col">
           <label htmlFor="openingHours" className="text-sm font-medium">

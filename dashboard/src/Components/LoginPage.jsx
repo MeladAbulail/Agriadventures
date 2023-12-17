@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import Logo from './Logo.png';
 
 function LoginPage() {
+  const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -19,47 +20,37 @@ function LoginPage() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleCancelClick = () => {
+    setShowPopup(false);
+  };
+
+  const handleSignIn = async (e) => {
     e.preventDefault();
-
+  
     try {
-      // Check if the data exists in the admin JSON
-      const adminDataResponse = await axios.get('http://localhost:4000/Get_Admin_Users');
-      const adminData = adminDataResponse.data.Admins;
+      const response = await axios.post('http://localhost:4000/Login_Admin', {
+        email: formData.email,
+        password: formData.password,
+      });
 
-      const isUserValid = adminData.some(
-        (adminUser) =>
-          adminUser.userRole === formData.userRole && adminUser.password === formData.password
-      );
+      console.log('Response from server:', response.data);
+  
+      if (response.data) {
+        console.log('User authenticated successfully');
+  
+        // Save the token in cookies with a 1-hour expiration
+        const token = response.data.token;
+        const userId = response.data.userId;
 
-      if (isUserValid) {
-        const response = await axios.post(
-          'http://localhost:4000/login',
-          {
-            email: formData.email,
-            password: formData.password,
-          }
-        );
-
-        console.log('Response from server:', response.data);
-        if (response.data) {
-          console.log('User authenticated successfully');
-          const token = response.data.token;
-          Cookies.set('token', token, { expires: 1 / 24 });
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          navigate('/UserTable');
-        } else {
-          setErrorMessage('Invalid email or password');
-          setTimeout(() => {
-            setErrorMessage('');
-          }, 2000);
-        }
+        Cookies.set('token', token, { expires: 1 / 24 });
+        Cookies.set('userId', userId, { expires: 1 / 24 });
+  
+        // Include the token in the request headers for subsequent requests
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  
+        navigate('/UserTable');
       } else {
-        // Display the popup for invalid user data
-        setErrorMessage('Invalid user data');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 2000);
+        console.log('Invalid email or password');
       }
     } catch (error) {
       console.error('Error signing in:', error.response);
@@ -100,13 +91,13 @@ function LoginPage() {
                   ></img>
                 </div>
 
-                <p className="mt-3 text-gray-500 ">
+                <p className="mt-3 text-gray-500">
                   Sign in to access your account
                 </p>
               </div>
 
               <div className="mt-8">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSignIn}>
                   <div>
                     <label
                       htmlFor="email"
@@ -119,7 +110,7 @@ function LoginPage() {
                       name="email"
                       id="email"
                       placeholder="example@example.com"
-                      className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                      className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg focus:ring-green-400 focus:outline-none focus:ring focus:ring-opacity-40"
                       onChange={handleChange}
                       value={formData.email}
                     />
@@ -133,19 +124,14 @@ function LoginPage() {
                       >
                         Password
                       </label>
-                      <a
-                        className="text-sm text-gray-400 focus:text-blue-500 hover:text-blue-500 hover:underline"
-                      >
-                        Forgot password?
-                      </a>
                     </div>
 
                     <input
                       type="password"
                       name="password"
                       id="password"
-                      placeholder="******"
-                      className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                      placeholder="Your Password"
+                      className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg focus:border-green-400 focus:ring-green-400 focus:outline-none focus:ring focus:ring-opacity-40"
                       onChange={handleChange}
                       value={formData.password}
                     />
@@ -154,7 +140,7 @@ function LoginPage() {
                   <div className="mt-6">
                     <button
                       type="submit"
-                      className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                      className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-300 transform bg-green-500 rounded-lg hover:bg-green-400 focus:outline-none focus:bg-green-400 focus:ring focus:ring-green-300 focus:ring-opacity-50"
                     >
                       Sign in
                     </button>
@@ -173,6 +159,18 @@ function LoginPage() {
           {errorMessage}
         </div>
       )}
+
+      {showPopup && (
+        <div className="p-4 mt-4 bg-white rounded shadow-md">
+          <p className="mb-4">You are not an admin and cannot log in</p>
+          <button
+            className="px-4 py-2 font-bold text-white bg-gray-500 rounded hover:bg-gray-700"
+            onClick={handleCancelClick}
+          >
+            Cancel
+          </button>
+        </div>
+        )}
     </div>
   );
 }

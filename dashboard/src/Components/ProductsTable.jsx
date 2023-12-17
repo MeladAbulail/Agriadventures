@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function ProductTable() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [searchProductName, setSearchProductName] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
@@ -13,7 +15,7 @@ function ProductTable() {
     price: 0,
     image: '',
   });
-  const [addingProduct, setAddingProduct] = useState(false);
+
   const [newProduct, setNewProduct] = useState({
     productName: '',
     category: '',
@@ -51,6 +53,12 @@ function ProductTable() {
     setEditedProduct({ ...product });
   };
 
+
+  const handleAddProduct = product => {
+    navigate('/AddProduct');
+  };
+
+
   const handleInputChange = e => {
     const { name, value } = e.target;
     setEditedProduct(prevProduct => ({ ...prevProduct, [name]: value }));
@@ -85,56 +93,16 @@ function ProductTable() {
     setEditedProduct(null);
   };
 
-  const handleAddProduct = () => {
-    setAddingProduct(true);
-  };
+  
 
   const handleInputChangeNewProduct = e => {
     const { name, value } = e.target;
     setNewProduct(prevProduct => ({ ...prevProduct, [name]: value }));
   };
 
-  const handleSaveNewProduct = () => {
-    const apiUrl = 'http://localhost:4000/Add_New_Product';
-    const formData = new FormData();
-    formData.append('productName', newProduct.productName);
-    formData.append('category', newProduct.category);
-    formData.append('description', newProduct.description);
-    formData.append('price', newProduct.price);
-    formData.append('image', newProduct.image);
+  
 
-    axios
-      .post(apiUrl, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then(response => {
-        if (response.status === 201) {
-          fetchProducts(); // Refetch products after addition
-          setAddingProduct(false);
-          setNewProduct({
-            productName: '',
-            category: '',
-            description: '',
-            price: 0,
-            image: '',
-          });
-        }
-      })
-      .catch(error => console.error('Error adding new product:', error));
-  };
-
-  const handleCancelAddProduct = () => {
-    setAddingProduct(false);
-    setNewProduct({
-      productName: '',
-      category: '',
-      description: '',
-      price: 0,
-      image: '',
-    });
-  };
+  
 
   const filteredProducts = products.filter(product =>
     product.productName.toLowerCase().includes(searchProductName.toLowerCase())
@@ -142,30 +110,59 @@ function ProductTable() {
 
   return (
     <>
-      <div className="flex flex-col my-20">
+      <div className="flex flex-col w-full my-20">
         <div className="flex flex-row">
-          <div className="w-3/4 p-4">
+          <div className="w-full p-4">
             <div>
-              <h2 className="mb-4 text-xl font-bold">Products</h2>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Search by Product Name"
-                  value={searchProductName}
-                  onChange={e => setSearchProductName(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
+              <h2 className="mb-4 text-3xl font-bold">Products</h2>
+              <div className="flex mb-4">
+                <form className="w-90">
+                  <label
+                    htmlFor="default-search"
+                    className="mb-2 text-sm font-medium sr-only"
+                  >
+                    Search
+                  </label>
+                  <div className="relative flex w-full">
+                    <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                      <svg
+                        className="w-4 h-4 text-gray-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="search"
+                      id="default-search"
+                      className="block p-2 text-sm text-black border border-gray-300 rounded-lg xl:w-[600px] ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Search by Product Name"
+                      value={searchProductName}
+                      onChange={(e) => setSearchProductName(e.target.value)}
+                    />
+                  </div>
+                </form>
+
                 <button
+                  type="button"
+                  className="px-4 py-2 ml-2 text-sm font-medium text-white bg-green-700 rounded-lg w-28 w-30 hover:bg-green-800 focus:ring-4 focus:outline-none"
                   onClick={handleAddProduct}
-                  className="px-4 py-2 mr-2 text-white bg-green-500 rounded hover:bg-green-600"
                 >
                   Add Product
                 </button>
               </div>
+
               <table className="min-w-full overflow-hidden border rounded-lg">
-                <thead className="text-white bg-gray-800">
+                <thead className="text-white bg-gray-600">
                   <tr>
                     <th className="px-4 py-2">ID</th>
                     <th className="px-4 py-2">Product Name</th>
@@ -176,28 +173,43 @@ function ProductTable() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProducts.map(product => (
-                    <tr key={product.productId}>
-                      <td className="px-4 py-2 text-center">{product.productId}</td>
-                      <td className="px-4 py-2 text-center">{product.productName}</td>
-                      <td className="px-4 py-2 text-center">{product.category}</td>
-                      <td className="px-4 py-2 text-center">{product.description}</td>
-                      <td className="px-4 py-2 text-center">
+                  {filteredProducts.map((product) => (
+                    <tr
+                      key={product.productId}
+                      className={
+                        product.productId % 2 === 0
+                          ? "bg-[#e5e7eb]"
+                          : "bg-[#d1d5db]"
+                      }
+                    >
+                      <td className="text-center sm:text-xs">
+                        {product.productId}
+                      </td>
+                      <td className="text-center sm:text-xs">
+                        {product.productName}
+                      </td>
+                      <td className="text-center sm:text-xs">
+                        {product.category}
+                      </td>
+                      <td className="text-center sm:text-xs">
+                        {product.description}
+                      </td>
+                      <td className="text-center sm:text-xs">
                         ${Number(product.price).toFixed(2)}
                       </td>
                       <td className="flex items-center px-4 py-2 space-x-2">
-                        <button
+                        <a
                           onClick={() => handleEditProduct(product)}
-                          className="w-full p-3 text-white bg-blue-500 rounded-full hover:bg-blue-600"
+                          className="w-full p-3 text-center text-green-500 rounded-full cursor-pointer sm:text-xs hover:text-green-600"
                         >
                           Edit
-                        </button>
-                        <button
+                        </a>
+                        <a
                           onClick={() => deleteProduct(product.productId)}
-                          className="w-full p-3 text-white bg-red-500 rounded-full hover:bg-red-600"
+                          className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
                         >
                           Delete
-                        </button>
+                        </a>
                       </td>
                     </tr>
                   ))}
@@ -226,7 +238,9 @@ function ProductTable() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">Category:</label>
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  Category:
+                </label>
                 <select
                   name="category"
                   value={editedProduct.category}
@@ -249,7 +263,9 @@ function ProductTable() {
                 ></textarea>
               </div>
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">Price:</label>
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  Price:
+                </label>
                 <input
                   type="number"
                   name="price"
@@ -259,12 +275,19 @@ function ProductTable() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">Image:</label>
+                <label className="block mb-2 text-sm font-bold text-gray-700">
+                  Image:
+                </label>
                 <input
                   type="file"
                   accept="image/*"
                   name="image"
-                  onChange={(e) => setEditedProduct({ ...editedProduct, image: e.target.files[0] })}
+                  onChange={(e) =>
+                    setEditedProduct({
+                      ...editedProduct,
+                      image: e.target.files[0],
+                    })
+                  }
                   className="w-full p-3 border rounded"
                 />
               </div>
@@ -272,95 +295,14 @@ function ProductTable() {
                 <button
                   type="button"
                   onClick={handleSaveEdit}
-                  className="px-4 py-2 mr-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="px-4 py-2 text-white bg-gray-500 rounded hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {addingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-75">
-          <div className="p-6 bg-white rounded shadow-lg">
-            <h2 className="mb-4 text-lg font-bold">Add Product</h2>
-            <form>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">
-                  Product Name:
-                </label>
-                <input
-                  type="text"
-                  name="productName"
-                  value={newProduct.productName}
-                  onChange={handleInputChangeNewProduct}
-                  className="w-full p-3 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">Category:</label>
-                <select
-                  name="category"
-                  value={newProduct.category}
-                  onChange={handleInputChangeNewProduct}
-                  className="w-full p-3 border rounded"
-                >
-                  <option value="category1">Category 1</option>
-                  <option value="category2">Category 2</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">
-                  Description:
-                </label>
-                <textarea
-                  name="description"
-                  value={newProduct.description}
-                  onChange={handleInputChangeNewProduct}
-                  className="w-full p-3 border rounded"
-                ></textarea>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">Price:</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={newProduct.price}
-                  onChange={handleInputChangeNewProduct}
-                  className="w-full p-3 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-bold text-gray-700">Image:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  name="image"
-                  onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-                  className="w-full p-3 border rounded"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleSaveNewProduct}
                   className="px-4 py-2 mr-2 text-white bg-green-500 rounded hover:bg-green-600"
                 >
                   Save
                 </button>
                 <button
                   type="button"
-                  onClick={handleCancelAddProduct}
-                  className="px-4 py-2 text-white bg-gray-500 rounded hover:bg-gray-600"
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
                 >
                   Cancel
                 </button>

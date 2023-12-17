@@ -1,7 +1,6 @@
-const sequelize = require('./db')
+const sequelize = require('./Db')
 const { DataTypes } = require("sequelize");
 
-//? Done
 //! User TAble Modul 
 const User = sequelize.define("User", {
   userId: {
@@ -46,7 +45,6 @@ const User = sequelize.define("User", {
   },
 });
 
-//? Done
 //! Locations Table Model 
 const Locations = sequelize.define('Locations', {
   locationId: {
@@ -65,30 +63,43 @@ const Locations = sequelize.define('Locations', {
     defaultValue: 'Public',
   },
   description: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
   location: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   openingHours: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
   visitDate: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   price: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: true,
+  },
+  numberOfResidents: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0
+  },
+  totalStars: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0
   },
   phone: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
-  rating: {
-    type: DataTypes.STRING,
+  evaluation: {
+    type: DataTypes.FLOAT,
     allowNull: true,
+    defaultValue: null
   },
   email: {
     type: DataTypes.STRING,
@@ -109,7 +120,6 @@ const Locations = sequelize.define('Locations', {
     allowNull: true, 
   },
 });
-
 
 //! Ratings and Reviews Taple Model 
 const Ratings_And_Reviews = sequelize.define('Ratings_And_Reviews', {
@@ -162,46 +172,49 @@ const Ratings_And_Reviews = sequelize.define('Ratings_And_Reviews', {
   },
 });
 
-//? Done
-//! Activities Table Model 
-const Activities = sequelize.define('Activities', {
-  activityId: {
+//! Ratings and Reviews Taple Model 
+const Ratings_And_Reviews_Product = sequelize.define('Ratings_And_Reviews_Product', {
+  ratingsAndReviewsProductId: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  locationId: {
+  productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  locationName: {
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  productName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  visitDate: {
+  comment: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
-  activityName: {
+  rating: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
-  activityDescription: {
+  imageUrl: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: true, 
   },
-  activityImageName: {
+  firstName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  price: {
-    type: DataTypes.STRING, 
-    allowNull: false,
-  },
-  duration: {
+  lastName: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  postDate: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   isDeleted: {
     type: DataTypes.BOOLEAN,
@@ -210,7 +223,6 @@ const Activities = sequelize.define('Activities', {
   },
 });
 
-//? Done 
 //! Contact Table Model 
 const Contact_us = sequelize.define('Contact_us', {
   contactUsId: {
@@ -308,7 +320,6 @@ const Reservation = sequelize.define('Reservation', {
   },
 });
 
-//? Done
 //! Cart Table Model 
 const Cart = sequelize.define('Cart', {
   cartId: {
@@ -352,8 +363,6 @@ const Cart = sequelize.define('Cart', {
   },
 });
 
-
-//? Done 
 //! Products Table Model 
 const Products = sequelize.define('Products', {
   productId: {
@@ -381,6 +390,39 @@ const Products = sequelize.define('Products', {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  owner: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'Public',
+  },
+  numberOfResidents: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0
+  },
+  totalStars: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0
+  },
+  phone: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  evaluation: {
+    type: DataTypes.FLOAT,
+    allowNull: true,
+    defaultValue: null
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  ViewThePlace: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   isDeleted: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
@@ -388,7 +430,6 @@ const Products = sequelize.define('Products', {
   },
 });
 
-//? Done
 //! Orders Table Model 
 const Orders = sequelize.define('Orders', {
   orderId: {
@@ -470,6 +511,17 @@ const CreateRatingsAndReviewsTable = () => {
     })
 }
 
+//! Function For Ratings_And_Reviews_Product TAble Modul
+const CreateRatingsAndReviewsProductTable = () => {
+  Ratings_And_Reviews_Product.sync({ alter: true })
+    .then(() => {
+      console.log("Ratings_And_Reviews_Product Table Created");
+    })
+    .catch((error) => {
+      console.log("Ann Error Occurred", error);
+    })
+}
+
 //! Function For Activities TAble Modul
 const CreateActivitiesTable = () => {
   Activities.sync({ alter: true })
@@ -540,6 +592,7 @@ module.exports = {
   CreateUsersTable,
   CreateLocationsTable,
   CreateRatingsAndReviewsTable,
+  CreateRatingsAndReviewsProductTable,
   CreateActivitiesTable,
   CreateContactUsTable,
   CreateReservationTable,
@@ -549,11 +602,11 @@ module.exports = {
   User,
   Locations,
   Ratings_And_Reviews,
-  Activities,
   Contact_us,
   Reservation,
   Cart,
   Products,
   Orders,
+  Ratings_And_Reviews_Product
 }
 

@@ -62,7 +62,7 @@ const SubmitLoc = () => {
 
         {showPopup && (
           <div className="p-4 mt-4 bg-white rounded shadow-md">
-            <p className="mb-4">You need to sign in first</p>
+            <p className="mb-4 text-black">You need to sign in first</p>
             <button
               className="px-4 py-2 mr-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
               onClick={handleSignInClick}

@@ -134,8 +134,6 @@ const ProfilePage = () => {
     }
   };
   
-  
-
   const handleLogout = () => {
     Cookies.remove('token');
     Cookies.remove('userId');
@@ -328,7 +326,7 @@ const ProfilePage = () => {
           </table>
         </div>
 
-        {/* Logout Button
+        {/* Logout Button */}
         <div className="flex justify-end">
           <button
             className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
@@ -336,7 +334,7 @@ const ProfilePage = () => {
           >
             Logout
           </button>
-        </div> */}
+        </div>
       </div>
     </div>
   );

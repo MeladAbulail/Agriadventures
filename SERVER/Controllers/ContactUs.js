@@ -8,7 +8,7 @@ const addNewMessage = async (req, res) => {
     const newMessage = await Contact_us.create({
       email,
       message,
-      username
+      username,
     });
 
     res.status(201).json({ message: 'Message added successfully', data: newMessage });

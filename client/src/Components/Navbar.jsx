@@ -9,8 +9,8 @@ function Navbar() {
 
   useEffect(() => {
     const tokenExists = Cookies.get('token');
-    setLoggedIn(!!tokenExists);
-  }, []);
+    setLoggedIn(tokenExists);
+  }, [isLoggedIn]);
 
   const toggleMenu = () => {
     setMenuOpen(!isMenuOpen);
@@ -30,35 +30,35 @@ function Navbar() {
                 </a>
               </Link>
 
-              <ul className="hidden px-4 mx-auto space-x-12 text-sm font-semibold md:flex font-heading">
+              <ul className="hidden px-4 mx-auto space-x-12 text-sm font-semibold uppercase md:flex font-heading">
                 <Link to="/">
                   <li>
-                    <a className="hover:text-[#a3e635] uppercase">Home</a>
+                    <a className="hover:text-[#a3e635] ">Home</a>
                   </li>
                 </Link>
                 <Link to="/Category">
                   <li>
-                    <a className="hover:text-[#a3e635] uppercase">Category</a>
+                    <a className="hover:text-[#a3e635] ">Category</a>
                   </li>
                 </Link>
                 <Link to="/Store">
                   <li>
-                    <a className="hover:text-[#a3e635] uppercase">Shop</a>
+                    <a className="hover:text-[#a3e635] ">Shop</a>
                   </li>
                 </Link>
                 <Link to="/Gallery">
                   <li>
-                    <a className="hover:text-[#a3e635] uppercase">Gallery</a>
+                    <a className="hover:text-[#a3e635] ">Gallery</a>
                   </li>
                 </Link>
                 <Link to="/Aboutus">
                   <li>
-                    <a className="hover:text-[#a3e635] uppercase">About us</a>
+                    <a className="hover:text-[#a3e635] ">About us</a>
                   </li>
                 </Link>
                 <Link to="/Contactus">
                   <li>
-                    <a className="hover:text-[#a3e635] uppercase">Contact Us</a>
+                    <a className="hover:text-[#a3e635] ">Contact Us</a>
                   </li>
                 </Link>
               </ul>
@@ -70,18 +70,17 @@ function Navbar() {
                   </a>
                 </Link>
 
-                {isLoggedIn ? (
-                  <Link to="/Profile">
-                    <a className="flex items-center hover:text-[#a3e635]">
-                      <FaUser size={24} />
-                      <span className="ml-2">Profile</span>
-                    </a>
-                  </Link>
+                {isLoggedIn ? (<Link to="/Profile">
+                  <a className="flex items-center hover:text-[#a3e635]">
+                    <FaUser size={24} />
+                    <span className="ml-2">Profile</span>
+                  </a>
+                </Link>
                 ) : (
                   <Link to="/Signin">
-                    <a className="uppercase hover:text-[#a3e635]">
+                    <a className="uppercase hover:text-[#a3e635] flex flex-row ">
                       <FaSignInAlt size={24} />
-                      <span className="ml-2">Sign In</span>
+                      <span className="ml-2 ">Sign In</span>
                     </a>
                   </Link>
                 )}

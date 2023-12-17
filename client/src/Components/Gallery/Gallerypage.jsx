@@ -17,14 +17,8 @@ function Gallerypage() {
 
   const getRandomSize = () => {
     const sizes = ['1/4', '1/3', '1/2', '2/3']; // Adjust as needed
-    const randomIndex = Math.ceil(Math.random() * sizes.length);
+    const randomIndex = Math.floor(Math.random() * sizes.length);
     return sizes[randomIndex];
-  };
-
-  const calculateHeight = (width) => {
-    // Assuming a fixed aspect ratio, you can adjust the height calculation as needed
-    const aspectRatio = 1; // Adjust based on your desired aspect ratio
-    return `calc(${width} * ${aspectRatio})`;
   };
 
   const handleImageClick = (locationId) => {
@@ -35,26 +29,19 @@ function Gallerypage() {
   return (
     <div className="container px-5 py-2 mx-auto mb-20 ml-10 mr-10 lg:px-32 lg:pt-24">
       <div className="flex flex-wrap -m-1 md:-m-2">
-        {events.map((event) => {
-          const randomSize = getRandomSize();
-          return (
-            <div key={event.locationId} className={`w-${randomSize} p-1 md:p-2`}>
-              <img
-                alt={event.locationName}
-                className="block object-cover object-center rounded-lg cursor-pointer"
-                style={{
-                  maxWidth: `calc(600px * ${randomSize})`,
-                  maxHeight: calculateHeight(`calc(600px * ${randomSize})`),
-                }}
-                src={event.imageUrl}
-                onClick={() => handleImageClick(event.locationId)}
-              />
-              <div className="mt-2 text-center">
-                {event.locationName}
-              </div>
+        {events.map((event) => (
+          <div key={event.locationId} className={`w-${getRandomSize()} p-1 md:p-2`}>
+            <img
+              alt={event.locationName}
+              className="block object-cover object-center w-full h-full rounded-lg cursor-pointer"
+              src={event.imageUrl}
+              onClick={() => handleImageClick(event.locationId)}
+            />
+            <div className="mt-2 text-center">
+              {event.locationName}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );

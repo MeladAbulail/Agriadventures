@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 function AddProduct() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,13 @@ function AddProduct() {
     category: '',
     image: null,
   });
+
+  const navigate = useNavigate();
+
+
+  const handleSubmitActivity = () =>{
+    navigate('/ProductsTable');
+  }
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -135,7 +143,7 @@ function AddProduct() {
                 id="category"
                 name="category"
                 onChange={handleChange}
-              >
+              >                
                 <option>Select Product</option>
                 <option value="Dairy">Dairy</option>
                 <option value="CropSeeds">Crop Seeds</option>
@@ -176,6 +184,7 @@ function AddProduct() {
 
         <button
           type="submit"
+          onClick={handleSubmitActivity}
           className="px-4 py-2 text-white transition duration-300 bg-blue-500 rounded hover:bg-blue-700"
         >
           Submit

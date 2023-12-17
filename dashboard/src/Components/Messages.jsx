@@ -28,63 +28,43 @@ function MessageTable() {
   );
 
   return (
-    <div className="flex flex-col mt-32 ml-4 mr-20">
-      <h1 className='my-10 text-4xl'> Messages</h1>
-      <div className="overflow-x-auto bg-white p-1.5 w-full inline-block align-middle ">
-        <div className="overflow-auto border rounded-lg">
-          <table className="min-w-full text-black divide-y divide-gray-200">
-            <thead className="bg-gray-600">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-xs font-bold text-left uppercase"
-                >
-                  ID
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-xs font-bold text-left uppercase"
-                >
-                  Email
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-xs font-bold text-left uppercase"
-                >
-                  Message
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-xs font-bold text-right uppercase"
-                >
-                  Delete
-                </th>
-              </tr>
-            </thead>
-            
-              {filteredMessages.map((message) => (
-                <tr key={message.contactUsId}>
-                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                    {message.contactUsId}
-                  </td>
-                  <td className="px-6 py-4 text-sm whitespace-nowrap">
-                    {message.email}
-                  </td>
-                  <td className="px-6 py-4 text-sm whitespace-nowrap">
-                    {message.message}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                    <button
-                      onClick={() => deleteMessage(message.contactUsId)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      Delete
-                    </button>
-                  </td>
+    <div className="flex flex-col w-full mt-16">
+      <div className="flex flex-col ">
+        <div className="p-4 ">
+          <div>
+            <h2 className="mb-4 text-xl font-bold">Messages</h2>
+            <table className="min-w-full border rounded-lg table-fixed">
+              <thead className="text-white bg-gray-600">
+                <tr>
+                  <th className="px-4 py-2">ID</th>
+                  <th className="px-4 py-2">Username</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2 w-80">Message</th>
+                  <th className="px-4 py-2">Actions</th>
                 </tr>
-              ))}
-            
-          </table>
+              </thead>
+              <tbody>
+                {filteredMessages.map((message) => (
+                  <tr key={message.contactUsId} className={message.contactUsId % 2 === 0 ? "bg-[#e5e7eb]" : "bg-[#d1d5db]"}>
+                    <td className="px-4 py-2 text-center sm:text-xs">{message.contactUsId}</td>
+                    <td className="px-4 py-2 text-center sm:text-xs">
+                      {message.username}
+                    </td>
+                    <td className="px-4 py-2 text-center sm:text-xs">{message.email}</td>
+                    <td className="px-4 py-2 text-center break-all sm:text-xs">{message.message}</td>
+                    <td className="px-4 py-2">
+                      <a
+                        onClick={() => deleteMessage(message.contactUsId)}
+                        className="w-full p-3 text-center text-red-500 rounded-full sm:text-xs hover:text-red-600"
+                      >
+                        Delete
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

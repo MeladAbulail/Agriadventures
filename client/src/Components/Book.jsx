@@ -89,9 +89,9 @@ const PaymentForm = () => {
         country: country,
         state: state,
         address: address,
-        price: price,  
         visitDate: visitDate,
         numberOfVisitors: numberOfVisitors,
+        price: price * numberOfVisitors,  
         locationName: locationName
       }, config);
 
