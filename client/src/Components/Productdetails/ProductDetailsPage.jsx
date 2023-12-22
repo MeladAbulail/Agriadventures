@@ -2,46 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import  ProductRating from './ProductRating'
-import DisplayProductComment from './DisplayProductComment'
+import ProductRating from './ProductRating';
+import DisplayProductComment from './DisplayProductComment';
 
 const ProductDetailsPage = ({ setCart }) => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false); // Add state for favorite status
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/Get_Product_By_Id/${productId}`);
-        setProduct(response.data.product); // Assuming that the response is a JSON object with product details
+        setProduct(response.data.product);
       } catch (err) {
         setError(err.message);
       }
     };
 
     fetchProduct();
-  }, [productId]); // Include id in the dependency array to re-fetch when it changes
+  }, [productId]);
 
   const addToCart = () => {
-    const token = Cookies.get("token");
+    const token = Cookies.get('token');
 
-    // Check if product.id is defined
     if (product.productId === undefined) {
-      console.error("Product ID is undefined. Cannot add item to cart.");
+      console.error('Product ID is undefined. Cannot add item to cart.');
       return;
     }
 
     const config = {
       headers: {
         Authorization: `${token}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     };
 
     axios
       .post(
-        "http://localhost:4000/Add_To_Cart",
+        'http://localhost:4000/Add_To_Cart',
         {
           productId: product.productId,
         },
@@ -49,17 +49,20 @@ const ProductDetailsPage = ({ setCart }) => {
       )
       .then((response) => {
         if (response.data.success) {
-          console.log("Item added to cart:", response.data);
-          // Update the cart state
+          console.log('Item added to cart:', response.data);
           setCart(response.data.cartItems);
         } else {
-          console.error("Failed to add item to cart. Server response:", response.data.message);
+          console.error('Failed to add item to cart. Server response:', response.data.message);
         }
       })
       .catch((error) => {
-        console.error("Error adding item to cart:", error);
-        // Handle error (e.g., show an error message to the user)
+        console.error('Error adding item to cart:', error);
       });
+  };
+
+  const handleToggleFavorite = () => {
+    // Toggle the favorite status
+    setIsFavorite((prevIsFavorite) => !prevIsFavorite);
   };
 
   if (error) {
@@ -69,6 +72,7 @@ const ProductDetailsPage = ({ setCart }) => {
   if (!product) {
     return <div>Loading...</div>;
   }
+  
 
   return (
     <div className='m-32'>
@@ -93,6 +97,12 @@ const ProductDetailsPage = ({ setCart }) => {
 
           {/* Purchase Button at the bottom right */}
           <div className="flex justify-end">
+          <button
+            className={`px-4 py-2 text-white ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} rounded hover:${isFavorite ? 'bg-red-600' : 'bg-blue-600'}`}
+            onClick={handleToggleFavorite}
+          >
+            {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+          </button>
             <button
               className="px-4 py-2 text-white bg-blue-500 rounded"
               onClick={addToCart}

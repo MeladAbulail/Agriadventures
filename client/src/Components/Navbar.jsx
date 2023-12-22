@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaUser, FaSignInAlt, FaBars, FaTimes, FaShoppingCart } from 'react-icons/fa';
 import Cookies from 'js-cookie';
 
 function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setLoggedIn] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const tokenExists = Cookies.get('token');
@@ -16,10 +17,13 @@ function Navbar() {
     setMenuOpen(!isMenuOpen);
   };
 
-  console.log('Rendering with isLoggedIn:', isLoggedIn);
+  const isSignInOrRegisterPageNavbar =
+    location.pathname === '/Signin' || location.pathname === '/Register';
 
+
+    
   return (
-    <div>
+    <div className={`${(isSignInOrRegisterPageNavbar) ? "hidden" : ""}`}>
       <div className="flex flex-wrap place-items-center">
         <section className="relative mx-auto">
           <nav className="flex justify-between w-screen text-black bg-white">
@@ -101,7 +105,7 @@ function Navbar() {
         </section>
       </div>
 
-      <div className={`xl:hidden ${isMenuOpen ? "block" : "hidden"}`}>
+      <div className={`xl:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
         <ul className="p-4 text-black bg-white">
           <Link to="/">
             <li>
@@ -123,13 +127,15 @@ function Navbar() {
               <a className="uppercase hover:text-[#a3e635]">Gallery</a>
             </li>
           </Link>
-          <Link to="/Signin">
-            <li>
-              <a className="uppercase hover:text-[#a3e635]">
-                {isLoggedIn ? "Profile" : "Sign In"}
-              </a>
-            </li>
-          </Link>
+          {!isSignInOrRegisterPageNavbar && (
+            <Link to={isLoggedIn ? '/Profile' : '/Signin'}>
+              <li>
+                <a className="uppercase hover:text-[#a3e635]">
+                  {isLoggedIn ? 'Profile' : 'Sign In'}
+                </a>
+              </li>
+            </Link>
+          )}
         </ul>
       </div>
     </div>

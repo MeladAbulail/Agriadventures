@@ -1,32 +1,102 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import  ActivityRating from './ActivityRating'
-import DisplayActivityComment from './DisplayActivityComment'
+import { useNavigate, useParams } from 'react-router-dom'; 
+import Cookies from 'js-cookie';
+import ActivityRating from './ActivityRating';
+import DisplayActivityComment from './DisplayActivityComment';
 
 const ActivitiesDetails = () => {
-  const { locationId } = useParams();
+  const { locationId } = useParams(); 
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
+  const token = Cookies.get('token');
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchLocation = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/Get_Location_By_Id/${locationId}`);
         setLocation(response.data.Location);
+
+        // Check if the activity is in favorites
+        const isActivityInFavorites = await checkIfActivityInFavorites(locationId);
+        setIsFavorite(isActivityInFavorites);
       } catch (err) {
         setError(err.message);
       }
     };
 
-    fetchProduct();
-  }, [locationId]); 
+    fetchLocation();
+  }, [locationId]);
+
+  const checkIfActivityInFavorites = async (locationId) => {
+    try {
+      if (!token) {
+        console.error('User not authenticated. Cannot check if activity is in favorites.');
+        return false;
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await axios.post(
+        'http://localhost:4000/Check_Favorites',
+        { locationId },
+        config
+      );
+
+      return response.data.isFavorite;
+    } catch (error) {
+      console.error('Error checking if activity is in favorites:', error);
+      return false;
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      if (!token) {
+        console.error('User not authenticated. Cannot toggle favorite status.');
+        return;
+      }
+  
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const data = {
+        locationId: location.locationId,
+        token: token, 
+      };
+      
+      if (isFavorite) {
+        await axios.post('http://localhost:4000/Remove_From_Favorites', data, config);
+      } else {
+        await axios.post('http://localhost:4000/Add_To_Favorites', data, config);
+      }
+  
+      // Update the local state to reflect the change
+      setIsFavorite(!isFavorite);
+    } catch (err) {
+      console.error('Error toggling favorite:', err.message);
+    }
+  };
 
   const handleBook = () => {
-    console.log("Handling checkout...");
-      navigate("/Book", { state: { price: location.price, locationId: location.locationId, visitDate: location.visitDate, locationName: location.locationName}});
+    console.log('Handling checkout...');
+    navigate('/Book', {
+      state: {
+        price: location.price,
+        locationId: location.locationId,
+        visitDate: location.visitDate,
+        locationName: location.locationName,
+      },
+    });
   };
 
   if (error) {
@@ -57,7 +127,13 @@ const ActivitiesDetails = () => {
           <div className="flex flex-row justify-end">
             <p className='mt-1 mr-2 lg:text-2xl md:text-xl'>Don't Miss Out – Book Your Activity Today! </p>
             <button
-              className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+              className={`px-4 py-2 text-white ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} rounded hover:${isFavorite ? 'bg-red-600' : 'bg-blue-600'}`}
+              onClick={handleToggleFavorite}
+            >
+              {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+            </button>
+            <button
+              className="px-4 py-2 ml-4 text-white bg-green-500 rounded hover:bg-green-600"
               onClick={handleBook}
             >
               Book now!

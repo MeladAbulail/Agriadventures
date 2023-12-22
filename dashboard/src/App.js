@@ -11,6 +11,7 @@ import LoginPage from './Components/LoginPage';
 import ConfirmProduct from './Components/ConfirmProduct'
 import AddPlace from './Components/AddPlace'
 import AddProduct from './Components/AddProduct'
+import FAQ from "./Components/FAQ"
 
 import './App.css';
 
@@ -28,6 +29,7 @@ function App() {
             <Routes>
               <Route path="/" element={<LoginPage />} />
               <Route path="/UserTable" element={<UsersTable />} />
+              <Route path="/FAQ" element={<FAQ/>}/>
               <Route path="/ActivitiesTable" element={<ActivitiesTable />} />
               <Route path="/ProductsTable" element={<ProductsTable />} />
               <Route path="/Messages" element={<Messages />} />

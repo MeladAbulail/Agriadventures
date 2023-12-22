@@ -9,7 +9,7 @@ const FAQ = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/comments`);
+        const response = await axios.get(`http://localhost:5000/questions`);
         setQuestions(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);

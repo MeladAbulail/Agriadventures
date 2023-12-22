@@ -128,23 +128,23 @@ const CategoryPage = () => {
 
   return (
     <section>
-      {/* <div className="text-center text-container">
-  <h1
-    className="relative z-10 font-bold text-transparent"
-    style={{
-      fontSize: '6rem',
-      background: `url(https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)`,
-      WebkitBackgroundClip: 'text',
-      color: 'transparent',
-      margin: '0 auto',
-      display: 'inline-block',
-      backgroundSize: 'cover',
-      userSelect: 'none',
-    }}
-  >
-    Activities
-  </h1>
-</div> */}
+      <div className="text-center text-container">
+        <h1
+          className="relative z-10 font-bold text-transparent"
+          style={{
+            fontSize: '6rem',
+            background: `url(https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)`,
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            margin: '0 auto',
+            display: 'inline-block',
+            backgroundSize: 'cover',
+            userSelect: 'none',
+          }}
+        >
+          Activities
+        </h1>
+      </div>
 
       <div className="flex flex-col py-20 mx-20 md:flex-row ">
 
@@ -244,66 +244,67 @@ const CategoryPage = () => {
             Results <span className="text-gray-600">({totalResults} items)</span>
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-1">
-  {filteredActivities.map((activity) => (
-    <div key={activity.id} className="relative flex flex-col bg-white border border-white shadow-lg border-3 md:flex-row">
-      <div className="grid w-full py-4 pl-4 md:w-fit">
-        <img
-          src={activity.imageUrl}
-          alt={activity.locationName}
-          className="rounded-xl"
-          style={{ width: '250px', height: '250px' }}
-        />
-      </div>
-      <div className="flex flex-col w-full p-3 space-y-2 md:w-2/3">
-        <h3 className="text-xl font-black text-gray-800 md:text-3xl">{activity.locationName}</h3>
-        <p className="text-base text-gray-500 md:text-lg">{activity.description}</p>
+            {filteredActivities.map((activity) => (
+              <div key={activity.id} className="relative flex flex-col bg-white border border-white shadow-lg border-3 md:flex-row">
+                <div className="grid w-full py-4 pl-4 md:w-fit">
+                  <img
+                    src={activity.imageUrl}
+                    alt={activity.locationName}
+                    className="rounded-xl"
+                    style={{ width: '250px', height: '250px' }}
+                  />
+                </div>
+                <div className="flex flex-col w-full p-3 space-y-2 md:w-2/3">
+                  <h3 className="text-xl font-black text-gray-800 md:text-3xl">{activity.locationName}</h3>
+                  <p className="text-base text-gray-500 md:text-lg line-clamp-4">{activity.description}</p>
 
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="hidden font-medium text-gray-500 md:block">{activity.category}</p>
-            <div className="flex items-center mt-1">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <p className="ml-1 text-base font-bold text-gray-600">
-                {activity.rating}
-                <span className="text-lg font-normal text-gray-500"> ({activity.totalStars} reviews)</span>
-              </p>
-            </div>
+
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="hidden font-medium text-gray-500 md:block">{activity.category}</p>
+                      <div className="flex items-center mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <p className="ml-1 text-base font-bold text-gray-600">
+                          {activity.rating}
+                          <span className="text-lg font-normal text-gray-500"> ({activity.totalStars} reviews)</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="absolute bottom-0 right-0 flex flex-row mb-4 mr-4" >
+                      <p className="mr-4 text-3xl font-black text-gray-800">
+                        ${activity.price}
+                        <span className="static bottom-0 text-base font-normal text-gray-600">/Person</span>
+                      </p>
+                      <button
+                        onClick={() => handleReadMoreClick(activity.locationId)}
+                        className="p-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:border-green-300"
+                      >
+                        Read more
+                      </button>
+                    </div>
+
+
+                  </div>
+
+
+                </div>
+              </div>
+            ))}
           </div>
 
-          <div className="absolute bottom-0 right-0 flex flex-row mb-4 mr-4" >
-          <p className="mr-4 text-3xl font-black text-gray-800">
-          ${activity.price}
-          <span className="static bottom-0 text-base font-normal text-gray-600">/Person</span>
-        </p>
-            <button
-              onClick={() => handleReadMoreClick(activity.locationId)}
-              className="p-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:border-green-300"
-            >
-              Read more
-            </button>
+          <div className="flex justify-center mt-4">
+            <CircularPagination
+              active={currentPage}
+              onPageChange={setCurrentPage}
+              totalPages={Math.ceil(filteredActivities.length / itemsPerPage)}
+            />
           </div>
-
-          
-        </div>
-
-        
-      </div>
-    </div>
-  ))}
-</div>
-
-        <div className="flex justify-center mt-4">
-          <CircularPagination
-            active={currentPage}
-            onPageChange={setCurrentPage}
-            totalPages={Math.ceil(filteredActivities.length / itemsPerPage)}
-          />
         </div>
       </div>
-    </div>
-  </section>
+    </section>
   );
 };
 

@@ -1,11 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from 'react-router-dom';
 
 
 
 function Footer(){
+  const location = useLocation();
+  
+  const isSignInOrRegisterPageFooter =
+    location.pathname === '/Signin' || location.pathname === '/Register';
+    
     return (
-      <div>
+      <div className={`${(isSignInOrRegisterPageFooter) ? "hidden" : ""}`}>
         <hr></hr>
         <footer class="bg-[#F2F5F8] text-center text-black  lg:text-left mt-auto ">
           <div class="flex items-center justify-center border-b-2 border-neutral-200 p-6 lg:justify-between">
