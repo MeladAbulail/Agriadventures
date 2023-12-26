@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2'
+
 
 function Signinpage() {
-  const loginUrl = 'http://localhost:4000/Login';
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -18,6 +19,22 @@ function Signinpage() {
     });
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:4000/auth/google';
+    Swal.fire({
+      position: "center",
+      icon: "",
+      title: "Redirecting",
+      showConfirmButton: false,
+      timer: 1000
+    });
+  };
+
+  const redirectToLanding = () => {
+    window.location.href = '/';
+  };
+
+  const loginUrl = 'http://localhost:4000/Login';
   const handleSignIn = async (e) => {
     e.preventDefault();
 
@@ -27,44 +44,43 @@ function Signinpage() {
         password: formData.password,
       });
 
-      console.log('Response from server:', response.data);
-
       if (response.data) {
         console.log('User authenticated successfully');
-
-        // Save the token in cookies with a 1-hour expiration
         const token = response.data.token;
         const userId = response.data.userId;
-
         Cookies.set('token', token, { expires: 1 / 24 });
         Cookies.set('userId', userId, { expires: 1 / 24 });
-
-        // Include the token in the request headers for subsequent requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-        redirectToLanding();
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Login Sucessful",
+          showConfirmButton: false,
+          timer: 1000
+        });
+        setTimeout(() => {
+          redirectToLanding();
+        }, 1000);
       } else {
         console.log('Invalid email or password');
+
       }
     } catch (error) {
       console.error('Error signing in:', error.response);
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Login Failed",
+        showConfirmButton: false,
+        timer: 1000
+      });
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:4000/auth/google';
-  };
-
-  const redirectToLanding = () => {
-    window.location.href = '/';
-  };
-
-
   return (
     <section>
-      <div className="flex items-stretch min-h-screen text-[#224229] bg-[#fcf9f3]">
-        {/* Left Section */}
-        <div className="relative items-center hidden w-1/2 bg-gray-500 bg-no-repeat bg-cover lg:flex" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1577495508048-b635879837f1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80)' }}>
+      <div className="flex items-stretch min-h-screen  bg-[#fcf9f3]">
+        <div className="relative items-center hidden w-1/2 bg-gray-500 bg-no-repeat bg-cover lg:flex " style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1577495508048-b635879837f1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80)' }}>
           <div className="z-10 w-full px-24">
             <h1 className="text-5xl font-bold tracking-wide text-left text-[#fcf9f3]">Keep it special</h1>
             <p className="my-4 text-3xl text-[#fcf9f3]">Capture your personal memory in a unique way, anywhere.</p>
@@ -83,22 +99,47 @@ function Signinpage() {
         </div>
 
         {/* Right Section */}
-        <div className="w-full px-6 py-16 mx-auto my-auto lg:w-1/2">
-          <div className="max-w-md mx-auto">
-            <h2 className="mb-8 text-3xl font-bold text-gray-800">Login to your account</h2>
-            <form>
+
+
+        <div className="w-full h-full px-6 py-16 mx-auto my-auto lg:w-1/2">
+
+          <div className="max-w-md mx-auto mt-10 ">
+
+            <h2 className="mb-8 text-3xl font-bold text-[#224229]">Sign in</h2>
+            <form onSubmit={handleSignIn}>
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-                  <input  type="email" id="email" name="email" autoComplete="email" required className="w-full p-3 mt-1 border border-gray-300 rounded-md" />
+                <div class="relative w-full min-w-[200px] h-10">
+                  <input
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    name="email"
+                    id="email"
+                    type="email"
+                    class="peer w-full h-full bg-white text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-[#224229]"
+                    placeholder=" " />
+
+                  <label
+                    class="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-blue-gray-500 leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-gray-500 peer-focus:text-gray-900 before:border-blue-gray-200 peer-focus:before:!border-gray-900 after:border-blue-gray-200 peer-focus:after:!border-gray-900">
+                    Email
+                  </label>
                 </div>
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                  <input type="password" id="password" name="password" autoComplete="current-password" required className="w-full p-3 mt-1 border border-gray-300 rounded-md" />
+                <div class="relative w-full min-w-[200px] h-10">
+                  <input
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="peer w-full h-full bg-white text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-gray-900"
+                    placeholder=" " />
+                  <label
+
+                    class="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-blue-gray-500 leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-gray-500 peer-focus:text-gray-900 before:border-blue-gray-200 peer-focus:before:!border-gray-900 after:border-blue-gray-200 peer-focus:after:!border-gray-900">Password
+                  </label>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-6">
+              {/* <div className="flex items-center justify-between mt-6">
                 <div className="flex items-center">
                   <input type="checkbox" id="remember-me" className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
                   <label htmlFor="remember-me" className="block ml-2 text-sm text-gray-900">Remember me</label>
@@ -107,14 +148,31 @@ function Signinpage() {
                 <div className="text-sm">
                   <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">Forgot your password?</a>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="mt-6">
-                <button type="submit" className="w-full p-3 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200">
+              <Link to="/Register"><div className="flex items-center justify-between mt-6">
+                <p className='text-[#224229]  '>Don't have an account ? <span className='text-[#224229] hover:text-[#314534]'>Register Now!</span></p>
+              </div></Link>
+
+              <div className="flex flex-col content-center justify-center mt-6 ">
+                <button type="submit" className="w-full px-4 py-2 font-semibold text-white bg-[#224229] rounded-md hover:bg-[#314534] focus:outline-none focus:ring focus:ring-indigo-200">
                   Sign in
                 </button>
+
+
+                <button onClick={handleGoogleLogin} aria-label="Continue with google" role="button" class=" justify-center focus:outline-none justify-items-center focus:ring-1 focus:ring-offset-1 focus:ring-gray-700 py-2 px-4 border rounded-lg border-gray-700 flex items-center  w-full mt-4">
+                  <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.9892 10.1871C18.9892 9.36767 18.9246 8.76973 18.7847 8.14966H9.68848V11.848H15.0277C14.9201 12.767 14.3388 14.1512 13.047 15.0812L13.0289 15.205L15.905 17.4969L16.1042 17.5173C17.9342 15.7789 18.9892 13.221 18.9892 10.1871Z" fill="#4285F4" />
+                    <path d="M9.68813 19.9314C12.3039 19.9314 14.4999 19.0455 16.1039 17.5174L13.0467 15.0813C12.2286 15.6682 11.1306 16.0779 9.68813 16.0779C7.12612 16.0779 4.95165 14.3395 4.17651 11.9366L4.06289 11.9465L1.07231 14.3273L1.0332 14.4391C2.62638 17.6946 5.89889 19.9314 9.68813 19.9314Z" fill="#34A853" />
+                    <path d="M4.17667 11.9366C3.97215 11.3165 3.85378 10.6521 3.85378 9.96562C3.85378 9.27905 3.97215 8.6147 4.16591 7.99463L4.1605 7.86257L1.13246 5.44363L1.03339 5.49211C0.37677 6.84302 0 8.36005 0 9.96562C0 11.5712 0.37677 13.0881 1.03339 14.4391L4.17667 11.9366Z" fill="#FBBC05" />
+                    <path d="M9.68807 3.85336C11.5073 3.85336 12.7344 4.66168 13.4342 5.33718L16.1684 2.59107C14.4892 0.985496 12.3039 0 9.68807 0C5.89885 0 2.62637 2.23672 1.0332 5.49214L4.16573 7.99466C4.95162 5.59183 7.12608 3.85336 9.68807 3.85336Z" fill="#EB4335" />
+                  </svg>
+                  <p class="text-base font-medium ml-4 text-gray-700" >Continue with Google</p>
+                </button>
+
               </div>
             </form>
+            <Link to="/"><p className='text-[#224229] hover:text-[#314534]  text-xl mt-4' >&larr; Go back</p></Link>
           </div>
         </div>
       </div>

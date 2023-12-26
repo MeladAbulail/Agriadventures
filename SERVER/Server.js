@@ -6,7 +6,7 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require("passport");
 const cookieParser = require('cookie-parser');
-const poet = process.env.Port;
+const port = process.env.Port;
 const User = require('./Routers/User');
 const Locations = require("./Routers/Locations")
 const Products = require("./Routers/Products")
@@ -19,7 +19,10 @@ const Order = require("./Routers/Order")
 const Reservation = require("./Routers/Reservation")
 const RatingsAndReviewsLocation  = require("./Routers/RatingsAndReviewsLocation")
 const RatingsAndReviewsProduct = require("./Routers/RatingsAndReviewsProduct")
-const { CreateUsersTable, CreateLocationsTable, CreateRatingsAndReviewsTable, CreateActivitiesTable, CreateContactUsTable, CreateReservationTable, CreateCartTable, CreateProductsTable, CreateOrdersTable, CreateRatingsAndReviewsProductTable } = require("./Models/Tables")
+const FAQ = require("./Routers/FAQ")
+const FavoritesLocations = require("./Routers/FavoritesLocations")
+const FavoritesProducts = require("./Routers/FavoritesProducts")
+const { CreateUsersTable, CreateLocationsTable, CreateRatingsAndReviewsTable, CreateActivitiesTable, CreateContactUsTable, CreateReservationTable, CreateCartTable, CreateProductsTable, CreateOrdersTable, CreateRatingsAndReviewsProductTable, CreateFAQTable, CreateFavoritesProductsTable, CreateFavoritesLocationsTable } = require("./Models/Tables")
 
 app.use(cors());
 app.use(express.json());
@@ -39,9 +42,12 @@ app.use(Order);
 app.use(Reservation);
 app.use(RatingsAndReviewsLocation);
 app.use(RatingsAndReviewsProduct);
+app.use(FAQ);
+app.use(FavoritesLocations);
+app.use(FavoritesProducts);
 
-if(false) {CreateUsersTable(), CreateLocationsTable(), CreateRatingsAndReviewsTable(), CreateContactUsTable(), CreateReservationTable(), CreateCartTable(), CreateProductsTable(), CreateOrdersTable(), CreateRatingsAndReviewsProductTable()} 
+if(false) {CreateUsersTable(), CreateLocationsTable(), CreateRatingsAndReviewsTable(), CreateContactUsTable(), CreateReservationTable(), CreateCartTable(), CreateProductsTable(), CreateOrdersTable(), CreateRatingsAndReviewsProductTable(), CreateFAQTable(), CreateFavoritesProductsTable(), CreateFavoritesLocationsTable()} 
 
-app.listen(poet, () => {
-  console.log(`Server is running on port ${poet}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

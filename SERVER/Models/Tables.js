@@ -122,8 +122,8 @@ const Locations = sequelize.define('Locations', {
 });
 
 //! Ratings and Reviews Taple Model 
-const Ratings_And_Reviews = sequelize.define('Ratings_And_Reviews', {
-  ratingsAndReviewsId: {
+const Ratings_And_Reviews_Locations = sequelize.define('Ratings_And_Reviews_Locations', {
+  ratingsAndReviewsLocationsId: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -478,6 +478,72 @@ const Orders = sequelize.define('Orders', {
   },
 });
 
+const FAQ = sequelize.define("FAQ", {
+  faqId: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  question: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  answer: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+});
+
+const FavoritesProducts = sequelize.define("FavoritesProducts", {
+  favoritesProductsId: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  productId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+});
+
+const FavoritesLocations = sequelize.define("FavoritesLocations", {
+  favoritesLocationsId: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  locationId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+});
+
 //! Function For User TAble Modul
 const CreateUsersTable = () => {
   User.sync({ alter: true })
@@ -500,11 +566,11 @@ const CreateLocationsTable = () => {
     });
 }
 
-//! Function For Ratings_And_Reviews TAble Modul
+//! Function For Ratings_And_Reviews_Locations TAble Modul
 const CreateRatingsAndReviewsTable = () => {
-  Ratings_And_Reviews.sync({ alter: true })
+  Ratings_And_Reviews_Locations.sync({ alter: true })
     .then(() => {
-      console.log("Ratings_And_Reviews Table Created");
+      console.log("Ratings_And_Reviews_Locations Table Created");
     })
     .catch((error) => {
       console.log("Ann Error Occurred", error);
@@ -588,6 +654,39 @@ const CreateOrdersTable = () => {
     })
 }
 
+//! Function For FAQ TAble Modul
+const CreateFAQTable = () => {
+FAQ.sync({ alter: true })
+  .then(() => {
+    console.log("FAQ Table Created");
+  })
+  .catch((error) => {
+    console.error("Error creating FAQ table:", error);
+  });
+}
+
+//! Function For FavoritesProducts TAble Modul
+const CreateFavoritesProductsTable = () => {
+  FavoritesProducts.sync({ alter: true })
+    .then(() => {
+      console.log("Favorites Products Table Created");
+    })
+    .catch((error) => {
+      console.error("Error creating Favorites Products table:", error);
+    });
+  }
+
+//! Function For FavoritesLocations TAble Modul
+const CreateFavoritesLocationsTable = () => {
+  FavoritesLocations.sync({ alter: true })
+    .then(() => {
+      console.log("Favorites Locations Table Created");
+    })
+    .catch((error) => {
+      console.error("Error creating Favorites Locations table:", error);
+    });
+  }
+
 module.exports = {
   CreateUsersTable,
   CreateLocationsTable,
@@ -599,14 +698,20 @@ module.exports = {
   CreateCartTable,
   CreateProductsTable,
   CreateOrdersTable,
+  CreateFAQTable,
+  CreateFavoritesProductsTable,
+  CreateFavoritesLocationsTable,
   User,
   Locations,
-  Ratings_And_Reviews,
+  Ratings_And_Reviews_Locations,
   Contact_us,
   Reservation,
   Cart,
   Products,
   Orders,
-  Ratings_And_Reviews_Product
+  Ratings_And_Reviews_Product,
+  FAQ,
+  FavoritesProducts,
+  FavoritesLocations
 }
 

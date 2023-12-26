@@ -1,4 +1,4 @@
-const { Locations, Ratings_And_Reviews } = require('../Models/Tables');
+const { Locations, Ratings_And_Reviews_Locations } = require('../Models/Tables');
 
 //! Add New Location Start
 const addLocation = async (req, res) => {

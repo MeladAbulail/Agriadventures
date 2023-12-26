@@ -1,10 +1,10 @@
-const { Ratings_And_Reviews, User, Reservation, Locations } = require('../Models/Tables');
+const { Ratings_And_Reviews_Locations, User, Reservation, Locations } = require('../Models/Tables');
 
 //! Get all ratings and reviews According locationId
 const getRatingsAndReviewsByLocationId = async (req, res) => {
   const locationId = req.params.locationId
   try {
-    const ratingsAndReviews = await Ratings_And_Reviews.findAll({
+    const ratingsAndReviews = await Ratings_And_Reviews_Locations.findAll({
       where: { locationId: locationId, isDeleted: false }
     });
     res.json({
@@ -29,7 +29,7 @@ const getRatingAndReviewByUserId = async (req, res) => {
     return "You Must Log In First"
   }
   try {
-    const ratingAndReview = await Ratings_And_Reviews.findAll({
+    const ratingAndReview = await Ratings_And_Reviews_Locations.findAll({
       where: { userId: userId, isDeleted: false }
     });
     res.json({
@@ -67,7 +67,7 @@ const addNewRatingAndReview = async (req, res) => {
 
     const userData = await User.findByPk(userId);
 
-    const newRatingAndReview = await Ratings_And_Reviews.create({
+    const newRatingAndReview = await Ratings_And_Reviews_Locations.create({
       locationId,
       userId,
       locationName,
@@ -107,11 +107,11 @@ const addNewRatingAndReview = async (req, res) => {
 
 //! Update rating and review
 const updateRatingAndReview = async (req, res) => {
-  const ratingsAndReviewsId = req.params.ratingsAndReviewsId;
+  const ratingsAndReviewsLocationsId = req.params.ratingsAndReviewsLocationsId;
   const { comment, rating } = req.body; // Assuming comment and rating are part of the request body
 
   try {
-    const updateRatingAndReview = await Ratings_And_Reviews.findByPk(ratingsAndReviewsId);
+    const updateRatingAndReview = await Ratings_And_Reviews_Locations.findByPk(ratingsAndReviewsLocationsId);
 
     if (!updateRatingAndReview) {
       return res.status(404).json({ error: 'Rating and Review not found' });
@@ -148,9 +148,9 @@ const updateRatingAndReview = async (req, res) => {
 
 //! Delete rating and review
 const deleteRatingAndReview = async (req, res) => {
-  const ratingsAndReviewsId = req.params.ratingsAndReviewsId;
+  const ratingsAndReviewsLocationsId = req.params.ratingsAndReviewsLocationsId;
   try {
-    const ratingAndReview = await Ratings_And_Reviews.findByPk(ratingsAndReviewsId);
+    const ratingAndReview = await Ratings_And_Reviews_Locations.findByPk(ratingsAndReviewsLocationsId);
     if (!ratingAndReview) {
       return res.status(404).json({ error: 'Rating and Review not found' });
     }

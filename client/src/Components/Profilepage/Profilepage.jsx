@@ -6,6 +6,8 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState({});
   const [orderHistory, setOrderHistory] = useState([]);
   const [visitHistory, setVisitHistory] = useState([]);
+  const [favoritesLocations, setFavoritesLocations] = useState([]);
+  const [favoritesProducts, setfavoritesProducts] = useState([]);
   const [editing, setEditing] = useState(false);
   const [editedUserData, setEditedUserData] = useState({
     firstName: '',
@@ -52,9 +54,30 @@ const ProfilePage = () => {
       }
     };
 
+    const fetchFavoritesLocations = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/Get_Favorites_Locations_By_UserId`, config);
+        setFavoritesLocations(response.data);
+      } catch (error) {
+        console.error('Error fetching favorites Locations:', error);
+      }
+    };
+
+    
+    const fetchFavoritesProducts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/Get_Favorites_Products_By_UserId`, config);
+        setfavoritesProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching favorites Products:', error);
+      }
+    };
+
     fetchUserData();
     fetchOrderHistory();
     fetchVisitHistory();
+    fetchFavoritesLocations();
+    fetchFavoritesProducts();
   }, []);
 
   useEffect(() => {
@@ -320,6 +343,56 @@ const ProfilePage = () => {
                   <td className="p-2 border">
                     {new Date(visit.visitDate).toLocaleString()}
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+          {/* Favorites Locations Table */}
+          <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="mb-2 text-2xl font-semibold">Favorites Locations</h2>
+          <table className="w-full bg-white border border-collapse border-gray-300 table-fixed">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2 border">Location</th>
+                <th className="p-2 border">Price</th>
+                <th className="p-2 border">Owner</th>
+                <th className="p-2 border">Evaluation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {favoritesLocations.map((location) => (
+                <tr key={location.locationId}>
+                  <td className="p-2 border">{location.locationName}</td>
+                  <td className="p-2 border">{location.price}</td>
+                  <td className="p-2 border">{location.owner}</td>
+                  <td className="p-2 border">{location.evaluation}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+          {/* Favorites Products Table */}
+          <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="mb-2 text-2xl font-semibold">Favorites Products</h2>
+          <table className="w-full bg-white border border-collapse border-gray-300 table-fixed">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2 border">Products</th>
+                <th className="p-2 border">Price</th>
+                <th className="p-2 border">Owner</th>
+                <th className="p-2 border">Evaluation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {favoritesProducts.map((product) => (
+                <tr key={product.productId}>
+                  <td className="p-2 border">{product.productName}</td>
+                  <td className="p-2 border">{product.price}</td>
+                  <td className="p-2 border">{product.category}</td>
+                  <td className="p-2 border">{product.evaluation}</td>
                 </tr>
               ))}
             </tbody>

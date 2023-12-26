@@ -25,19 +25,19 @@ function Aboutuspage() {
   return (
     <div className='z-0'>
       <div>
-        <div class="bg-[#F2F5F8] text-black">
+        <div class="bg-[#fcf9f3] text-[#224229]">
           <section
             id="features"
-            class="relative block px-6 py-10 md:py-20 md:px-10  border-t border-b border-neutral-900 bg-[#F2F5F8]"
+            class="relative block px-6 py-10 md:py-20 md:px-10  border-t border-b border-neutral-900 bg-[#fcf9f3]"
           >
             <div class="relative mx-auto max-w-5xl text-center">
-              <span class="text-black my-3 flex items-center justify-center font-medium uppercase tracking-wider">
+              <span class="text-[#224229] my-3 flex items-center justify-center font-medium uppercase tracking-wider">
                 Who are we
               </span>
-              <h2 class="block w-full text-black text-3xl sm:text-4xl">
+              <h2 class="block w-full text-[#224229] text-3xl sm:text-4xl">
                 Agriadventure
               </h2>
-              <p class="mx-auto my-4 w-full max-w-xl bg-transparent text-center font-medium leading-relaxed tracking-wide text-black">
+              <p class="mx-auto my-4 w-full max-w-xl bg-transparent text-center font-medium leading-relaxed tracking-wide text-[#224229]">
                 Your best choice for agri-tourism
               </p>
             </div>

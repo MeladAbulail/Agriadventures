@@ -49,7 +49,7 @@ function Activities() {
   };
 
   return (
-    <div className="flex flex-col mx-0 mt-5 md:mx-40">
+    <div className="flex flex-col mx-0 mt-5 md:mx-40 bg-[#fcf9f3]">
       <div className="mb-4">
         <h1 className="mb-4 text-4xl font-bold md:text-6xl">Activities</h1>
       </div>

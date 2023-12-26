@@ -51,7 +51,7 @@ function PackageEvents() {
   };
 
   return (
-    <div className="flex mt-32 ml-32 mr-10">
+    <div className="flex mt-32 ml-32 mr-10 bg-[#fcf9f3]">
       <div className="flex flex-col ml-10">
         <h1 className="mb-10 text-6xl font-black">Activities</h1>
         <p className="items-center mt-auto text-3xl font-medium mb-11">

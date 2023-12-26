@@ -45,7 +45,7 @@ const Hero = () => {
   }, [currentSlide]);
 
   return (
-    <div>
+    <div className="bg-[#fcf9f3]">
       <div className="relative overflow-hidden h-[500px]">
         {slides.map((slide, index) => (
           <div

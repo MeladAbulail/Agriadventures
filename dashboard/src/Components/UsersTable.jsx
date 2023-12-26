@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const initialUserFormState = {
   firstName: '',
@@ -17,47 +18,55 @@ const UserTable = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [userForm, setUserForm] = useState(initialUserFormState);
   const [passwordMatchError, setPasswordMatchError] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+
+  const navigate = useNavigate();
   
   const ITEMS_PER_PAGE = 5;
 
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    console.log(currentPage)
+  const redirectToHome = () => {
+    navigate.push('/UsersTable');
   };
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = `http://localhost:4000/Get_All_Users_PAGINATION?page=${currentPage}`;
-        const response = await axios.get(apiUrl);
-
-        setUsers(response.data.users);
-
-        if (response.data.totalPages !== undefined) {
-          setTotalPages(response.data.totalPages);
-        } else {
-          const totalItems = response.data.totalItems;
-          const itemsPerPage = response.data.itemsPerPage;
-          const calculatedTotalPages = Math.ceil(totalItems / itemsPerPage);
-          setTotalPages(calculatedTotalPages);
-        }
+        setCurrentPage(1);
+        setTotalPages(1);
+        const response = await axios.get(`http://localhost:4000/Get_All_Users_PAGINATION?page=${currentPage}`);
+        setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
+        setTotalPages(response.data.totalPages || Math.ceil(response.data.totalItems / response.data.itemsPerPage));
       } catch (error) {
         console.error('Error fetching users:', error);
       }
-      console.log("aaaaa" + totalPages)
     };
-
+    
     fetchData();
-  }, [currentPage]);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/Get_All_Users_PAGINATION?page=${currentPage}`);
+        setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
+        setTotalPages(response.data.totalPages || Math.ceil(response.data.totalItems / response.data.itemsPerPage));
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+    
+    fetchData();
+  }, [currentPage, userForm]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   const deleteUser = (userId) => {
-    const apiUrl = 'http://localhost:4000/Delete_User_By_Id';
-    axios.delete(`${apiUrl}/${userId}`)
+    axios.delete(`http://localhost:4000/Delete_User_By_Id/${userId}`)
       .then(res => {
-        console.log("Deleted:", res.data.users);
         setUsers(users.filter(user => user.userId !== userId));
       })
       .catch(err => {
@@ -70,21 +79,22 @@ const UserTable = () => {
       setPasswordMatchError('Password and Confirm Password must match');
       return;
     }
-
+  
     setPasswordMatchError('');
-
-    const apiUrl = 'http://localhost:4000/Register';
-    axios.post(apiUrl, userForm)
+  
+    axios.post("http://localhost:4000/Register", userForm)
       .then(response => {
         console.log('User added successfully:', response.data);
         setUsers(response.data.users);
-        setUserForm(initialUserFormState); // Reset userForm to initial state
+        setUserForm(initialUserFormState); 
         setShowAddUserForm(false);
+        redirectToHome()
       })
       .catch(error => {
         console.error('Error adding user:', error);
       });
   };
+  
 
   const toggleAddUserForm = () => {
     setShowAddUserForm(!showAddUserForm);
@@ -96,9 +106,19 @@ const UserTable = () => {
   const currentUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
 
-  console.log('totalPages:', totalPages);
-  console.log('pageNumbers:', pageNumbers);
-
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      console.log('Changing to Previous Page:', currentPage - 1);
+      handlePageChange(currentPage - 1);
+    }
+  };
+  
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      console.log('Changing to Next Page:', currentPage + 1);
+      handlePageChange(currentPage + 1);
+    }
+  };
 
   return (
     <div className="w-full min-h-full p-4 mt-16 overflow-x-auto text-black ">
@@ -359,32 +379,39 @@ const UserTable = () => {
           ))}
         </table>
 
-        
-
         <div className="flex items-center justify-between mt-4">
-          <div>
-            <span className="text-lg font-semibold">
-              Page {currentPage} of {totalPages}
-            </span>
-          </div>
-          <div className="flex space-x-2">
-            {pageNumbers.map((number) => (
-              <button
-                key={number}
-                onClick={() => handlePageChange(number)}
-                className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600 ${
-                  currentPage == number ? 'bg-blue-600' : ''
-                }`}
-              >
-                {number}
-              </button>
-            ))}
-          </div>
-        </div>
-      
-
-
-      </div>
+  <div>
+    <span className="text-lg font-semibold">
+      Page {currentPage} of {totalPages}
+    </span>
+  </div>
+  <div className="flex space-x-2">
+    <button
+      onClick={handlePrevPage}
+      className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600`}
+    >
+      Previous
+    </button>
+    {pageNumbers.map((number) => (
+      <button
+        key={number}
+        onClick={() => handlePageChange(number)}
+        className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600 ${
+          currentPage === number ? 'bg-blue-600' : ''
+        }`}
+      >
+        {number}
+      </button>
+    ))}
+    <button
+      onClick={handleNextPage}
+      className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600`}
+    >
+      Next
+    </button>
+  </div>
+</div>
+    </div>
     </div>
   );
 }

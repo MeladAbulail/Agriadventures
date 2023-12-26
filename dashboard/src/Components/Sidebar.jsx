@@ -32,6 +32,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <Link to="/ActivitiesTable"><li className="p-2 m-2 text-xl bg-gray-800 rounded">Activities</li></Link>
             <Link to="/ProductsTable"><li className="p-2 m-2 text-xl bg-gray-800 rounded">Products</li></Link>
             <Link to="/Messages"><li className="p-2 m-2 text-xl bg-gray-800 rounded">Messages</li></Link>
+            <Link to="/FAQ"><li className="p-2 m-2 text-xl bg-gray-800 rounded">FAQ</li></Link>
             <Link to="/ConfirmPlace"><li className="p-2 m-2 text-xl bg-gray-800 rounded">Confirm Place</li></Link>
             <Link to="/ConfirmProduct"><li className="p-2 m-2 text-xl bg-gray-800 rounded">Confirm Product</li></Link>
             <Link to="/LoginPage"><button className="w-full px-4 py-2 text-white bg-red-500 rounded-full hover:bg-red-600" onClick={handleLogout}>Logout</button></Link>

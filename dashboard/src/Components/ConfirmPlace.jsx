@@ -9,6 +9,7 @@ function ConfirmPlace() {
       try {
         const response = await axios.get('http://localhost:4000/Get_Location_By_ViewThePlace');
         setConfirmedData(response.data.locations);
+        console.log(response.data.locations);
       } catch (error) {
         console.error('Error fetching confirmed data:', error);
       }

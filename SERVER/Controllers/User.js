@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const joi = require("joi");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const { User, Ratings_And_Reviews } = require("../Models/Tables");
+const { User, Ratings_And_Reviews_Locations } = require("../Models/Tables");
 
 //! Create A New User (Registration)
 const registerUser = async (req, res) => {
@@ -289,16 +289,16 @@ const getAdminUsers = async (req, res) => {
 //! Update User According UserId
 const updateUserById = async (req, res) => {
   const userId = req.user.userId;
-  const { firstName, lastName, gender, password } = req.body;
+  const { firstName, lastName, gender } = req.body;
 
-  //! Validate user input
+  // ! Validate user input
   const userSchema = joi.object({
     firstName: joi.string().min(3).max(15),
     lastName: joi.string().min(3).max(15),
-    password: joi.string().min(5).max(20),
+    // password: joi.string().min(5).max(20),
     gender: joi.string().valid("male", "female").insensitive(),
-    image: joi.allow(),
-    email: joi.allow(),
+    // image: joi.allow(),
+    // email: joi.allow(),
   });
 
   const { error } = userSchema.validate(req.body);
@@ -311,7 +311,7 @@ const updateUserById = async (req, res) => {
   try {
     // Check if User Exists
     const existingUser = await User.findOne({ where: { userId: userId } });
-    const ratingsAndReviews = await Ratings_And_Reviews.findAll({
+    const ratingsAndReviews = await Ratings_And_Reviews_Locations.findAll({
       where: { userId: userId },
     });
 
@@ -322,9 +322,13 @@ const updateUserById = async (req, res) => {
       });
     } else {
       // Hash the password if provided
-      if (password) {
-        // ... (Your existing code for hashing password)
-      }
+      if (existingUser.password !== 'No Access') {
+        const { password } = req.body
+        const passwordMatch = await bcrypt.compare(password, existingUser.password);
+        if (!passwordMatch) {
+          return res.status(401).json({ error: 'Invalid email or password.' });
+        }
+      } 
 
       // Update the User details if provided
       if (firstName) {
@@ -347,7 +351,7 @@ const updateUserById = async (req, res) => {
       // Save changes to User
       await existingUser.save();
 
-      // Update records in Ratings_And_Reviews
+      // Update records in Ratings_And_Reviews_Locations
       for (const record of ratingsAndReviews) {
         if (firstName) {
           record.firstName = firstName;
@@ -361,7 +365,7 @@ const updateUserById = async (req, res) => {
           record.imageUrl = res.locals.site;
         }
 
-        // Save changes to Ratings_And_Reviews
+        // Save changes to Ratings_And_Reviews_Locations
         await record.save();
       }
 
@@ -424,29 +428,35 @@ const deleteUserById = async (req, res) => {
   }
 }
 
+//! Get All Users Pagination
 const getAllUsersPagination = async (req, res) => {
   try {
-    const page = req.query.page || 1; 
-    const perPage = 5; 
+    const page = req.query.page || 1
+    const perPage = 5;
 
-    const offset = (page - 1) * perPage;
-
-    const users = await User.findAll({
-      offset,
+    const { count, rows } = await User.findAndCountAll({
+      where: {
+        isDeleted: false,
+      },
       limit: perPage,
+      offset: (page - 1) * perPage,
     });
 
-    const totalUsers = await User.count(); 
+    const totalPages = Math.ceil(count / perPage);
 
     res.status(200).json({
-      users,
-      totalUsers,
+      users: rows,
+      totalUsers: count,
+      totalPages,
+      currentPage: page,
     });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
+
+
 
 
 module.exports = {

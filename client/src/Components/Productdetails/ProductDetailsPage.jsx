@@ -9,13 +9,15 @@ const ProductDetailsPage = ({ setCart }) => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false); // Add state for favorite status
+  const [isFavorite, setIsFavorite] = useState(false); 
+  const token = Cookies.get('token');
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/Get_Product_By_Id/${productId}`);
         setProduct(response.data.product);
+        checkIfActivityInFavorites()
       } catch (err) {
         setError(err.message);
       }
@@ -60,9 +62,56 @@ const ProductDetailsPage = ({ setCart }) => {
       });
   };
 
-  const handleToggleFavorite = () => {
-    // Toggle the favorite status
-    setIsFavorite((prevIsFavorite) => !prevIsFavorite);
+  const checkIfActivityInFavorites = async () => {
+    try {
+      if (!token) {
+        setError('User not authenticated. Cannot check if activity is in favorites.');
+        return false;
+      }
+  
+      const config = {
+        headers: {
+          Authorization: token,
+        },
+      };
+  
+      const response = await axios.get(`http://localhost:4000/Get_Favorites_Products_By_ProductId/${productId}`, config);
+      if (response.data.length > 0) {
+        setIsFavorite(true);
+      } else {
+        setIsFavorite(false);
+      }
+    } catch (error) {
+      setError('Error checking if activity is in favorites: ' + error.message);
+      return false;
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      if (!token) {
+        setError('User not authenticated. Cannot toggle favorite status.');
+        return;
+      }
+  
+      const config = {
+        headers: {
+          Authorization: token,
+        },
+      };
+  
+      if (isFavorite) {
+        await axios.delete(`http://localhost:4000/Delete_Favorites_Products/${productId}`, config);
+        setIsFavorite(false);
+      } else {
+        setIsFavorite(true);
+        await axios.post(`http://localhost:4000/Add_New_Favorites_Products/${productId}`, {}, config);
+      }
+  
+      setError(null); 
+    } catch (err) {
+      setError('Error toggling favorite: ' + err.message);
+    }
   };
 
   if (error) {
@@ -75,7 +124,7 @@ const ProductDetailsPage = ({ setCart }) => {
   
 
   return (
-    <div className='m-32'>
+    <div className='m-32 '>
       <div className="flex p-4 px-32 py-20">
         {/* Image Section on the left with adjusted height and width */}
         <div className="w-1/2">
@@ -98,11 +147,11 @@ const ProductDetailsPage = ({ setCart }) => {
           {/* Purchase Button at the bottom right */}
           <div className="flex justify-end">
           <button
-            className={`px-4 py-2 text-white ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} rounded hover:${isFavorite ? 'bg-red-600' : 'bg-blue-600'}`}
-            onClick={handleToggleFavorite}
-          >
-            {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-          </button>
+              className={`px-4 py-2 text-white ${isFavorite ? 'bg-red-500' : 'bg-blue-500'} rounded hover:${isFavorite ? 'bg-red-600' : 'bg-blue-600'}`}
+              onClick={handleToggleFavorite}
+            >
+              {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+            </button>
             <button
               className="px-4 py-2 text-white bg-blue-500 rounded"
               onClick={addToCart}

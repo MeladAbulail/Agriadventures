@@ -9,16 +9,10 @@ import Products from './Products'
 import AddPlace from './AddPlace'
 import AddProduct from './AddProduct'
 import SubmitLoc from './SubmitLoc'
-import Cookies from 'js-cookie';
-const token = Cookies.get('token');
-const userId = Cookies.get('userId');
-console.log('token 222222222222', token)
-console.log('token 222222222222', userId)
-
 
 function Homepage() {
   return (
-    <div>
+    <div className='bg-[#fcf9f3]'>
       <Hero/>
       <Locations/>
       <hr></hr>

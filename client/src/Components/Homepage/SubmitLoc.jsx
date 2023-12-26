@@ -34,7 +34,7 @@ const SubmitLoc = () => {
 
   return (
     <section
-      className="w-full py-8"
+      className="w-full py-8 bg-[#fcf9f3]"
       style={{
         backgroundImage:
           'url(https://images.unsplash.com/photo-1492185244344-91fde303149e?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)',

@@ -40,7 +40,7 @@ const ContactUsPage = () => {
   };
 
   return (
-    <div>
+    <div className='bg-[#fcf9f3] text-[#224229]'>
       <div className="my-2 ml-4 lg:ml-32">
         <ol class="flex items-center whitespace-nowrap" aria-label="Breadcrumb">
           <li class="inline-flex items-center">
@@ -51,7 +51,7 @@ const ContactUsPage = () => {
               Home
             </a></Link>
             <svg
-              class="flex-shrink-0 mx-2 overflow-visible h-4 w-4 text-gray-400 dark:text-neutral-600 dark:text-neutral-600"
+              class="flex-shrink-0 mx-2 overflow-visible h-4 w-4 text-gray-400  dark:text-neutral-600"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -181,7 +181,7 @@ const ContactUsPage = () => {
               </p>
               {/* ::Email contact */}
               <a
-                href="#mail"
+                href="melad.k.abulail@gmail.com"
                 className="inline-flex items-center text-sm font-semibold text-blue-400 hover:text-blue-500"
               >
                 Melad.k.abulail@gmail.com

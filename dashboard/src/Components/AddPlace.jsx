@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
 
 function AddPlace() {
   const [formData, setFormData] = useState({
@@ -16,7 +15,6 @@ function AddPlace() {
     visitDate: '',
     image: null,
   });
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -25,10 +23,6 @@ function AddPlace() {
       [name]: type === 'file' ? files[0] : value,
     }));
   };
-
-  const handleSubmitActivity = () =>{
-    navigate('/ActivitiesTable');
-  }
 
   const token = Cookies.get('token');
 
@@ -145,7 +139,7 @@ function AddPlace() {
             onChange={handleChange}
           >
             <option>Select Location</option>
-            <option value="Zarqa">Zarqa</option>
+            <option value="Zarqa" >Zarqa</option>
             <option value="Amman">Amman</option>
             <option value="Aqaba">Aqaba</option>
             <option value="Ajloun">Ajloun</option>
@@ -217,7 +211,6 @@ function AddPlace() {
         <button
           type="submit"
           className="px-4 py-2 text-white transition duration-300 bg-blue-500 rounded hover:bg-blue-700"
-          onClick={handleSubmitActivity}
         >
           Submit
         </button>

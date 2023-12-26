@@ -51,7 +51,7 @@ function AddPlace() {
   };
 
   return (
-    <div className="max-w-2xl p-8 mx-auto my-8 bg-white rounded-lg shadow-lg">
+    <div className="max-w-2xl p-8 mx-auto my-8 bg-[#fcf9f3] rounded-lg shadow-lg">
       <h2 className="mb-4 text-2xl font-bold">Add Place</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col">

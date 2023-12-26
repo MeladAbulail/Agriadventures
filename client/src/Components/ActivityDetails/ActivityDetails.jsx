@@ -17,75 +17,68 @@ const ActivitiesDetails = () => {
     const fetchLocation = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/Get_Location_By_Id/${locationId}`);
-        setLocation(response.data.Location);
-
-        // Check if the activity is in favorites
-        const isActivityInFavorites = await checkIfActivityInFavorites(locationId);
-        setIsFavorite(isActivityInFavorites);
+          setLocation(response.data.Location);  
+          checkIfActivityInFavorites()
       } catch (err) {
-        setError(err.message);
+        console.err(err)
       }
     };
-
     fetchLocation();
-  }, [locationId]);
+  }, []);
+  
 
-  const checkIfActivityInFavorites = async (locationId) => {
+  const checkIfActivityInFavorites = async () => {
     try {
       if (!token) {
-        console.error('User not authenticated. Cannot check if activity is in favorites.');
+        setError('User not authenticated. Cannot check if activity is in favorites.');
         return false;
       }
-
+  
       const config = {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
       };
-
-      const response = await axios.post(
-        'http://localhost:4000/Check_Favorites',
-        { locationId },
-        config
-      );
-
-      return response.data.isFavorite;
+  
+      const response = await axios.get(`http://localhost:4000/Get_Favorites_Locations_By_LocationId/${locationId}`, config);
+      if (response.data.length > 0) {
+        setIsFavorite(true);
+      } else {
+        setIsFavorite(false);
+      }
     } catch (error) {
-      console.error('Error checking if activity is in favorites:', error);
+      setError('Error checking if activity is in favorites: ' + error.message);
       return false;
     }
   };
-
+  
   const handleToggleFavorite = async () => {
     try {
       if (!token) {
-        console.error('User not authenticated. Cannot toggle favorite status.');
+        setError('User not authenticated. Cannot toggle favorite status.');
         return;
       }
   
       const config = {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
       };
   
-      const data = {
-        locationId: location.locationId,
-        token: token, 
-      };
-      
       if (isFavorite) {
-        await axios.post('http://localhost:4000/Remove_From_Favorites', data, config);
+        await axios.delete(`http://localhost:4000/Delete_Favorites_Locations/${locationId}`, config);
+        setIsFavorite(false);
       } else {
-        await axios.post('http://localhost:4000/Add_To_Favorites', data, config);
+        setIsFavorite(true);
+        await axios.post(`http://localhost:4000/Add_New_Favorites_Locations/${locationId}`, {}, config);
       }
   
-      // Update the local state to reflect the change
-      setIsFavorite(!isFavorite);
+      setError(null); 
     } catch (err) {
-      console.error('Error toggling favorite:', err.message);
+      setError('Error toggling favorite: ' + err.message);
     }
   };
+  
 
   const handleBook = () => {
     console.log('Handling checkout...');

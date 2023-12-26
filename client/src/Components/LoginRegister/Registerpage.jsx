@@ -40,7 +40,7 @@ const Registerpage = () => {
   };
 
   const redirectToLogin = () => {
-    window.location.href = '/Signin'; // Assuming '/Signin' is the route for sign-in
+    window.location.href = '/'; // Assuming '/Signin' is the route for sign-in
   };
 
   const handleSignUp = async (e) => {
@@ -169,7 +169,7 @@ const Registerpage = () => {
             Register
           </button>
         </form>
-        {/* Popup for successful registration */}
+        {/* Popup for successful registration
         {registrationSuccess && (
           <div className="fixed inset-0 flex items-center justify-center">
             <div className="absolute inset-0 bg-transparent" onClick={closePopup}></div>
@@ -184,8 +184,7 @@ const Registerpage = () => {
               </button>
             </div>
           </div>
-        )}
-        {/* ... (other UI elements) ... */}
+        )} */}
       </div>
     </main>
   );

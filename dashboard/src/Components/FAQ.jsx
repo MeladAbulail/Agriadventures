@@ -11,16 +11,16 @@ const FAQ = () => {
     answer: '',
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/questions`);
-        setQuestions(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/Get_All_FAQ`);
+      setQuestions(response.data.allFAQ);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -35,8 +35,10 @@ const FAQ = () => {
 
   const deleteQuestion = async (questionId) => {
     try {
-      await axios.delete(`http://localhost:5000/questions/${questionId}`);
-      setQuestions(questions.filter((q) => q.id !== questionId));
+      await axios.delete(`http://localhost:4000/Delete_FAQ/${questionId}`);
+      setQuestions((prevQuestions) =>
+        prevQuestions.filter((q) => q.faqId !== questionId)
+      );
     } catch (error) {
       console.error('Error deleting question:', error);
     }
@@ -46,15 +48,18 @@ const FAQ = () => {
     try {
       if (editQuestion) {
         // Edit existing question
-        await axios.put(`http://localhost:5000/questions/${editQuestion.id}`, newQuestion);
-        setQuestions(
-          questions.map((q) => (q.id === editQuestion.id ? { ...q, ...newQuestion } : q))
+        await axios.put(`http://localhost:4000/Update_FAQ/${editQuestion.faqId}`, newQuestion);
+        setQuestions((prevQuestions) =>
+          prevQuestions.map((q) =>
+            q.faqId === editQuestion.faqId ? { ...q, ...newQuestion } : q
+          )
         );
         setEditQuestion(null);
       } else {
         // Add new question
-        const response = await axios.post(`http://localhost:5000/questions`, newQuestion);
-        setQuestions([...questions, response.data]);
+        const response = await axios.post(`http://localhost:4000/Add_New_FAQ`, newQuestion);
+        setQuestions((prevQuestions) => [...prevQuestions, response.data]);
+        fetchData()
       }
       setNewQuestion({ question: '', answer: '' });
       setShowAddForm(false);
@@ -64,8 +69,8 @@ const FAQ = () => {
   };
 
   const filteredQuestions = questions.filter((q) =>
-    q.question.toLowerCase().includes(searchQuestion.toLowerCase())
-  );
+  q.question && q.question.toLowerCase().includes((searchQuestion || '').toLowerCase()));
+
 
   return (
     <div className="w-full min-h-full p-4 mt-16 overflow-x-auto text-black">
@@ -187,8 +192,8 @@ const FAQ = () => {
           </thead>
           <tbody>
             {filteredQuestions.map((q) => (
-              <tr key={q.id} className="text-black bg-white">
-                <td className="text-center sm:text-xs">{q.id}</td>
+              <tr key={q.faqId} className="text-black bg-white">
+                <td className="text-center sm:text-xs">{q.faqId}</td>
                 <td className="text-center sm:text-xs">{q.question}</td>
                 <td className="text-center sm:text-xs">{q.answer}</td>
                 <td className="flex items-center space-x-2">
@@ -199,7 +204,7 @@ const FAQ = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => deleteQuestion(q.id)}
+                    onClick={() => deleteQuestion(q.faqId)}
                     className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
                   >
                     Delete

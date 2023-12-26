@@ -9,15 +9,15 @@ const FAQ = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/questions`);
-        setQuestions(response.data);
+        const response = await axios.get(`http://localhost:4000/Get_All_FAQ`);
+        setQuestions(response.data.allFAQ);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
-    };
-
+    };    
     fetchData();
   }, []);
+  
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
