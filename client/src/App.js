@@ -27,7 +27,7 @@ import E404 from "./Components/E404";
 import FAQ from "./Components/FAQ";
 import Cookies from "js-cookie";
 import "./App.css";
-import Divider from "./Components/Divider";
+import NavSpace from "./Components/NavSpace";
 
 export const tprice = React.createContext();
 
@@ -37,7 +37,7 @@ function App() {
     <div className="App bg-[#fcf9f3]">
       <Router>
         <Navbar />
-        <Divider />
+        <NavSpace />
         <div className="">
           <Routes>
             <Route path="/" element={<Homepage />} />

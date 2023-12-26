@@ -11,18 +11,28 @@ const FAQ = () => {
     answer: '',
   });
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(`http://localhost:4000/Get_All_FAQ`);
-      setQuestions(response.data.allFAQ);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
+  // Pagination variables
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(1); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage, itemsPerPage]);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/Get_All_FAQ_PAGINATION?page=${currentPage}&itemsPerPage=${itemsPerPage}`);
+      console.log('Response data:', response.data);
+      setQuestions(response.data.fqa); 
+      setTotalPages(Math.ceil(response.data.totalFqa / itemsPerPage));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching Fqa:', error);
+      setLoading(false);
+    }
+  };
 
   const handleEditQuestion = (question) => {
     setEditQuestion(question);
@@ -31,6 +41,10 @@ const FAQ = () => {
       answer: question.answer,
     });
     setShowAddForm(true);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const deleteQuestion = async (questionId) => {
@@ -214,6 +228,20 @@ const FAQ = () => {
             ))}
           </tbody>
         </table>
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-center mt-4">
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-4 py-2 mx-1 text-white bg-blue-500 rounded ${
+                currentPage === page ? 'bg-blue-600' : 'hover:bg-blue-600'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

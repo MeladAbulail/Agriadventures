@@ -3,7 +3,7 @@ const { authorize } = require('../Middleware/Authorization');
 const Router = express.Router();
 const BuyProduct = require("../Controllers/BuyProduct");
 
-Router.post("/charge", authorize(["user", "Admin"]), BuyProduct.createPayment);
+Router.post("/charge", authorize(["User", "Admin"]), BuyProduct.createPayment);
 Router.get("/payments", BuyProduct.getAllPayments);
 Router.get("/paymentidUser/:userid", BuyProduct.getPaymentByUserId);
 Router.get("/paymentid/:payment_id", BuyProduct.getPaymentById);

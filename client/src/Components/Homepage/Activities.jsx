@@ -12,13 +12,13 @@ function Activities() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/Get_All_Locations');
-        console.log('API Response:', response.data.Locations);
+        const response = await axios.get('http://localhost:4000/Get_All_Locations_For_Home_Page');
+        console.log('API Response:', response.data.locations);
 
-        if (Array.isArray(response.data.Locations) && response.data.Locations.length > 0) {
-          setLocations(response.data.Locations);
+        if (Array.isArray(response.data.locations) && response.data.locations.length > 0) {
+          setLocations(response.data.locations);
         } else {
-          console.error('No data or invalid data structure:', response.data.Locations);
+          console.error('No data or invalid data structure:', response.data.locations);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -49,7 +49,7 @@ function Activities() {
   };
 
   return (
-    <div className="flex flex-col mx-0 mt-5 md:mx-40 bg-[#fcf9f3]">
+    <div className="flex flex-col mx-0 mt-5 md:mx-40">
       <div className="mb-4">
         <h1 className="mb-4 text-4xl font-bold md:text-6xl">Activities</h1>
       </div>

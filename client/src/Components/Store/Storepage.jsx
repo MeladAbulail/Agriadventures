@@ -17,6 +17,7 @@ const StorePage = ({ setCart }) => {
   const [showAddedToCart, setShowAddedToCart] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     axios
       .get('http://localhost:4000/Get_All_Products')
       .then((response) => {

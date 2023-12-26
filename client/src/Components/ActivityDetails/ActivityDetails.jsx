@@ -16,55 +16,70 @@ const ActivitiesDetails = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/Get_Location_By_Id/${locationId}`);
-          setLocation(response.data.Location);  
-          checkIfActivityInFavorites()
+        const authToken = Cookies.get('token');
+    
+        // Check if there's no token (visitor)
+        if (!authToken) {
+          // Handle the case for visitors (non-authenticated users)
+          console.log('Visitor Mode: Fetching location details without authentication.');
+    
+          const response = await axios.get(`http://localhost:4000/Get_Location_By_Id/${locationId}`);
+          setLocation(response.data.Location);
+          // No need to check favorites or handle authentication-specific logic for visitors
+          return;
+        }
+    
+        // If there's a token, proceed with authentication-related logic
+        console.log('Authenticated User: Fetching location details with authentication.');
+    
+        const response = await axios.get(`http://localhost:4000/Get_Location_By_Id/${locationId}`, {
+          headers: {
+            Authorization: authToken,
+          },
+        });
+    
+        setLocation(response.data.Location);
+        await checkIfActivityInFavorites();
       } catch (err) {
-        console.err(err)
+        setError('Error fetching location: ' + err.message);
       }
     };
+  
     fetchLocation();
-  }, []);
+  }, [locationId]);
   
 
   const checkIfActivityInFavorites = async () => {
     try {
       if (!token) {
-        setError('User not authenticated. Cannot check if activity is in favorites.');
-        return false;
+        throw new Error('User not authenticated. Cannot check if activity is in favorites.');
       }
-  
+
       const config = {
         headers: {
           Authorization: token,
         },
       };
-  
+
       const response = await axios.get(`http://localhost:4000/Get_Favorites_Locations_By_LocationId/${locationId}`, config);
-      if (response.data.length > 0) {
-        setIsFavorite(true);
-      } else {
-        setIsFavorite(false);
-      }
+      setIsFavorite(response.data.length > 0);
     } catch (error) {
       setError('Error checking if activity is in favorites: ' + error.message);
-      return false;
     }
   };
   
   const handleToggleFavorite = async () => {
     try {
       if (!token) {
-        setError('User not authenticated. Cannot toggle favorite status.');
-        return;
+        throw new Error('User not authenticated. Cannot toggle favorite status.');
       }
-  
+
       const config = {
         headers: {
           Authorization: token,
         },
       };
-  
+
       if (isFavorite) {
         await axios.delete(`http://localhost:4000/Delete_Favorites_Locations/${locationId}`, config);
         setIsFavorite(false);
@@ -72,7 +87,7 @@ const ActivitiesDetails = () => {
         setIsFavorite(true);
         await axios.post(`http://localhost:4000/Add_New_Favorites_Locations/${locationId}`, {}, config);
       }
-  
+
       setError(null); 
     } catch (err) {
       setError('Error toggling favorite: ' + err.message);
@@ -84,9 +99,8 @@ const ActivitiesDetails = () => {
     console.log('Handling checkout...');
     navigate('/Book', {
       state: {
-        price: location.price,
+        TicketPricePerPerson: location.TicketPricePerPerson,
         locationId: location.locationId,
-        visitDate: location.visitDate,
         locationName: location.locationName,
       },
     });
@@ -99,6 +113,8 @@ const ActivitiesDetails = () => {
   if (!location) {
     return <div>Loading...</div>;
   }
+  
+  const workdaysArray = location.workdays.split(',');
 
   return (
     <div className="mt-10 mb-32 ml-10 ">
@@ -115,7 +131,10 @@ const ActivitiesDetails = () => {
             <h2 className="mb-2 text-5xl font-bold">{location.locationName}</h2>
             <p className="mt-10 text-lg">{`Owner: ${location.owner}`}</p>
             <p className="mt-2 text-lg">{`Location: ${location.location}`}</p>
-            <p className="mt-2 text-lg">{`Price: $${location.price}`}</p>
+            <p className="mt-2 text-lg">{`Workdays: ${workdaysArray.join(' | ')}`}</p>
+            <p className="mt-2 text-lg">{`Ticket Price Per Person: $${location.TicketPricePerPerson}`}</p>
+            <p className="mt-2 text-lg">{`description: ${location.description}`}</p>
+            <p className="mt-2 text-lg">{`The Beginning: ${location.TheBeginningAndEndOfTheJourney.startTime}AM End Of The Journey: ${location.TheBeginningAndEndOfTheJourney.endTime}PM`}</p>
           </div>
           <div className="flex flex-row justify-end">
             <p className='mt-1 mr-2 lg:text-2xl md:text-xl'>Don't Miss Out – Book Your Activity Today! </p>

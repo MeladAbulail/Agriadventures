@@ -6,34 +6,38 @@ function ActivitiesTable() {
   const [locations, setLocations] = useState([]);
   const [searchLocationName, setSearchLocationName] = useState('');
   const [editLocation, setEditLocation] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [editedLocationData, setEditedLocationData] = useState({
-    owner: '',
-    phone: '',
-    email: '',
+    locationId: '',
     locationName: '',
-    price: '',
+    owner: '',
     description: '',
     location: '',
-    openingHours: '',
-    visitDate: '',
+    TicketPricePerPerson: '',
     image: null,
   });
   const navigate = useNavigate();
-  
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/Get_All_Locations_PAGINATION?page=${currentPage}&itemsPerPage=${itemsPerPage}`
+      );
+      setLocations(response.data.Locations);
+      setTotalPages(Math.ceil(response.data.totalItems / itemsPerPage));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const apiUrl = 'http://localhost:4000/Get_All_Locations';
-    axios.get(apiUrl)
-      .then(response => {
-        console.log('Fetched locations:', response.data.Locations);
-        if (Array.isArray(response.data.Locations)) {
-          setLocations(response.data.Locations);
-        } else {
-          console.error('Invalid data format:', response.data.Locations);
-        }
-      })
-      .catch(error => console.error('Error fetching locations:', error));
-  }, []);
+    fetchData();
+  }, [currentPage, itemsPerPage]);
 
   const filteredLocations = locations && locations.filter((location) => {
     if (!location || !location.locationName) {
@@ -43,17 +47,16 @@ function ActivitiesTable() {
     return location.locationName.toLowerCase().includes(searchLocationName.toLowerCase());
   });
 
-  
-
   const deleteLocation = (locationId) => {
     const apiUrl = `http://localhost:4000/Delete_Location_By_Id/${locationId}`;
-    axios.delete(apiUrl)
-      .then(response => {
+    axios
+      .delete(apiUrl)
+      .then((response) => {
         if (response.status === 200) {
-          setLocations(locations.filter(location => location.locationId !== locationId));
+          setLocations(locations.filter((location) => location.locationId !== locationId));
         }
       })
-      .catch(error => console.error('Error deleting location:', error));
+      .catch((error) => console.error('Error deleting location:', error));
   };
 
   const handleEditLocation = (location) => {
@@ -64,12 +67,8 @@ function ActivitiesTable() {
       owner: location.owner,
       description: location.description,
       location: location.location,
-      price: location.price,
+      TicketPricePerPerson: location.TicketPricePerPerson,
       image: location.image,
-      openingHours: location.openingHours,
-      phone: location.phone,
-      email: location.email,
-      visitDate: location.visitDate,
     });
   };
 
@@ -86,55 +85,44 @@ function ActivitiesTable() {
     formData.append('owner', editedLocationData.owner);
     formData.append('description', editedLocationData.description);
     formData.append('location', editedLocationData.location);
-    formData.append('price', editedLocationData.price);
+    formData.append('TicketPricePerPerson', editedLocationData.TicketPricePerPerson);
     formData.append('image', editedLocationData.image);
-    formData.append('openingHours', editedLocationData.openingHours);
-    formData.append('visitDate', new Date(editedLocationData.visitDate));
-    formData.append('phone', new Date(editedLocationData.phone));
-    formData.append('email', new Date(editedLocationData.email));
-    formData.append('visitDate', new Date(editedLocationData.visitDate));
 
-    axios.put(apiUrl, formData)
-      .then(response => {
+    axios
+      .put(apiUrl, formData)
+      .then((response) => {
         if (response.status === 200) {
-          setLocations(locations.map(location =>
-            location.locationId === editedLocationData.locationId ? response.data : location
-          ));
+          setLocations((locations) =>
+            locations.map((location) =>
+              location.locationId === editedLocationData.locationId ? response.data : location
+            )
+          );
           setEditLocation(null);
         }
       })
-      .catch(error => console.error('Error saving edited location:', error));
+      .catch((error) => console.error('Error saving edited location:', error));
   };
 
-  
-
-  const refreshLocationsData = () => {
-    const apiUrl = 'http://localhost:4000/Get_All_Locations';
-    axios.get(apiUrl)
-      .then(response => {
-        if (Array.isArray(response.data.Locations)) {
-          setLocations(response.data.Locations);
-        } else {
-          console.error('Invalid data format:', response.data.Locations);
-        }
-      })
-      .catch(error => console.error('Error fetching locations:', error));
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchData();
+    }
   };
-  
-  const handleAddActivity = () =>{
+
+  const handleAddActivity = () => {
     navigate('/AddPlace');
-  }
+  };
+
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   return (
-    <div className="w-full min-h-full p-4 mt-16 overflow-x-auto text-black ">
-      <h1 className="mb-4 text-3xl font-bold ">Activities Table</h1>
+    <div className="w-full min-h-full p-4 mt-16 overflow-x-auto text-black">
+      <h1 className="mb-4 text-3xl font-bold">Activities Table</h1>
 
-      <div className="flex mb-4 ">
+      <div className="flex mb-4">
         <form className="w-90">
-          <label
-            htmlFor="activity-search"
-            className="mb-2 text-sm font-medium sr-only"
-          >
+          <label htmlFor="activity-search" className="mb-2 text-sm font-medium sr-only">
             Search by Activity Name:
           </label>
           <div className="relative flex w-full">
@@ -176,7 +164,7 @@ function ActivitiesTable() {
         </button>
       </div>
 
-      <table className="min-w-full overflow-hidden border rounded-lg ">
+      <table className="min-w-full overflow-hidden border rounded-lg">
         <thead className="text-white bg-gray-600">
           <tr>
             <th className="px-4 py-2 sm:text-xs">ID</th>
@@ -184,7 +172,7 @@ function ActivitiesTable() {
             <th className="px-4 py-2 sm:text-xs">Owner</th>
             <th className="px-4 py-2 sm:text-xs">Description</th>
             <th className="px-4 py-2 sm:text-xs">Location</th>
-            <th className="px-4 py-2 sm:text-xs">Price</th>
+            <th className="px-4 py-2 sm:text-xs">TicketPricePerPerson</th>
             <th className="px-4 py-2 sm:text-xs">Actions</th>
           </tr>
         </thead>
@@ -193,35 +181,25 @@ function ActivitiesTable() {
             (location) =>
               location && (
                 <tr
-                  key={location.locationId} className={location.locationId % 2 === 0 ? "bg-[#e5e7eb]" : "bg-[#d1d5db]"}>
-                  <td className="px-4 text-center sm:text-xs">
-                    {location.locationId}
-                  </td>
-                  <td className="px-4 text-center sm:text-xs">
-                    {location.locationName}
-                  </td>
-                  <td className="px-4 text-center sm:text-xs">
-                    {location.owner}
-                  </td>
-                  <td className="px-4 text-center sm:text-xs">
-                    {location.description}
-                  </td>
-                  <td className="px-4 text-center sm:text-xs">
-                    {location.location}
-                  </td>
-                  <td className="px-4 text-center sm:text-xs">
-                    $ {location.price}
-                  </td>
+                  key={location.locationId}
+                  className={location.locationId % 2 === 0 ? 'bg-[#e5e7eb]' : 'bg-[#d1d5db]'}
+                >
+                  <td className="px-4 text-center sm:text-xs">{location.locationId}</td>
+                  <td className="px-4 text-center sm:text-xs">{location.locationName}</td>
+                  <td className="px-4 text-center sm:text-xs">{location.owner}</td>
+                  <td className="px-4 text-center sm:text-xs">{location.description}</td>
+                  <td className="px-4 text-center sm:text-xs">{location.location}</td>
+                  <td className="px-4 text-center sm:text-xs">$ {location.TicketPricePerPerson}</td>
                   <td className="flex items-center px-4 py-2 sm:text-xs">
                     <a
                       onClick={() => handleEditLocation(location)}
-                      className="w-full text-center text-green-500 sm:text-xs green-full hover:text-green-600"
+                      className="cursor-pointer w-full text-center text-green-500 sm:text-xs green-full hover:text-green-600"
                     >
                       Edit
                     </a>
                     <a
                       onClick={() => deleteLocation(location.locationId)}
-                      className="w-full p-3 text-center text-red-500 rounded-full sm:text-xs hover:text-red-600"
+                      className="cursor-pointer w-full p-3 text-center text-red-500 rounded-full sm:text-xs hover:text-red-600"
                     >
                       Delete
                     </a>
@@ -232,7 +210,20 @@ function ActivitiesTable() {
         </tbody>
       </table>
 
-      {/* Edit Form */}
+          <div className="flex justify-center mt-4 mx-auto">
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-4 py-2 mx-1 text-white bg-blue-500 rounded ${
+                  currentPage === page ? 'bg-blue-600' : 'hover:bg-blue-600'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+
       {editLocation && (
         <div className="fixed top-0 left-0 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
           <div className="w-full p-8 bg-white rounded-md md:w-96">
@@ -279,7 +270,7 @@ function ActivitiesTable() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700">location:</label>
+              <label className="block text-gray-700">Location:</label>
               <select
                 className="w-full p-2 border rounded"
                 value={editedLocationData.location}
@@ -299,15 +290,15 @@ function ActivitiesTable() {
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700">Price:</label>
+              <label className="block text-gray-700">TicketPricePerPerson:</label>
               <input
                 type="number"
                 className="w-full p-2 border rounded"
-                value={editedLocationData.price}
+                value={editedLocationData.TicketPricePerPerson}
                 onChange={(e) =>
                   setEditedLocationData({
                     ...editedLocationData,
-                    price: e.target.value,
+                    TicketPricePerPerson: e.target.value,
                   })
                 }
               />

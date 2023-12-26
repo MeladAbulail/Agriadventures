@@ -13,6 +13,7 @@ const ProductDetailsPage = ({ setCart }) => {
   const token = Cookies.get('token');
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/Get_Product_By_Id/${productId}`);
@@ -65,8 +66,10 @@ const ProductDetailsPage = ({ setCart }) => {
   const checkIfActivityInFavorites = async () => {
     try {
       if (!token) {
-        setError('User not authenticated. Cannot check if activity is in favorites.');
-        return false;
+        console.warn('User not authenticated. Cannot check if activity is in favorites.');
+        // If the user is not authenticated, you may choose to set isFavorite to false or handle it accordingly
+        setIsFavorite(false);
+        return;
       }
   
       const config = {
@@ -82,8 +85,8 @@ const ProductDetailsPage = ({ setCart }) => {
         setIsFavorite(false);
       }
     } catch (error) {
-      setError('Error checking if activity is in favorites: ' + error.message);
-      return false;
+      console.error('Error checking if activity is in favorites: ' + error.message);
+      setIsFavorite(false); // Set isFavorite to false in case of an error
     }
   };
 
@@ -124,7 +127,7 @@ const ProductDetailsPage = ({ setCart }) => {
   
 
   return (
-    <div className='m-32 '>
+    <div className='m-32'>
       <div className="flex p-4 px-32 py-20">
         {/* Image Section on the left with adjusted height and width */}
         <div className="w-1/2">
@@ -141,6 +144,9 @@ const ProductDetailsPage = ({ setCart }) => {
             <h2 className="mb-2 text-2xl font-bold">{product.productName}</h2>
             <p className="mb-2 text-lg">{`Category: ${product.category}`}</p>
             <p className="mb-2 text-lg">{`Price: ${product.price}$`}</p>
+            <p className="mb-2 text-lg">{`description: ${product.description}`}</p>
+            <p className="mb-2 text-lg">{`evaluation: ${product.evaluation}`}</p>
+            <p className="mb-2 text-lg">{`owner: ${product.owner}`}</p>
             {/* Add more details as needed */}
           </div>
 
@@ -167,11 +173,14 @@ const ProductDetailsPage = ({ setCart }) => {
         <h3 className="mb-2 text-xl font-bold">Product Description</h3>
         <p>{product.description}</p>
       </div>
+      
+      <div className='flex flex-col xl:flex-row'>
       <ProductRating
         productId={product.productId}
         productName={product.productName}
       />
       <DisplayProductComment />
+      </div>
     </div>
   );
   

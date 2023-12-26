@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; 
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2'
+
 
 const ContactUsPage = () => {
+  const [submitMessage, setSubmitMessage] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     message: '',
   });
 
-  const [submitMessage, setSubmitMessage] = useState(null);
+
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,26 +28,52 @@ const ContactUsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Check if the message is empty
+    if (!formData.message.trim()) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Message cannot be empty",
+        showConfirmButton: false,
+        timer: 1000
+      });
+      return; // Stop execution if the message is empty
+    }
+  
     try {
+      console.log('Submitting formData:', formData); // Add this line for debugging
       const url = 'http://localhost:4000/Add_New_Message';
       const response = await axios.post(url, formData);
-
-      setSubmitMessage('Message sent successfully!');
+  
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Message sent successfully",
+        showConfirmButton: false,
+        timer: 1000
+      });
+  
       setFormData({
         username: '',
         email: '',
         message: '',
       });
-
-      console.log('Message sent successfully:', response.data);
     } catch (error) {
-      setSubmitMessage('Error sending message. Please try again later.');
       console.error('Error sending message:', error.message);
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Invalid data",
+        showConfirmButton: false,
+        timer: 1000
+      });
     }
   };
+  
 
   return (
-    <div className='bg-[#fcf9f3] text-[#224229]'>
+    <div>
       <div className="my-2 ml-4 lg:ml-32">
         <ol class="flex items-center whitespace-nowrap" aria-label="Breadcrumb">
           <li class="inline-flex items-center">
@@ -51,7 +84,7 @@ const ContactUsPage = () => {
               Home
             </a></Link>
             <svg
-              class="flex-shrink-0 mx-2 overflow-visible h-4 w-4 text-gray-400  dark:text-neutral-600"
+              class="flex-shrink-0 mx-2 overflow-visible h-4 w-4 text-gray-400 "
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -66,7 +99,7 @@ const ContactUsPage = () => {
             </svg>
           </li>
           <li class="inline-flex items-center">
-          <Link to="/Contactus"><a
+            <Link to="/Contactus"><a
               class="flex items-center text-lg	 text-gray-500 hover:text-blue-600 focus:outline-none focus:text-blue-600 dark:focus:text-blue-500"
               href="#"
             >
@@ -76,7 +109,7 @@ const ContactUsPage = () => {
         </ol>
       </div>
 
-      <div className="relative w-full mx-auto my-20 text-gray-700 bg-white max-w-7xl">
+      <div className="relative w-full mx-auto my-20 text-gray-700 bg-[#fcf9f3] max-w-7xl">
         <div className="grid grid-cols-2">
           {/* :MAP CONTAINER */}
           <div className="order-1 col-span-full">
@@ -98,107 +131,92 @@ const ContactUsPage = () => {
               className="max-w-xl mx-auto space-y-4"
               onSubmit={handleSubmit}
             >
-              {/* ::Name Input */}
-              <div>
-                {/* :::label */}
-                <label htmlFor="name" className="sr-only">
-                  Name
-                </label>
-                {/* :::input */}
+              <div class="relative w-full min-w-[200px] h-10">
                 <input
-                  
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  name="username"
                   type="text"
                   id="username"
-                  name="username"
-                  placeholder="Name"
-                  onChange={handleInputChange}
-                  value={formData.username}
-                  className="block w-full p-2 text-base placeholder-gray-300 bg-gray-100 border-gray-300 rounded shadow-sm form-input focus:border-green-400 focus:ring-1 focus:ring-green-400"
-                />
+                  className="  peer w-full h-full bg-white text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-[#224229]"
+                  placeholder=" " />
+                <label
+                  class="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-blue-gray-500 leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-gray-500 peer-focus:text-gray-900 before:border-blue-gray-200 peer-focus:before:!border-gray-900 after:border-blue-gray-200 peer-focus:after:!border-gray-900">
+                  Full Name
+                </label>
               </div>
-              {/* ::Email Input */}
-              <div>
-                {/* :::label */}
-                <label htmlFor="email" className="sr-only">
+
+              <div class="relative w-full min-w-[200px] h-10">
+                <input
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  type="email"
+                  name="email"
+                  id="email"
+                  class="  peer w-full h-full bg-white text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-gray-900"
+                  placeholder=" " />
+                <label
+
+                  class="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-blue-gray-500 leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-gray-500 peer-focus:text-gray-900 before:border-blue-gray-200 peer-focus:before:!border-gray-900 after:border-blue-gray-200 peer-focus:after:!border-gray-900">
                   Email
                 </label>
-                {/* :::input */}
-                <input
-                  
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Email Address"
-                  onChange={handleInputChange}
-                  value={formData.email}
-                  className="block w-full p-2 text-base placeholder-gray-300 bg-gray-100 border-gray-300 rounded shadow-sm form-input focus:border-green-400 focus:ring-1 focus:ring-green-400"
-                />
               </div>
-              {/* ::Message Input */}
-              <div className="col-span-full">
-                {/* :::label */}
-                <label htmlFor="message" className="sr-only">
-                  Message
-                </label>
-                {/* :::input */}
+
+
+
+              <div class="relative w-full min-w-[200px] ">
                 <textarea
-                onChange={handleInputChange}
-                value={formData.message}
+                  value={formData.message}
+                  onChange={handleInputChange}
                   name="message"
                   id="message"
                   cols="30"
                   rows="6"
-                  placeholder="How can we help?"
-                  className="w-full p-2 placeholder-gray-300 bg-gray-100 border-gray-300 rounded shadow-sm resize-none form-textarea focus:border-green-400 focus:ring-green-400"
-                ></textarea>
+                  className=" resize-none	  peer w-full h-full bg-white text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-[#224229]"
+                  placeholder=" " />
+                <label
+                  class="flex w-full h-full select-none pointer-events-none absolute left-0 font-normal !overflow-visible truncate peer-placeholder-shown:text-blue-gray-500 leading-tight peer-focus:leading-tight peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500 transition-all -top-1.5 peer-placeholder-shown:text-sm text-[11px] peer-focus:text-[11px] before:content[' '] before:block before:box-border before:w-2.5 before:h-1.5 before:mt-[6.5px] before:mr-1 peer-placeholder-shown:before:border-transparent before:rounded-tl-md before:border-t peer-focus:before:border-t-2 before:border-l peer-focus:before:border-l-2 before:pointer-events-none before:transition-all peer-disabled:before:border-transparent after:content[' '] after:block after:flex-grow after:box-border after:w-2.5 after:h-1.5 after:mt-[6.5px] after:ml-1 peer-placeholder-shown:after:border-transparent after:rounded-tr-md after:border-t peer-focus:after:border-t-2 after:border-r peer-focus:after:border-r-2 after:pointer-events-none after:transition-all peer-disabled:after:border-transparent peer-placeholder-shown:leading-[3.75] text-gray-500 peer-focus:text-gray-900 before:border-blue-gray-200 peer-focus:before:!border-gray-900 after:border-blue-gray-200 peer-focus:after:!border-gray-900">
+                  Message
+                </label>
               </div>
-              {/* ::Submit Button */}
               <div>
                 <button
                   type="submit"
-                  className="px-6 py-2 text-base font-semibold text-white uppercase bg-green-400 rounded hover:bg-green-500"
+                  className="px-6 py-2 text-base font-semibold text-white bg-[#224229] rounded-md hover:bg-[#314534] uppercase"
                 >
                   Send Message
                 </button>
               </div>
               {submitMessage && (
-            <div className="mt-4 text-green-500">{submitMessage}</div>
-          )}
+                <div className="mt-4 text-green-500">{submitMessage}</div>
+              )}
             </form>
           </div>
 
-          {/* :CONTACT INFOS CONTAINER */}
           <div className="order-2 px-6 py-5 md:order-3 col-span-full md:col-span-1 md:py-10">
             <div className="flex flex-col max-w-xl mx-auto space-y-5">
-              {/* ::Title Contact Us */}
               <h2 className="text-4xl uppercase font-oswald">Contact us</h2>
-              {/* ::Text */}
               <p className="text-sm text-gray-500">
                 Get in touch with us today. We are here to assist you with any
                 inquiries or concerns you may have. Our team is dedicated to
                 providing excellent service and ensuring your satisfaction. Feel
                 free to reach out, and let us know how we can help you.
               </p>
-              {/* ::Email contact */}
               <a
                 href="melad.k.abulail@gmail.com"
                 className="inline-flex items-center text-sm font-semibold text-blue-400 hover:text-blue-500"
               >
                 Melad.k.abulail@gmail.com
               </a>
-              {/* ::Address */}
               <p className="text-sm leading-6 text-gray-500">
                 Al Hadiqa, 335P+F47, Zarqa <br /> Zarqa <br /> Jordan
               </p>
-              {/* ::Socials */}
               <div className="flex items-center">
-                {/* :Twitter */}
                 <a
                   href="https://twitter.com/home"
                   className="m-1.5 w-8 h-8 inline-flex justify-center items-center shadow-sm rounded-full bg-[#1DA1F2] text-white filter hover:brightness-125"
                   style={{ backgroundColor: "#1DA1F2" }}
                 >
-                  {/* ::twitter svg */}
                   <svg
                     className="w-4 h-4 fill-current"
                     xmlns="http://www.w3.org/2000/svg"
@@ -207,13 +225,11 @@ const ContactUsPage = () => {
                     <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                   </svg>
                 </a>
-                {/* :FACEBOOK */}
                 <a
                   href="https://www.facebook.com/"
                   className="m-1.5 w-8 h-8 inline-flex justify-center items-center shadow-sm rounded-full bg-[#4267B2] text-white filter hover:brightness-125"
                   style={{ backgroundColor: "#4267B2" }}
                 >
-                  {/* ::facebook svg */}
                   <svg
                     className="w-5 h-5 fill-current"
                     xmlns="http://www.w3.org/2000/svg"
@@ -222,12 +238,10 @@ const ContactUsPage = () => {
                     <path d="M16.403,9H14V7c0-1.032,0.084-1.682,1.563-1.682h0.868c0.552,0,1-0.448,1-1V3.064c0-0.523-0.401-0.97-0.923-1.005C15.904,2.018,15.299,1.999,14.693,2C11.98,2,10,3.657,10,6.699V9H8c-0.552,0-1,0.448-1,1v2c0,0.552,0.448,1,1,1l2-0.001V21c0,0.552,0.448,1,1,1h2c0.552,0,1-0.448,1-1v-8.003l2.174-0.001c0.508,0,0.935-0.381,0.993-0.886l0.229-1.996C17.465,9.521,17.001,9,16.403,9z" />
                   </svg>
                 </a>
-                {/* :Instagram */}
                 <a
                   href="https://www.instagram.com/"
                   className="m-1.5 w-8 h-8 inline-flex justify-center items-center shadow-sm rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 text-white filter hover:brightness-125"
                 >
-                  {/* ::instagram svg */}
                   <svg
                     className="w-4 h-4 fill-current"
                     xmlns="http://www.w3.org/2000/svg"

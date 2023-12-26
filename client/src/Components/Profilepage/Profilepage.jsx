@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+
+
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState({});
@@ -14,10 +19,11 @@ const ProfilePage = () => {
     lastName: '',
     gender: '',
     password: '',
-    image: '', 
+    image: '',
   });
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const token = Cookies.get("token");
 
     const config = {
@@ -63,7 +69,7 @@ const ProfilePage = () => {
       }
     };
 
-    
+
     const fetchFavoritesProducts = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/Get_Favorites_Products_By_UserId`, config);
@@ -113,6 +119,7 @@ const ProfilePage = () => {
     });
   };
 
+
   const handleInputChange = (e) => {
     const { name, type } = e.target;
     const value = type === 'file' ? e.target.files[0] : e.target.value;
@@ -121,7 +128,7 @@ const ProfilePage = () => {
       [name]: value,
     }));
   };
-  
+
   const token = Cookies.get("token");
   const config = {
     headers: {
@@ -129,7 +136,7 @@ const ProfilePage = () => {
       "Content-Type": "application/json",
     },
   };
-  
+
 
   const handleSaveClick = async () => {
 
@@ -138,12 +145,12 @@ const ProfilePage = () => {
       Object.entries(editedUserData).forEach(([key, value]) => {
         formData.append(key, value);
       });
-  
+
       console.log('Before axios.put - formData:', formData);
       const response = await axios.put(`http://localhost:4000/Update_User_By_Id`, formData, config);
       console.log(config)
       console.log('After axios.put - response:', response);
-  
+
       if (response.status === 200) {
         // Update userData with the edited data
         setUserData(response.data.User);
@@ -156,22 +163,27 @@ const ProfilePage = () => {
       console.error('An error occurred:', error);
     }
   };
-  
+
   const handleLogout = () => {
     Cookies.remove('token');
     Cookies.remove('userId');
     window.location.href = '/';
   };
 
+  const deleteFav = () => {
+
+  }
+
+
   return (
     <div className="flex flex-col min-h-screen mx-2 my-20 text-gray-800 bg-white lg:flex-row">
       {/* Left Section */}
       <div className="hidden p-6 lg:w-1/4 lg:block">
-      <img
-        src={userData.imageUrl}
-        alt={userData.firstName}
-        className="object-cover w-32 h-32 mx-auto mb-6 rounded-full"
-      />
+        <img
+          src={userData.imageUrl}
+          alt={userData.firstName}
+          className="object-cover w-32 h-32 mx-auto mb-6 rounded-full"
+        />
         <ul className="space-y-2">
           <li>
             <button
@@ -271,9 +283,8 @@ const ProfilePage = () => {
           )}
           <div className="flex mt-2 space-x-2">
             <button
-              className={`px-2 py-1 text-white ${
-                editing ? "bg-red-500" : "bg-indigo-500"
-              } rounded focus:outline-none`}
+              className={`px-2 py-1 text-white ${editing ? "bg-red-500" : "bg-indigo-500"
+                } rounded focus:outline-none`}
               onClick={handleEditClick}
             >
               {editing ? "Cancel" : "Edit"}
@@ -311,7 +322,7 @@ const ProfilePage = () => {
                   <td className="p-2 border">{order.quantity}</td> */}
                   <td className="p-2 border">${order.totalPrice}</td>
                   <td className="p-2 border">
-                    {new Date(order.createdAt).toLocaleString()}
+                    {new Date(order.createdAt).toLocaleDateString()}
                   </td>
                   {/* .toFixed(2) */}
                 </tr>
@@ -338,10 +349,10 @@ const ProfilePage = () => {
                 <tr key={visit.id}>
                   <td className="p-2 border">{visit.reservationId}</td>
                   <td className="p-2 border">{visit.locationName}</td>
-                  <td className="p-2 border">{visit.price}</td>
+                  <td className="p-2 border">${visit.price}</td>
                   <td className="p-2 border">{visit.numberOfVisitors}</td>
                   <td className="p-2 border">
-                    {new Date(visit.visitDate).toLocaleString()}
+                    {new Date(visit.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))}
@@ -349,14 +360,14 @@ const ProfilePage = () => {
           </table>
         </div>
 
-          {/* Favorites Locations Table */}
-          <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
+        {/* Favorites Locations Table */}
+        <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
           <h2 className="mb-2 text-2xl font-semibold">Favorites Locations</h2>
           <table className="w-full bg-white border border-collapse border-gray-300 table-fixed">
             <thead>
               <tr className="bg-gray-200">
                 <th className="p-2 border">Location</th>
-                <th className="p-2 border">Price</th>
+                <th className="p-2 border">Ticket Price Per Person</th>
                 <th className="p-2 border">Owner</th>
                 <th className="p-2 border">Evaluation</th>
               </tr>
@@ -365,7 +376,7 @@ const ProfilePage = () => {
               {favoritesLocations.map((location) => (
                 <tr key={location.locationId}>
                   <td className="p-2 border">{location.locationName}</td>
-                  <td className="p-2 border">{location.price}</td>
+                  <td className="p-2 border">${location.TicketPricePerPerson}</td>
                   <td className="p-2 border">{location.owner}</td>
                   <td className="p-2 border">{location.evaluation}</td>
                 </tr>
@@ -374,8 +385,8 @@ const ProfilePage = () => {
           </table>
         </div>
 
-          {/* Favorites Products Table */}
-          <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
+        {/* Favorites Products Table */}
+        <div className="p-2 mb-2 overflow-x-auto text-gray-800 bg-gray-100 rounded-lg shadow-md">
           <h2 className="mb-2 text-2xl font-semibold">Favorites Products</h2>
           <table className="w-full bg-white border border-collapse border-gray-300 table-fixed">
             <thead>
@@ -384,16 +395,20 @@ const ProfilePage = () => {
                 <th className="p-2 border">Price</th>
                 <th className="p-2 border">Owner</th>
                 <th className="p-2 border">Evaluation</th>
+                <th className="p-2 border">Remove</th>
               </tr>
             </thead>
             <tbody>
               {favoritesProducts.map((product) => (
                 <tr key={product.productId}>
                   <td className="p-2 border">{product.productName}</td>
-                  <td className="p-2 border">{product.price}</td>
+                  <td className="p-2 border">${product.price}</td>
                   <td className="p-2 border">{product.category}</td>
                   <td className="p-2 border">{product.evaluation}</td>
-                </tr>
+                  <td className='my-auto px-auto '>
+                    <FontAwesomeIcon icon={faTrash} onClick={() => deleteFav(product.productId)} />
+                  </td>              
+                  </tr>
               ))}
             </tbody>
           </table>

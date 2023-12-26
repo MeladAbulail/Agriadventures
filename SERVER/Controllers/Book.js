@@ -49,13 +49,11 @@ const createPayment = async (req, res) => {
     price,
     locationId,
     numberOfVisitors,
-    visitDate,
     locationName
   } = req.body;
 
   try {
     const amountInCents = Math.round(price * 100);
-    // Use Stripe to create a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: 'USD',
@@ -77,7 +75,6 @@ const createPayment = async (req, res) => {
       userId,
       locationId,
       numberOfVisitors,
-      visitDate,
       locationName
     });
 

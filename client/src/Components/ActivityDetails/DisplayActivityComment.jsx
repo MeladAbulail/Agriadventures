@@ -52,10 +52,10 @@ function DisplayActivityComment() {
     return <div className="mt-8 text-center">Loading comments...</div>;
   }
 
-  const handleDeleteComment = async (ratingsAndReviewsId) => {
+  const handleDeleteComment = async (ratingsAndReviewsLocationsId) => {
     try {
-      await axios.delete(`http://localhost:4000/Delete_Ratings_And_Reviews/${ratingsAndReviewsId}`);
-      setComments((prevComments) => prevComments.filter((comment) => comment.ratingAndReview !== ratingsAndReviewsId));
+      await axios.delete(`http://localhost:4000/Delete_Ratings_And_Reviews/${ratingsAndReviewsLocationsId}`);
+      setComments((prevComments) => prevComments.filter((comment) => comment.ratingAndReview !== ratingsAndReviewsLocationsId));
     } catch (error) {
       console.error('Error deleting comment', error);
     }
@@ -63,7 +63,7 @@ function DisplayActivityComment() {
 
   const handleUpdateComment = async () => {
     try {
-      await axios.put(`http://localhost:4000/Update_Ratings_And_Reviews/${editingComment.ratingsAndReviewsId}`, {
+      await axios.put(`http://localhost:4000/Update_Ratings_And_Reviews/${editingComment.ratingsAndReviewsLocationsId}`, {
         rating: editingComment.rating,
         comment: editingComment.comment,
       });
@@ -71,7 +71,7 @@ function DisplayActivityComment() {
       // Update the local state with the edited comment
       setComments((prevComments) =>
         prevComments.map((comment) =>
-          comment.ratingsAndReviewsId === editingComment.ratingsAndReviewsId ? { ...comment, ...editingComment } : comment
+          comment.ratingsAndReviewsLocationsId === editingComment.ratingsAndReviewsLocationsId ? { ...comment, ...editingComment } : comment
         )
       );
 
@@ -92,7 +92,7 @@ function DisplayActivityComment() {
         <div>
           <ul>
             {comments.slice(0, visibleComments).map((comment) => (
-              <li key={comment.ratingsAndReviewsId} className="p-4 mb-4 bg-white rounded shadow">
+              <li key={comment.ratingsAndReviewsLocationsId} className="p-4 mb-4 bg-white rounded shadow">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     {/* Add the image here */}
@@ -116,13 +116,13 @@ function DisplayActivityComment() {
                             >
                               <FontAwesomeIcon
                                 icon={faStar}
-                                color={index < (editingComment?.ratingsAndReviewsId === comment.ratingsAndReviewsId ? editingComment.rating : comment.rating) ? '#FFD700' : '#D3D3D3'}
+                                color={index < (editingComment?.ratingsAndReviewsLocationsId === comment.ratingsAndReviewsLocationsId ? editingComment.rating : comment.rating) ? '#FFD700' : '#D3D3D3'}
                               />
                             </span>
                           ))}
                         </div>
                       </div>
-                      {editingComment?.ratingsAndReviewsId === comment.ratingsAndReviewsId ? (
+                      {editingComment?.ratingsAndReviewsLocationsId === comment.ratingsAndReviewsLocationsId ? (
                         <div>
                           {/* Editing form */}
                           <textarea
@@ -162,7 +162,7 @@ function DisplayActivityComment() {
                         </span>
                         <span
                           className="text-red-500 cursor-pointer"
-                          onClick={() => handleDeleteComment(comment.ratingsAndReviewsId)}
+                          onClick={() => handleDeleteComment(comment.ratingsAndReviewsLocationsId)}
                         >
                           <FontAwesomeIcon icon={faTrash} />
                         </span>

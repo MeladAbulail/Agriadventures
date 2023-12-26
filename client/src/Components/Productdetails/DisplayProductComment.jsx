@@ -97,12 +97,11 @@ function DisplayActivityComment() {
                   <div className="flex items-center">
                     {/* Add the image here */}
                     <img
-                      src={comment.imageUrl}  
-                      alt={`${comment.firstNAme}'s profile`}
-                      className="mr-4 rounded-full"
-                      width={80}
-                      height={80}
-                    />
+  src={comment.imageUrl}
+  alt={`${comment.firstName}'s profile`}
+  className="mr-4 rounded-full h-[80px] w-[80px]"
+/>
+
                     
                     <div>
                       <p className="mb-2 font-bold">{comment.userName}</p>

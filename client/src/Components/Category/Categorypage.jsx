@@ -21,20 +21,21 @@ const CategoryPage = () => {
   const itemsPerPage = 8;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     axios
       .get('http://localhost:4000/Get_All_Locations')
       .then((response) => {
-        setActivities(response.data.Locations);
+        setActivities(response.data.locations);
 
         const searchParams = new URLSearchParams(location.search);
         const locationParam = searchParams.get('location');
-        setTotalResults(response.data.Locations.length);
+        setTotalResults(response.data.locations.length);
 
         if (locationParam) {
           setFilters((prevFilters) => ({ ...prevFilters, location: locationParam }));
           applyFilters();
         } else {
-          setFilteredActivities(response.data.Locations);
+          setFilteredActivities(response.data.locations);
         }
         setCurrentPage(1);
       })
@@ -65,11 +66,11 @@ const CategoryPage = () => {
     }
 
     if (filters.minPrice !== '') {
-      filtered = filtered.filter((activity) => activity.price >= parseInt(filters.minPrice, 10));
+      filtered = filtered.filter((activity) => activity.TicketPricePerPerson >= parseInt(filters.minPrice, 10));
     }
 
     if (filters.maxPrice !== '') {
-      filtered = filtered.filter((activity) => activity.price <= parseInt(filters.maxPrice, 10));
+      filtered = filtered.filter((activity) => activity.TicketPricePerPerson <= parseInt(filters.maxPrice, 10));
     }
 
     if (filters.minRating !== '') {
@@ -81,7 +82,7 @@ const CategoryPage = () => {
     }
 
     if (filters.location !== '') {
-      filtered = filtered.filter((activity) => activity.category === filters.location);
+      filtered = filtered.filter((activity) => activity.location === filters.location);
     }
     setFilteredActivities(filtered.slice(startIndex, endIndex));
   };
@@ -125,6 +126,7 @@ const CategoryPage = () => {
     setCurrentPage(pageNumber);
     console.log(pageNumber)
   };
+
 
   return (
     <section>
@@ -224,13 +226,9 @@ const CategoryPage = () => {
               <option value="Zarqa">Zarqa</option>
               <option value="Irbid">Irbid</option>
               <option value="Aqaba">Aqaba</option>
-              <option value="Ma'an">Ma'an</option>
-              <option value="Jerash">Jerash</option>
-              <option value="Kerak">Kerak</option>
               <option value="Ajloun">Ajloun</option>
             </select>
           </div>
-
 
           <button
             onClick={clearFilters}
@@ -257,11 +255,13 @@ const CategoryPage = () => {
                 <div className="flex flex-col w-full p-3 space-y-2 md:w-2/3">
                   <h3 className="text-xl font-black text-gray-800 md:text-3xl">{activity.locationName}</h3>
                   <p className="text-base text-gray-500 md:text-lg line-clamp-4">{activity.description}</p>
+                  <p className="text-base text-gray-500 md:text-lg line-clamp-4">{activity.description}</p>
+                  <p className="mt-2 text-lg">{`Workdays: ${activity.workdays.split(',').join(' | ')}`}</p>
 
 
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="hidden font-medium text-gray-500 md:block">{activity.category}</p>
+                      <p className="hidden font-medium text-gray-500 md:block">location: {activity.location}</p>
                       <div className="flex items-center mt-1">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -275,7 +275,7 @@ const CategoryPage = () => {
 
                     <div className="absolute bottom-0 right-0 flex flex-row mb-4 mr-4" >
                       <p className="mr-4 text-3xl font-black text-gray-800">
-                        ${activity.price}
+                        ${activity.TicketPricePerPerson}
                         <span className="static bottom-0 text-base font-normal text-gray-600">/Person</span>
                       </p>
                       <button

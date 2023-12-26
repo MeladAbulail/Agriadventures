@@ -3,31 +3,45 @@ const { Locations, Ratings_And_Reviews_Locations } = require('../Models/Tables')
 //! Add New Location Start
 const addLocation = async (req, res) => {
   try {
-    const { locationName, owner, description, openingHours, price, visitDate, phone, email, location } = req.body;
-    const imageUrl = res.locals.site;
+    console.log('Received data:', req.body);
+
+    const {
+      locationName,
+      owner,
+      workdays,
+      description,
+      TicketPricePerPerson,
+      phone,
+      email,
+      location,
+      TheBeginningAndEndOfTheJourney
+    } = req.body;
+
+    const timeObject = JSON.parse(TheBeginningAndEndOfTheJourney);
+
     const newLocation = await Locations.create({
       locationName,
       owner,
       description,
-      openingHours,
-      price,
-      imageUrl,
-      visitDate,
+      TicketPricePerPerson,
+      imageUrl: res.locals.site,
       phone,
       email,
-      location
+      location,
+      workdays: Array.isArray(workdays) ? workdays.join(',') : workdays, 
+      TheBeginningAndEndOfTheJourney: timeObject
     });
 
     res.status(201).json({
       success: true,
-      message: 'Locations added successfully',
-      locations: newLocation.toJSON(),
+      message: 'Location added successfully',
+      location: newLocation.toJSON(),
     });
   } catch (error) {
-    console.error('An error occurred while adding the Locations:', error);
+    console.error('An error occurred while adding the Location:', error);
     res.status(500).json({
       success: false,
-      message: 'An error occurred while adding the Locations',
+      message: 'An error occurred while adding the Location',
       error: error.message,
     });
   }
@@ -49,10 +63,18 @@ const updateLocationById = async (req, res) => {
       });
     }
 
-    //! Update the Location details
-    existingLocation.locationName = locationName;
-    existingLocation.description = description;
-    existingLocation.price = price;
+    //! Update the Location details dynamically
+    if (locationName !== undefined) {
+      existingLocation.locationName = locationName;
+    }
+
+    if (description !== undefined) {
+      existingLocation.description = description;
+    }
+
+    if (price !== undefined) {
+      existingLocation.price = price;
+    }
 
     //! Check if a new image is uploaded
     if (req.file) {
@@ -77,7 +99,6 @@ const updateLocationById = async (req, res) => {
     });
   }
 };
-
 
 //! Soft delete location by ID 
 const deleteLocationById = async (req, res) => {
@@ -118,23 +139,48 @@ const deleteLocationById = async (req, res) => {
   }
 };
 
-
-//! Get All Locations Start
-const getAllLocations = async (req, res) => {
+//! Get All Locations Pagination
+const getAllLocationsPagination = async (req, res) => {
   try {
-    //! Retrieve only Locations that haven't been soft deleted
+    const page = req.query.page || 1;
+    const itemsPerPage = req.query.itemsPerPage || 5;
+
     const locations = await Locations.findAll({
       where: {
-        isDeleted: false, ViewThePlace: true
+        isDeleted: false,
       },
-      order: [['locationId', 'ASC']],
+      order: [['createdAt', 'ASC']],
+      limit: itemsPerPage,
+      offset: (page - 1) * itemsPerPage,
     });
+
+    const totalItems = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+      },
+    });
+
+    const locationsConfirm = await Locations.findAll({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    const totalPages = Math.ceil(locations.count / itemsPerPage);
 
     res.status(200).json({
       success: true,
       message: "Locations retrieved successfully",
       Locations: locations,
-
+      totalItems: totalItems, 
+      locations: locations.rows,
+      totalLocations: locations.count,
+      totalPages,
+      currentPage: page,
+      locationsConfirm: locationsConfirm.map(locationsConfirm => locationsConfirm.locationId),
     });
   } catch (error) {
     console.error('An error occurred while fetching Locations:', error);
@@ -144,7 +190,7 @@ const getAllLocations = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 const getLocationById = async (req, res) => {
   const locationId = req.params.locationId; 
@@ -180,13 +226,13 @@ const getLocationById = async (req, res) => {
 
 const getByDate = async (req, res) => {
   try {
-    // Retrieve only the last 4 Locations that haven't been soft deleted
+    
     const locations = await Locations.findAll({
       where: {
         isDeleted: false, ViewThePlace: true
       },
-      order: [['createdAt', 'DESC']], // Order by creation date in descending order
-      limit: 4, // Limit the result to the last 4 locations
+      order: [['createdAt', 'DESC']], 
+      limit: 4, 
     });
 
     res.status(200).json({
@@ -205,27 +251,76 @@ const getByDate = async (req, res) => {
 };
 
 //! Get All Locations Accourding ViewThePlace
-const getLocationByViewThePlace = async (req, res) => {
-  const locations = await Locations.findAll({
-    where: {
-      ViewThePlace: false, isDeleted: false
-    }
-  })
-
-  if (!locations) {
-    return res.status(404).json({
-      success: false,
-      message: "Not Locations Found",
+const getAllLocations = async (req, res) => {
+  try {
+    const locations = await Locations.findAll({
+      where: {
+        isDeleted: false,
+      },
+      order: [['createdAt', 'ASC']],
     });
-  } else {
+
+    const locationsConfirm = await Locations.findAll({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    if (!locations || locations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Locations Found",
+      });
+    }
 
     res.status(200).json({
       success: true,
       message: "Locations retrieved successfully",
-      locations: locations
+      locations: locations,
+      locationsConfirm: locationsConfirm.map((location) => location.locationId),
+    });
+  } catch (error) {
+    console.error("Error retrieving locations:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
     });
   }
-}
+};
+
+//! Get All Locations For Home Page
+const getAllLocationsForHomePage = async (req, res) => {
+  try {
+    const locations = await Locations.findAll({
+      where: {
+        isDeleted: false, ViewThePlace: true
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    if (!locations || locations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Locations Found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Locations retrieved successfully",
+      locations: locations,
+    });
+  } catch (error) {
+    console.error("Error retrieving locations:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 
 //! Update View The Place
 const viewThePlace = async (req, res) => {
@@ -266,15 +361,142 @@ const viewThePlace = async (req, res) => {
   }
 };
 
+//! Not Update View The Place
+const notViewThePlace = async (req, res) => {
+  try {
+    const locationId = req.params.locationId; 
 
+    //! Check if the location exists
+    const Location = await Locations.findByPk(locationId);
+
+    if (!Location) {
+      return res.status(404).json({
+        success: false,
+        message: 'Location not found',
+      });
+    }
+
+    //! Soft delete the Location
+    await Locations.update(
+      { ViewThePlace: false },
+      { where: { locationId: locationId } }
+    );
+
+    //! Save the changes
+    await Location.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Location soft deleted successfully',
+      product: Location.toJSON(),
+    });
+  } catch (error) {
+    console.error('An error occurred while soft deleting the Location:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while soft deleting the Location',
+      error: error.message,
+    });
+  }
+};
+
+//! Get Location Count
+const getLocationCount = async (req, res) => {
+  try {
+    const alllocationsCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+      },
+    });
+
+    const locationsAwaitingApprovalCount = await Locations.count({ 
+      where: {
+        isDeleted: false,
+        ViewThePlace: false,
+      },
+    });
+
+    const locationsZarqaCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+        location: "Zarqa"
+      },
+    });
+
+    const locationsAmmanCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+        location: "Amman"
+      },
+    });
+
+    const locationsAqabaCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+        location: "Aqaba"
+      },
+    });
+
+    const locationsAjlounCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+        location: "Ajloun"
+      },
+    });
+
+    const locationsMadabaCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+        location: "Madaba"
+      },
+    });
+
+    const locationsIrbidCount = await Locations.count({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+        location: "Irbid"
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Location count retrieved successfully',
+      alllocationsCount,
+      locationsAwaitingApprovalCount,
+      locationsZarqaCount,
+      locationsAmmanCount,
+      locationsAqabaCount,
+      locationsAjlounCount,
+      locationsMadabaCount,
+      locationsIrbidCount,
+    });
+  } catch (error) {
+    console.error('An error occurred while fetching Location count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching Location count',
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   addLocation,
   updateLocationById,
   deleteLocationById,
-  getAllLocations,
+  getAllLocationsPagination,
   getLocationById,
   getByDate,
-  getLocationByViewThePlace,
-  viewThePlace
+  getAllLocations,
+  viewThePlace,
+  getLocationCount,
+  notViewThePlace,
+  getAllLocationsForHomePage
 }

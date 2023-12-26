@@ -24,45 +24,52 @@ function ProductTable() {
     image: '',
   });
 
+  // Pagination variables
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(1); 
+  const [loading, setLoading] = useState(true);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/Get_All_Products_Pagination?page=${currentPage}&itemsPerPage=${itemsPerPage}`);
+      setProducts(response.data.products);
+      setTotalPages(Math.ceil(response.data.totalItems / itemsPerPage));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
-  const fetchProducts = () => {
-    const apiUrl = 'http://localhost:4000/Get_All_Products';
-    axios
-      .get(apiUrl)
-      .then(response => setProducts(response.data.products))
-      .catch(error => console.error('Error fetching products:', error));
-  };
-
-  const deleteProduct = productId => {
-    const apiUrl = 'http://localhost:4000/Delete_Product_By_Id';
-    axios
-      .delete(`${apiUrl}/${productId}`)
-      .then(response => {
+  const deleteProduct = (productId) => {
+    axios.delete(`http://localhost:4000/Delete_Product_By_Id/${productId}`)
+      .then((response) => {
         if (response.status === 200) {
-          setProducts(products.filter(product => product.productId !== productId));
+          setProducts(products.filter((product) => product.productId !== productId));
         }
       })
-      .catch(error => console.error('Error deleting product:', error));
+      .catch((error) => console.error('Error deleting product:', error));
   };
 
-  const handleEditProduct = product => {
+  const handleEditProduct = (product) => {
     setEditingProduct(product);
     setEditedProduct({ ...product });
   };
 
-
-  const handleAddProduct = product => {
+  const handleAddProduct = () => {
     navigate('/AddProduct');
   };
 
-
-  const handleInputChange = e => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditedProduct(prevProduct => ({ ...prevProduct, [name]: value }));
+    setEditedProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
   };
+
   const handleSaveEdit = () => {
     const apiUrl = 'http://localhost:4000/Update_Product_By_Id';
     const formData = new FormData();
@@ -71,21 +78,21 @@ function ProductTable() {
     formData.append('description', editedProduct.description);
     formData.append('price', editedProduct.price);
     formData.append('image', editedProduct.image);
-  
+
     axios
       .put(`${apiUrl}/${editedProduct.productId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
-      .then(response => {
+      .then((response) => {
         if (response.status === 200) {
-          fetchProducts(); // Refetch products after update
+          fetchProducts();
           setEditingProduct(null);
           setEditedProduct(null);
         }
       })
-      .catch(error => console.error('Error updating product:', error));
+      .catch((error) => console.error('Error updating product:', error));
   };
 
   const handleCancelEdit = () => {
@@ -93,20 +100,13 @@ function ProductTable() {
     setEditedProduct(null);
   };
 
-  
-
-  const handleInputChangeNewProduct = e => {
-    const { name, value } = e.target;
-    setNewProduct(prevProduct => ({ ...prevProduct, [name]: value }));
-  };
-
-  
-
-  
-
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = products.filter((product) =>
     product.productName.toLowerCase().includes(searchProductName.toLowerCase())
   );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <>
@@ -215,6 +215,21 @@ function ProductTable() {
                   ))}
                 </tbody>
               </table>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center justify-center mt-4">
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 mx-1 text-white bg-blue-500 rounded ${
+                      currentPage === page ? 'bg-blue-600' : 'hover:bg-blue-600'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

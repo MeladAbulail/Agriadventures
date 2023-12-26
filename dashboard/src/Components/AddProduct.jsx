@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 function AddProduct() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,12 @@ function AddProduct() {
     category: '',
     image: null,
   });
+
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    navigate('/ConfirmProduct');
+  };
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -41,7 +48,7 @@ function AddProduct() {
       });
 
       console.log('Post success:', response.data);
-      // Handle success or redirect as needed
+      handleRedirect()
     } catch (error) {
       console.error('Post error:', error);
       // Handle error

@@ -130,36 +130,160 @@ const deleteMessageById = async (req, res) => {
   }
 }
 
-const getAllMessages = async (req, res) => {
+//! Get All Messages Pagination
+const messagesPagination = async (req, res) => {
   try {
-    const messages = await Contact_us.findAll({
+    const page = req.query.page || 1;
+    const itemsPerPage = req.query.itemsPerPage || 5;
+    const allmessages = await Contact_us.findAll({
       where: {
-        isDeleted: false
-      }
+        isDeleted: false,
+      },
+      order: [['contactUsId', 'ASC']],
     });
 
-    const serializedMessages = messages.map(message => message.toJSON());
+    const messagesReadable = await Contact_us.findAll({
+      where: {
+        isDeleted: false,
+        readable: true
+      }
+    }); 
+
+    const messages = await Contact_us.findAndCountAll({
+      where: {
+        isDeleted: false,
+      },
+      limit: itemsPerPage,
+      offset: (page - 1) * itemsPerPage,
+      order: [['createdAt', 'ASC']],
+    });
+
+    const totalPages = Math.ceil(messages.count / itemsPerPage);
 
     res.status(200).json({
       success: true,
-      message: "Messages retrieved successfully",
-      messages: serializedMessages
+      message: 'Messages retrieved successfully',
+      messages: messages.rows,
+      totalMessages: messages.count,
+      totalPages,
+      currentPage: page,
+      allmessages: allmessages,
+      messagesReadable: messagesReadable.map(message => message.contactUsId), 
     });
-
-  } catch(error) {
-    console.error("")
+  } catch (error) {
+    console.error('An error occurred while fetching Messages:', error);
     res.status(500).json({
       success: false,
-      Message: "An error occurred while updating the message",
+      message: 'An error occurred while fetching Messages',
       error: error.message,
-    })
+    });
   }
-}
+};
+
+
+
+const updateMessageReadability = async (req, res) => {
+  try {
+    const { contactUsId } = req.params;
+    const existingMessage = await Contact_us.findByPk(contactUsId);
+    if (!existingMessage) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found',
+      });
+    }
+    existingMessage.readable = true;
+    await existingMessage.save();
+    res.status(200).json({
+      success: true,
+      message: 'Message readability updated successfully',
+      Message: existingMessage.toJSON(),
+    });
+  } catch (error) {
+    console.error('Error updating message readability:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating the message readability',
+      error: error.message,
+    });
+  }
+};
+
+const updateMessageNotReadability = async (req, res) => {
+  try {
+    const { contactUsId } = req.params;
+    const existingMessage = await Contact_us.findByPk(contactUsId);
+    if (!existingMessage) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found',
+      });
+    }
+    existingMessage.readable = false;
+    await existingMessage.save();
+    res.status(200).json({
+      success: true,
+      message: 'Message readability updated successfully',
+      Message: existingMessage.toJSON(),
+    });
+  } catch (error) {
+    console.error('Error updating message readability:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating the message readability',
+      error: error.message,
+    });
+  }
+};
+
+//! Get Contact Us Count
+const getContactUsCount = async (req, res) => {
+  try {
+
+    const allMessagesCount = await Contact_us.count({
+      where: {
+        isDeleted: false,
+      },
+    });
+
+    const readableMessagesCount = await Contact_us.count({
+      where: {
+        isDeleted: false,
+        readable: true
+      },
+    });
+
+    const notReadableMessagesCount = await Contact_us.count({
+      where: {
+        isDeleted: false,
+        readable: false
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Contact Us count retrieved successfully',
+      allMessagesCount,
+      readableMessagesCount,
+      notReadableMessagesCount
+    });
+  } catch (error) {
+    console.error('An error occurred while fetching Contact Us count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching Contact Us count',
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   addNewMessage,
   getMessageByEmail,
   updateMessageById,
   deleteMessageById,
-  getAllMessages
+  messagesPagination,
+  updateMessageReadability,
+  updateMessageNotReadability,
+  getContactUsCount
 };

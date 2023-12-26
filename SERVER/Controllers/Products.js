@@ -98,7 +98,7 @@ const deleteProduct = async (req, res) => {
     await Products.update(
       { isDeleted: true },
       {
-        where: { ViewThePlace: false, isDeleted: false }
+        where: { productId: productId }
       }
     );
 
@@ -120,20 +120,38 @@ const deleteProduct = async (req, res) => {
   }
 }
 
-
-const getProducts = async (req, res) => {
+//! get Products Pagination
+const getProductsPagination = async (req, res) => {
   try {
-    //! Retrieve only products that haven't been soft deleted
+    const page = req.query.page || 1;
+    const itemsPerPage = req.query.itemsPerPage || 5;
+
     const products = await Products.findAll({
       where: {
-        isDeleted: false, ViewThePlace: true
+        isDeleted: false,
+        ViewTheProduct: true,
+      },
+      order: [['productId', 'ASC']],
+      limit: itemsPerPage,
+      offset: (page - 1) * itemsPerPage,
+    });
+
+    const totalItems = await Products.count({
+      where: {
+        isDeleted: false,
+        ViewTheProduct: true,
       },
     });
 
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
     res.status(200).json({
       success: true,
-      message: "Products retrieved successfully",
-      products: products,
+      message: 'Products retrieved successfully',
+      products,
+      totalItems,
+      totalPages,
+      currentPage: page,
     });
   } catch (error) {
     console.error('An error occurred while fetching products:', error);
@@ -143,7 +161,8 @@ const getProducts = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
+
 
 
 const getProductById = async (req, res) => {
@@ -178,11 +197,45 @@ const getProductById = async (req, res) => {
 };
 
 //! Get All Products Accourding ViewTheProduct
-const getProductsByViewThePlace = async (req, res) => {
+const getAllProducts = async (req, res) => {
   const products = await Products.findAll({
     where: {
-      ViewThePlace: false, isDeleted: false
-    }
+      isDeleted: false
+    },
+    order: [['createdAt', 'ASC']],
+  })
+
+  const productsConfirm = await Products.findAll({
+    where: {
+      isDeleted: false,
+      ViewTheProduct: true
+    },
+    order: [['createdAt', 'ASC']],
+  }); 
+
+  if (!products) {
+    return res.status(404).json({
+      success: false,
+      message: "Not Products Found",
+    });
+  } else {
+
+    res.status(200).json({
+      success: true,
+      message: "Products retrieved successfully",
+      products: products,
+      productsConfirm: productsConfirm.map(product => product.productId),
+    });
+  }
+}
+
+//! Get All Products Accourding ViewTheProduct
+const getAllProductsForHomePage = async (req, res) => {
+  const products = await Products.findAll({
+    where: {
+      isDeleted: false, ViewTheProduct: true
+    },
+    order: [['createdAt', 'ASC']],
   })
 
   if (!products) {
@@ -195,7 +248,7 @@ const getProductsByViewThePlace = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Products retrieved successfully",
-      products: products
+      products: products,
     });
   }
 }
@@ -217,7 +270,7 @@ const viewTheProduct = async (req, res) => {
 
     //! Soft delete the Product
     await Products.update(
-      { ViewThePlace: true },
+      { ViewTheProduct: true },
       { where: { productId: productId } }
     );
 
@@ -239,14 +292,121 @@ const viewTheProduct = async (req, res) => {
   }
 };
 
+//! Update View The Product
+const notViewTheProduct = async (req, res) => {
+  try {
+    const productId = req.params.productId; 
+
+    //! Check if the Product exists
+    const product = await Products.findByPk(productId);
+
+    if (!productId) {
+      return res.status(404).json({
+        success: false,
+        message: 'productId not found',
+      });
+    }
+
+    //! Soft delete the Product
+    await Products.update(
+      { ViewTheProduct: false },
+      { where: { productId: productId } }
+    );
+
+    //! Save the changes
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product soft deleted successfully',
+      product: product.toJSON(),
+    });
+  } catch (error) {
+    console.error('An error occurred while soft deleting the Product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while soft deleting the Product',
+      error: error.message,
+    });
+  }
+};
+
+//! Get Product Count
+const getProductCount = async (req, res) => {
+  try {
+    const allproductsCount = await Products.count({
+      where: {
+        isDeleted: false,
+        ViewTheProduct: true,
+      },
+    });
+
+    const productsAwaitingApprovalCount = await Products.count({
+      where: {
+        isDeleted: false,
+        ViewTheProduct: false,
+      },
+    });
+
+    const productsDairyCount = await Products.count({
+      where: {
+        isDeleted: false,
+        category: "Dairy",
+      },
+    });
+
+    const productsCropSeedsCount = await Products.count({
+      where: {
+        isDeleted: false,
+        category: "CropSeeds",
+      },
+    });
+
+    const productsFarmEquipmentsCount = await Products.count({
+      where: {
+        isDeleted: false,
+        category: "FarmEquipments",
+      },
+    });
+
+    const productsFertilizersCount = await Products.count({
+      where: {
+        isDeleted: false,
+        category: "Fertilizers",
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Product count retrieved successfully',
+      allproductsCount,
+      productsAwaitingApprovalCount,
+      productsDairyCount,
+      productsCropSeedsCount,
+      productsFarmEquipmentsCount,
+      productsFertilizersCount,
+    });
+  } catch (error) {
+    console.error('An error occurred while fetching product count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching product count',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addProduct,
   updateProduct,
   deleteProduct,
-  getProducts,
+  getProductsPagination,
   getProductById,
   viewTheProduct,
-  getProductsByViewThePlace
+  getAllProducts,
+  getProductCount,
+  notViewTheProduct,
+  getAllProductsForHomePage
 }
 
 

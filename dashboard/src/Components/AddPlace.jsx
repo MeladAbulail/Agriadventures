@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 function AddPlace() {
   const [formData, setFormData] = useState({
@@ -8,13 +9,22 @@ function AddPlace() {
     phone: '',
     email: '',
     locationName: '',
-    price: '',
+    TicketPricePerPerson: '',
     description: '',
     location: '',
-    openingHours: '',
-    visitDate: '',
+    workdays: [],
     image: null,
+    TheBeginningAndEndOfTheJourney: {
+      startTime: '',
+      endTime: '',
+    },
   });
+
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    navigate('/ConfirmPlace');
+  };
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -24,16 +34,62 @@ function AddPlace() {
     }));
   };
 
+  const handleCheckboxChange = (e) => {
+    const { value } = e.target;
+
+    // Update the formData state when a checkbox is checked or unchecked
+    setFormData((prevData) => {
+      if (prevData.workdays.includes(value)) {
+        // If the value is already in the array, remove it
+        return {
+          ...prevData,
+          workdays: prevData.workdays.filter((day) => day !== value),
+        };
+      } else {
+        // If the value is not in the array, add it
+        return {
+          ...prevData,
+          workdays: [...prevData.workdays, value],
+        };
+      }
+    });
+  };
+
+  const handleTimeChange = (e, field) => {
+    const { value } = e.target;
+
+    // Update the formData state when the time input changes
+    setFormData((prevData) => ({
+      ...prevData,
+      TheBeginningAndEndOfTheJourney: {
+        ...prevData.TheBeginningAndEndOfTheJourney,
+        [field]: value,
+      },
+    }));
+  };
+
   const token = Cookies.get('token');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const formDataForUpload = new FormData();
+  
     for (const key in formData) {
-      formDataForUpload.append(key, formData[key]);
+      if (key === 'TheBeginningAndEndOfTheJourney') {
+        // Handle the nested object for time separately
+        formDataForUpload.append('TheBeginningAndEndOfTheJourney', JSON.stringify(formData.TheBeginningAndEndOfTheJourney));
+      } else if (key === 'workdays') {
+        // Join the array of workdays into a comma-separated string
+        formDataForUpload.append(key, formData.workdays.join(','));
+      } else if (key === 'image') {
+        // Handle file separately
+        formDataForUpload.append(key, formData[key]);
+      } else {
+        formDataForUpload.append(key, formData[key]);
+      }
     }
-
+  
     try {
       const response = await axios.post('http://localhost:4000/Add_New_Location', formDataForUpload, {
         headers: {
@@ -41,12 +97,11 @@ function AddPlace() {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+  
       console.log('Post success:', response.data);
-      // Handle success or redirect as needed
+      handleRedirect();
     } catch (error) {
       console.error('Post error:', error);
-      // Handle error
     }
   };
 
@@ -54,7 +109,8 @@ function AddPlace() {
     <div className="max-w-2xl p-8 mx-auto my-8 bg-white rounded-lg shadow-lg">
       <h2 className="mb-4 text-2xl font-bold">Add Place</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex flex-col">
+
+      <div className="flex flex-col">
           <label htmlFor="owner" className="text-sm font-medium">
             Owner:
           </label>
@@ -143,50 +199,19 @@ function AddPlace() {
             <option value="Amman">Amman</option>
             <option value="Aqaba">Aqaba</option>
             <option value="Ajloun">Ajloun</option>
-            <option value="Madaba">Madaba</option>
             <option value="Irbid">Irbid</option>
           </select>
         </div>
 
         <div className="flex flex-col">
-          <label htmlFor="openingHours" className="text-sm font-medium">
-          Opening Hours:
+          <label htmlFor="TicketPricePerPerson" className="text-sm font-medium">
+          Ticket Price Per Person:
           </label>
           <input
             type="number"
-            id="openingHours"
-            name="openingHours"
-            value={formData.openingHours}
-            onChange={handleChange}
-            className="p-2 mt-1 border border-gray-300 rounded-md"
-            required
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="visitDate" className="text-sm font-medium">
-            Visit Date:
-          </label>
-          <input
-            type="date"
-            id="visitDate"
-            name="visitDate"
-            value={formData.visitDate}
-            onChange={handleChange}
-            className="p-2 mt-1 border border-gray-300 rounded-md"
-            required
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="price" className="text-sm font-medium">
-            Price:
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
+            id="TicketPricePerPerson"
+            name="TicketPricePerPerson"
+            value={formData.TicketPricePerPerson}
             onChange={handleChange}
             className="p-2 mt-1 border border-gray-300 rounded-md"
             required
@@ -206,6 +231,56 @@ function AddPlace() {
             className="p-2 mt-1 border border-gray-300 rounded-md"
             required
           />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Workdays:</label>
+          <div>
+            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+              <label key={day} className="mr-4">
+                <input
+                  type="checkbox"
+                  name="workdays"
+                  value={day}
+                  checked={formData.workdays.includes(day)}
+                  onChange={handleCheckboxChange}
+                />
+                {day}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="TheBeginningAndEndOfTheJourney" className="text-sm font-medium">
+            Working Hours:
+          </label>
+          <div>
+            <label>
+              From
+              <input
+                type="time"
+                id="startTime"
+                name="startTime"
+                value={formData.TheBeginningAndEndOfTheJourney.startTime}
+                onChange={(e) => handleTimeChange(e, 'startTime')}
+                className="p-2 mt-1 border border-gray-300 rounded-md"
+                required
+              />
+            </label>
+            <label>
+              To
+              <input
+                type="time"
+                id="endTime"
+                name="endTime"
+                value={formData.TheBeginningAndEndOfTheJourney.endTime}
+                onChange={(e) => handleTimeChange(e, 'endTime')}
+                className="p-2 mt-1 border border-gray-300 rounded-md"
+                required
+              />
+            </label>
+          </div>
         </div>
 
         <button

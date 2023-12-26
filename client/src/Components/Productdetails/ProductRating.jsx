@@ -68,8 +68,8 @@ function ProductRating({ productId, productName }) {
   };
 
   return (
-    <div className="max-w-md p-4 mx-auto">
-      <h1 className="mb-4 text-2xl font-semibold">Submit a Rating</h1>
+    <div className="max-w-md p-4 mx-auto ">
+      <h1 className="w-full mb-4 text-2xl font-semibold">Submit a Rating</h1>
       <div className="flex items-center mb-4 space-x-2">
         <label className="text-sm font-bold text-gray-700">Rating</label>
         <div className="rating rating-lg">

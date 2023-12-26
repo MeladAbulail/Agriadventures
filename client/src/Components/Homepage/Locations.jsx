@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function Locations() {
   return (
-    <div className="flex flex-row flex-wrap justify-around mx-5 mt-10 mb-10 md:mx-36 lg:m-5 bg-[#fcf9f3]">
+    <div className="flex flex-row flex-wrap justify-around mx-5 mt-10 mb-10 md:mx-36 lg:m-5">
       <Link to="/Category?location=Irbid" className="md:flex-col md:m-5">
         <figure className="relative max-w-sm my-6 transition-all duration-300 cursor-pointer w-60 filter h-1/6 md:my-0">
           <img
@@ -68,7 +68,6 @@ function Locations() {
           </figcaption>
         </figure>
       </Link>
-
     </div>
   );
 }

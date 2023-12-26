@@ -4,7 +4,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import Logo from './Logo.png';
 
-function LoginPage() {
+function LoginPage({ setLoggedIn }) {
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -48,15 +48,20 @@ function LoginPage() {
         // Include the token in the request headers for subsequent requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   
-        navigate('/UserTable');
+        // Update the login state
+        setLoggedIn(true);
+  
+        // Navigate to DashboardCounter after successful login
+        navigate('/DashboardCounter');
       } else {
         console.log('Invalid email or password');
+        setErrorMessage('Invalid email or password');
       }
     } catch (error) {
       console.error('Error signing in:', error.response);
     }
   };
-
+  
   return (
     <div>
       <div className="bg-white ">

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const initialUserFormState = {
   firstName: '',
@@ -18,52 +17,34 @@ const UserTable = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [userForm, setUserForm] = useState(initialUserFormState);
   const [passwordMatchError, setPasswordMatchError] = useState('');
-
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-
-  const navigate = useNavigate();
+  const [bannedUsers, setBannedUsers] = useState([]);
+  const [adminOrUser, setadminOrUser] = useState([]);
   
-  const ITEMS_PER_PAGE = 5;
-
-  const redirectToHome = () => {
-    navigate.push('/UsersTable');
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setCurrentPage(1);
-        setTotalPages(1);
-        const response = await axios.get(`http://localhost:4000/Get_All_Users_PAGINATION?page=${currentPage}`);
-        setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
-        setTotalPages(response.data.totalPages || Math.ceil(response.data.totalItems / response.data.itemsPerPage));
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-    
-    fetchData();
-  }, []);
+  // Pagination variables
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [totalPages, setTotalPages] = useState(1); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:4000/Get_All_Users_PAGINATION?page=${currentPage}`);
-        setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
-        setTotalPages(response.data.totalPages || Math.ceil(response.data.totalItems / response.data.itemsPerPage));
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-    
-    fetchData();
-  }, [currentPage, userForm]);
+    fetchUsers();
+  }, [currentPage, itemsPerPage]);
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/Get_All_Users_PAGINATION?page=${currentPage}&itemsPerPage=${itemsPerPage}`);
+      console.log('Response data:', response.data);
+      setUsers(response.data.users); 
+      setBannedUsers(response.data.usersBan)
+      setadminOrUser(response.data.admins)
+      setTotalPages(Math.ceil(response.data.totalUsers / itemsPerPage));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setLoading(false);
+    }
   };
-
+  
   const deleteUser = (userId) => {
     axios.delete(`http://localhost:4000/Delete_User_By_Id/${userId}`)
       .then(res => {
@@ -73,6 +54,47 @@ const UserTable = () => {
         console.log("Error deleting user:", err);
       });
   };
+
+  const banUser = (userId) => {
+    axios.put(`http://localhost:4000/Ban_User_By_Id/${userId}`)
+      .then(res => {
+        setBannedUsers([...bannedUsers, userId]); 
+      })
+      .catch(err => {
+        console.log("Error banning user:", err);
+      });
+  };
+
+  const unbanUser = (userId) => {
+    axios.put(`http://localhost:4000/UnBan_User_By_Id/${userId}`)
+    .then(res => {
+      setBannedUsers(bannedUsers.filter(bannedUserId => bannedUserId !== userId));
+    })
+    .catch(err => {
+      console.log("Error banning user:", err);
+    });
+  };
+
+  const userToAdmin = (userId) => {
+    axios.put(`http://localhost:4000/Make_User_Admin/${userId}`)
+      .then(res => {
+        setadminOrUser([...adminOrUser, userId]); 
+      })
+      .catch(err => {
+        console.log("Error adminOrUser user:", err);
+      });
+  };
+
+  const adminToUser = (userId) => {
+    axios.put(`http://localhost:4000/Make_Admin_User/${userId}`)
+    .then(res => {
+      setadminOrUser(adminOrUser.filter(adminOrUserId => adminOrUserId !== userId));
+    })
+    .catch(err => {
+      console.log("Error adminOrUser user:", err);
+    });
+  };
+
 
   const addUser = () => {
     if (userForm.password !== userForm.confirmPassword) {
@@ -85,40 +107,26 @@ const UserTable = () => {
     axios.post("http://localhost:4000/Register", userForm)
       .then(response => {
         console.log('User added successfully:', response.data);
-        setUsers(response.data.users);
-        setUserForm(initialUserFormState); 
+        setUsers((prevUsers) => [...prevUsers, response.data.user]); 
+        setUserForm(initialUserFormState);
         setShowAddUserForm(false);
-        redirectToHome()
       })
       .catch(error => {
         console.error('Error adding user:', error);
       });
   };
-  
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  
   const toggleAddUserForm = () => {
     setShowAddUserForm(!showAddUserForm);
   };
 
-  const filteredUsers = users ? users.filter((user) =>
-    user.email && user.email.toLowerCase().includes(searchUserEmail.toLowerCase())
-  ) : [];
-  const currentUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      console.log('Changing to Previous Page:', currentPage - 1);
-      handlePageChange(currentPage - 1);
-    }
-  };
-  
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      console.log('Changing to Next Page:', currentPage + 1);
-      handlePageChange(currentPage + 1);
-    }
-  };
+  const filteredUsers = users
+  ? users.filter((user) => user && user.email && user.email.toLowerCase().includes(searchUserEmail.toLowerCase()))
+  : [];
 
   return (
     <div className="w-full min-h-full p-4 mt-16 overflow-x-auto text-black ">
@@ -345,11 +353,23 @@ const UserTable = () => {
                 scope="col"
                 className="px-4 py-2 text-white sm:text-xs"
               >
-                Action
+                User Delete
+              </th>
+              <th
+                scope="col"
+                className="px-4 py-2 text-white sm:text-xs"
+              >
+                User Role
+              </th>
+              <th
+                scope="col"
+                className="px-4 py-2 text-white sm:text-xs"
+              >
+                User Block
               </th>
             </tr>
           </thead>
-          {currentUsers.map((user, index) => (
+          {filteredUsers.map((user, index) => (
             <tr
               key={user.userId}
               className={index % 2 === 0 ? "bg-[#e5e7eb]" : "bg-[#d1d5db]"}
@@ -375,42 +395,61 @@ const UserTable = () => {
                   Delete
                 </a>
               </td>
+              {adminOrUser.includes(user.userId) ? (
+                <td className="text-center sm:text-xs">
+                  <a
+                    onClick={() => adminToUser(user.userId)}
+                    className="w-full p-3 text-center text-green-500 rounded-full cursor-pointer sm:text-xs hover:text-green-600"
+                  >
+                    Admin
+                  </a>
+                </td>
+              ) : (
+                <td className="text-center sm:text-xs">
+                  <a
+                    onClick={() => userToAdmin(user.userId)}
+                    className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
+                  >
+                    User
+                  </a>
+                </td>
+              )}
+              {bannedUsers.includes(user.userId) ? (
+                <td className="text-center sm:text-xs">
+                  <a
+                    onClick={() => unbanUser(user.userId)}
+                    className="w-full p-3 text-center text-green-500 rounded-full cursor-pointer sm:text-xs hover:text-green-600"
+                  >
+                    Unban
+                  </a>
+                </td>
+              ) : (
+                <td className="text-center sm:text-xs">
+                  <a
+                    onClick={() => banUser(user.userId)}
+                    className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
+                  >
+                    Ban
+                  </a>
+                </td>
+              )}
             </tr>
           ))}
         </table>
-
-        <div className="flex items-center justify-between mt-4">
-  <div>
-    <span className="text-lg font-semibold">
-      Page {currentPage} of {totalPages}
-    </span>
-  </div>
-  <div className="flex space-x-2">
-    <button
-      onClick={handlePrevPage}
-      className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600`}
-    >
-      Previous
-    </button>
-    {pageNumbers.map((number) => (
-      <button
-        key={number}
-        onClick={() => handlePageChange(number)}
-        className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600 ${
-          currentPage === number ? 'bg-blue-600' : ''
-        }`}
-      >
-        {number}
-      </button>
-    ))}
-    <button
-      onClick={handleNextPage}
-      className={`px-4 py-2 font-bold text-white bg-blue-500 rounded cursor-pointer hover:bg-blue-600`}
-    >
-      Next
-    </button>
-  </div>
-</div>
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-center mt-4">
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-4 py-2 mx-1 text-white bg-blue-500 rounded ${
+                currentPage === page ? 'bg-blue-600' : 'hover:bg-blue-600'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
     </div>
     </div>
   );

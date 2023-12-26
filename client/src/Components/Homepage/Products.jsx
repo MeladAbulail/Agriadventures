@@ -11,7 +11,7 @@ function PackageEvents() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/Get_All_Products');
+        const response = await axios.get('http://localhost:4000/Get_All_Products_For_Home_Page');
         console.log('API Response:', response.data.products);
 
         if (Array.isArray(response.data.products) && response.data.products.length > 0) {
@@ -48,7 +48,7 @@ function PackageEvents() {
   };
 
   return (
-    <div className="flex flex-col mx-0 mt-5 md:mx-40 bg-[#fcf9f3]">
+    <div className="flex flex-col mx-0 mt-5 md:mx-40">
       <div className="mb-4">
         <h1 className="mb-4 text-4xl font-bold md:text-6xl">Products</h1>
       </div>

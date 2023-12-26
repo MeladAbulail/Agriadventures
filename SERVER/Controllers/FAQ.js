@@ -24,10 +24,11 @@ const addFAQ = async (req, res) => {
   }
 };
 
-//! Get All FAQ 
-const getAllFAQ = async (req, res) => {
+//! Get All FQA Pagination
+const getFAQPagination = async (req, res) => {
   try {
-    //! Retrieve only FAQ that haven't been soft deleted
+    const page = req.query.page || 1;
+    const itemsPerPage = req.query.itemsPerPage || 5;
     const allFAQ = await FAQ.findAll({
       where: {
         isDeleted: false,
@@ -35,21 +36,35 @@ const getAllFAQ = async (req, res) => {
       order: [['faqId', 'ASC']],
     });
 
+    const fAQ = await FAQ.findAndCountAll({
+      where: {
+        isDeleted: false,
+      },
+      limit: itemsPerPage,
+      offset: (page - 1) * itemsPerPage,
+      order: [['createdAt', 'ASC']],
+    });
+
+    const totalPages = Math.ceil(fAQ.count / itemsPerPage);
+
     res.status(200).json({
       success: true,
-      message: "allFAQ retrieved successfully",
-      allFAQ: allFAQ,
-
+      message: 'FAQ retrieved successfully',
+      fqa: fAQ.rows,
+      totalFqa: fAQ.count,
+      totalPages,
+      currentPage: page,
+      allFAQ: allFAQ
     });
   } catch (error) {
-    console.error('An error occurred while fetching allFAQ:', error);
+    console.error('An error occurred while fetching FAQ:', error);
     res.status(500).json({
       success: false,
-      message: 'An error occurred while fetching allFAQ',
+      message: 'An error occurred while fetching FAQ',
       error: error.message,
     });
   }
-}
+};
 
 //! Update FAQ by ID 
 const updateFAQById = async (req, res) => {
@@ -134,7 +149,7 @@ const deleteFAQById = async (req, res) => {
 
 module.exports = {
   addFAQ,
-  getAllFAQ,
+  getFAQPagination,
   updateFAQById,
   deleteFAQById
 };
