@@ -46,7 +46,7 @@ app.use(FAQ);
 app.use(FavoritesLocations);
 app.use(FavoritesProducts);
 
-if(true) {CreateUsersTable(), CreateLocationsTable(), CreateRatingsAndReviewsTable(), CreateContactUsTable(), CreateReservationTable(), CreateCartTable(), CreateProductsTable(), CreateOrdersTable(), CreateRatingsAndReviewsProductTable(), CreateFAQTable(), CreateFavoritesProductsTable(), CreateFavoritesLocationsTable()} 
+if(false) {CreateUsersTable(), CreateLocationsTable(), CreateRatingsAndReviewsTable(), CreateContactUsTable(), CreateReservationTable(), CreateCartTable(), CreateProductsTable(), CreateOrdersTable(), CreateRatingsAndReviewsProductTable(), CreateFAQTable(), CreateFavoritesProductsTable(), CreateFavoritesLocationsTable()} 
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

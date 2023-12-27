@@ -83,7 +83,7 @@ const addNewRatingAndReview = async (req, res) => {
 
     const numberOfResidents = location.numberOfResidents + 1;
     const totalStars = location.totalStars + rating;
-    const evaluation = totalStars / numberOfResidents;
+    const evaluation = (totalStars / numberOfResidents).toFixed(1);
 
     await location.update({ evaluation: evaluation, totalStars: totalStars, evaluation: evaluation });
 

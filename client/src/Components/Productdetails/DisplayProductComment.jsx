@@ -12,6 +12,7 @@ function DisplayActivityComment() {
   const { productId } = useParams();
   const [editingComment, setEditingComment] = useState(null);
 
+
   const token = Cookies.get("token");
   const userId = parseInt(Cookies.get("userId"));
 
@@ -22,19 +23,23 @@ function DisplayActivityComment() {
     },
   };
 
+  const fetchComments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/Get_Ratings_And_Reviews_By_ProductId/${productId}`, config);
+      response.data.ratingsAndReviews.sort((a, b) => {
+        if (a.userId === userId) return -1; 
+        if (b.userId === userId) return 1;
+        return b.postDate.localeCompare(a.postDate); 
+      });
+      setComments(response.data.ratingsAndReviews)
+    } catch (error) {
+      console.error('Error fetching comments', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await axios.get(`http://localhost:4000/Get_Ratings_And_Reviews_By_ProductId/${productId}`, config);
-        setComments(response.data.ratingsAndReviews)
-
-      } catch (error) {
-        console.error('Error fetching comments', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchComments();
   }, []);
 
@@ -46,6 +51,7 @@ function DisplayActivityComment() {
 
   const handleEditComment = (comment) => {
     setEditingComment({ ...comment });
+    fetchComments()
   };
 
   if (loading) {
@@ -56,6 +62,7 @@ function DisplayActivityComment() {
     try {
       await axios.delete(`http://localhost:4000/Delete_Ratings_And_Reviews_Product/${ratingsAndReviewsProductId}`);
       setComments((prevComments) => prevComments.filter((comment) => comment.ratingAndReview !== ratingsAndReviewsProductId));
+      fetchComments()
     } catch (error) {
       console.error('Error deleting comment', error);
     }
@@ -68,14 +75,11 @@ function DisplayActivityComment() {
         comment: editingComment.comment,
       });
 
-      // Update the local state with the edited comment
       setComments((prevComments) =>
         prevComments.map((comment) =>
           comment.ratingsAndReviewsProductId === editingComment.ratingsAndReviewsProductId ? { ...comment, ...editingComment } : comment
         )
       );
-
-      // Reset the editing state
       setEditingComment(null);
     } catch (error) {
       console.error('Error updating comment', error);
@@ -186,12 +190,3 @@ function DisplayActivityComment() {
   );
 }
 export default DisplayActivityComment;
-
-
-
-
-
-
-
-
-

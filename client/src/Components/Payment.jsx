@@ -41,15 +41,14 @@ const PaymentForm = () => {
 
   const handlePay = async (event) => {
     event.preventDefault();
-
     setLoading(true);
+  
     if (!stripe || !elements) {
       return;
     }
-
+  
     try {
       const cardElement = elements.getElement(CardElement);
-
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: "card",
         card: cardElement,
@@ -58,12 +57,12 @@ const PaymentForm = () => {
           email: userEmail.toLowerCase(),
         },
       });
-
+  
       if (error) {
         showAlert(error.message, "error");
         return;
       }
-
+  
       const token = Cookies.get("token");
       const config = {
         headers: {
@@ -71,7 +70,7 @@ const PaymentForm = () => {
           "Content-Type": "application/json",
         },
       };
-
+  
       const response = await axios.post(`http://localhost:4000/charge`, {
         paymentMethodId: paymentMethod.id,
         email: userEmail.toLowerCase(),
@@ -80,10 +79,16 @@ const PaymentForm = () => {
         country: country,
         state: state,
         address: address,
-        totalPrice: totalPrice,  
+        totalPrice: totalPrice,
       }, config);
-
+  
       showAlert("Payment successful!", "success");
+  
+      // Redirect to the home page after showing the success alert
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+  
     } catch (error) {
       showAlert("An error occurred. Please try again.", "error");
     } finally {
@@ -98,8 +103,8 @@ const PaymentForm = () => {
   return (
     <>
       {true ? (
-        <Card className="my-10 w-8/12 mx-auto bg-white px-8 py-6 shadow-lg rounded-md">
-          <h1 className="text-2xl font-bold mb-4">Payment Details</h1>
+        <Card className="w-8/12 px-8 py-6 mx-auto my-10 bg-white rounded-md shadow-lg">
+          <h1 className="mb-4 text-2xl font-bold">Payment Details</h1>
           <form onSubmit={handlePay} className="grid grid-cols-2 gap-4">
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium">
@@ -109,7 +114,7 @@ const PaymentForm = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 placeholder="your.email@gmail.com"
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
@@ -126,7 +131,7 @@ const PaymentForm = () => {
                 value={userPhone}
                 onChange={(e) => setUserPhone(e.target.value)}
                 placeholder="Enter phone number"
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 required
               />
             </div>
@@ -137,7 +142,7 @@ const PaymentForm = () => {
               <input
                 type="text"
                 id="country"
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 value={country}
                 onChange={handleCountryChange}
               />
@@ -149,24 +154,24 @@ const PaymentForm = () => {
               <input
                 type="text"
                 id="state"
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 value={state}
                 onChange={handleStateChange}
               />
             </div>
-            <div className="mb-4 col-span-2">
+            <div className="col-span-2 mb-4">
               <label htmlFor="address" className="block text-sm font-medium">
                 Address Line
               </label>
               <input
                 type="text"
                 id="address"
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 value={address}
                 onChange={handleAddressChange}
               />
             </div>
-            <div className="mb-4 col-span-2">
+            <div className="col-span-2 mb-4">
               <label htmlFor="card-holder" className="block text-sm font-medium">
                 Card Holder
               </label>
@@ -174,14 +179,14 @@ const PaymentForm = () => {
                 type="text"
                 id="card-holder"
                 name="card-holder"
-                className="w-full rounded-md border px-3 py-2 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 placeholder="Your full name here"
                 value={cardholder}
                 onChange={(e) => setCardholder(e.target.value)}
                 required
               />
             </div>
-            <div className="mb-4 col-span-2">
+            <div className="col-span-2 mb-4">
               <label htmlFor="card-details" className="block text-sm font-medium">
                 Card Details
               </label>
@@ -204,19 +209,19 @@ const PaymentForm = () => {
                 />
               </div>
             </div>
-            <div className="mb-4 col-span-2">
+            <div className="col-span-2 mb-4">
               {loading ? (
                 <button
                   disabled=""
                   type="button"
-                  className="w-full rounded-md bg-gray-900 text-white px-6 py-3 font-medium"
+                  className="w-full px-6 py-3 font-medium text-white bg-gray-900 rounded-md"
                 >
                   Loading...
                 </button>
               ) : (
                 <button
                   type="submit"
-                  className="w-full rounded-md bg-gray-900 text-white px-6 py-3 font-medium"
+                  className="w-full px-6 py-3 font-medium text-white bg-gray-900 rounded-md"
                 >
                   Place Order
                 </button>

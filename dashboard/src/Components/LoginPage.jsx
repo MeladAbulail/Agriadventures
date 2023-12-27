@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Logo from './Logo.png';
+import Swal from 'sweetalert2'
 
 function LoginPage({ setLoggedIn }) {
   const [showPopup, setShowPopup] = useState(false);
@@ -26,22 +27,22 @@ function LoginPage({ setLoggedIn }) {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-  
+    
     try {
       const response = await axios.post('http://localhost:4000/Login_Admin', {
         email: formData.email,
         password: formData.password,
       });
-
-      console.log('Response from server:', response.data);
   
-      if (response.data) {
+      console.log('Response from server:', response.data);
+      
+      if (response.data.token) {
         console.log('User authenticated successfully');
   
         // Save the token in cookies with a 1-hour expiration
         const token = response.data.token;
         const userId = response.data.userId;
-
+  
         Cookies.set('token', token, { expires: 1 / 24 });
         Cookies.set('userId', userId, { expires: 1 / 24 });
   
@@ -53,15 +54,19 @@ function LoginPage({ setLoggedIn }) {
   
         // Navigate to DashboardCounter after successful login
         navigate('/DashboardCounter');
-      } else {
-        console.log('Invalid email or password');
-        setErrorMessage('Invalid email or password');
-      }
+      }   
     } catch (error) {
+      // Display the error message using alert
+      // alert(error.response.data.error);
+      Swal.fire({
+        title: 'Error',
+        text: error.response.data.error,
+        icon: 'error',
+      });
+      
       console.error('Error signing in:', error.response);
     }
   };
-  
   return (
     <div>
       <div className="bg-white ">

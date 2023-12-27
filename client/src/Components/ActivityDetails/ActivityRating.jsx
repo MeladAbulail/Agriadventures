@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2'
 
 function ActivityRating({ locationId, locationName }) {
   const [rating, setRating] = useState(4);
@@ -34,15 +35,15 @@ function ActivityRating({ locationId, locationName }) {
   const submitRating = async () => {
     try {
       setLoading(true);
-  
+
       if (!token) {
         setPopupVisibility(true);
         return;
       }
-  
+
       const postDate = getCurrentDate();
       console.log(postDate)
-  
+
       const response = await axios.post('http://localhost:4000/Add_Ratings_And_Reviews', 
       {
         locationId: locationId,
@@ -51,12 +52,16 @@ function ActivityRating({ locationId, locationName }) {
         comment: comment,
         postDate: postDate,
       }, config);
-  
-      console.log('Rating submitted successfully', response.data);
-  
+
       setRating(4);
       setComment('');
+      window.location.reload();
     } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "You have not visited the place yet and cannot rate or comment!",
+      });
       console.error('Error submitting rating', error);
     } finally {
       setLoading(false);
@@ -90,7 +95,9 @@ function ActivityRating({ locationId, locationName }) {
         </label>
         <textarea
           id="comment"
-          className="w-full p-2 border rounded"
+          cols={10}
+          rows={10}
+          className="w-[200px] md:w-[300px] p-2 border rounded"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />

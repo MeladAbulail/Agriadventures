@@ -11,7 +11,6 @@ function DisplayActivityComment() {
   const [visibleComments, setVisibleComments] = useState(5);
   const { locationId } = useParams();
   const [editingComment, setEditingComment] = useState(null);
-
   const token = Cookies.get("token");
   const userId = parseInt(Cookies.get("userId"));
 
@@ -22,19 +21,24 @@ function DisplayActivityComment() {
     },
   };
 
+  const fetchComments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/Get_Ratings_And_Reviews_By_LocationId/${locationId}`, config);
+      response.data.ratingsAndReviews.sort((a, b) => {
+        if (a.userId === userId) return -1; 
+        if (b.userId === userId) return 1;
+        return b.postDate.localeCompare(a.postDate); 
+      });
+      setComments(response.data.ratingsAndReviews)
+    } catch (error) {
+      console.error('Error fetching comments', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await axios.get(`http://localhost:4000/Get_Ratings_And_Reviews_By_LocationId/${locationId}`, config);
-        setComments(response.data.ratingsAndReviews)
-
-      } catch (error) {
-        console.error('Error fetching comments', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchComments();
   }, []);
 
@@ -46,6 +50,7 @@ function DisplayActivityComment() {
 
   const handleEditComment = (comment) => {
     setEditingComment({ ...comment });
+    fetchComments()
   };
 
   if (loading) {
@@ -56,6 +61,7 @@ function DisplayActivityComment() {
     try {
       await axios.delete(`http://localhost:4000/Delete_Ratings_And_Reviews/${ratingsAndReviewsLocationsId}`);
       setComments((prevComments) => prevComments.filter((comment) => comment.ratingAndReview !== ratingsAndReviewsLocationsId));
+      fetchComments()
     } catch (error) {
       console.error('Error deleting comment', error);
     }
@@ -83,7 +89,7 @@ function DisplayActivityComment() {
   };
 
   return (
-    <div className="p-8 mt-8 bg-gray-100 rounded shadow-md">
+    <div className="p-4 md:p-8 mt-8 bg-[#f8f1e3] rounded shadow-md">
       <h2 className="mb-4 text-xl font-semibold">Comments</h2>
 
       {comments.length === 0 ? (
@@ -99,9 +105,9 @@ function DisplayActivityComment() {
                     <img
                       src={comment.imageUrl}  
                       alt={`${comment.firstNAme}'s profile`}
-                      className="mr-4 rounded-full"
-                      width={80}
-                      height={80}
+                      className="mr-4 rounded-full max-w-[80px] max-h-[80px]"
+                      width={40}
+                      height={40}
                     />
                     
                     <div>
@@ -111,10 +117,11 @@ function DisplayActivityComment() {
                           {[...Array(5).keys()].map((index) => (
                             <span
                               key={index}
-                              className="mr-1 text-lg text-yellow-400 cursor-pointer"
+                              className="mr-1 text-lg text-yellow-400 cursor-pointer "
                               onClick={() => setEditingComment((prev) => ({ ...prev, rating: index + 1 }))}
                             >
                               <FontAwesomeIcon
+                              className='w-3 h-3 md:max-h-4 md:max-w-4'
                                 icon={faStar}
                                 color={index < (editingComment?.ratingsAndReviewsLocationsId === comment.ratingsAndReviewsLocationsId ? editingComment.rating : comment.rating) ? '#FFD700' : '#D3D3D3'}
                               />
@@ -187,12 +194,3 @@ function DisplayActivityComment() {
   );
 }
 export default DisplayActivityComment;
-
-
-
-
-
-
-
-
-

@@ -12,7 +12,7 @@ import SubmitLoc from './SubmitLoc'
 
 function Homepage() {
   return (
-    <div>
+    <div className=' bg-[#fcf9f3] '>
       <Hero/>
       <Locations/>
       <hr></hr>

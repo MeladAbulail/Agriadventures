@@ -92,30 +92,22 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body
-    //! Validate user input
-    const userSchema = joi.object({
-      email: joi.string().email().required().min(5).max(50),
-      password: joi.string().pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\$%\^&\*]).{6,20}$')).required(),
-    })
-
-    const { error } = userSchema.validate(req.body);
-    if (error) {
-      console.error("Validation error:", error);
-      return res.status(400).json( { error: `Invalid input ${error}` } );
-    }
-
     const user = await User.findOne({
       where: { email: email },
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'Account not found.' });
+    }
+
+    if (user.isBanned === true) {
+      return res.status(401).json({ error: 'The account is blocked.' });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'The password is incorrect.' });
     }
 
     const payload = {
@@ -146,30 +138,22 @@ const loginUser = async (req, res) => {
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body
-    //! Validate user input
-    const userSchema = joi.object({
-      email: joi.string().email().required(),
-      password: joi.string().min(5).max(20),
-    })
-
-    const { error } = userSchema.validate(req.body);
-    if (error) {
-      console.error("Validation error:", error);
-      return res.status(400).json({ error: "Invalid input." });
-    }
-
     const user = await User.findOne({
-      where: { email: email, userRole: "Admin" },
+      where: { email: email },
     });    
 
     if (!user) {
-      return res.status(401).json({ error: 'You are not an Admin and you cannot log in' });
+      return res.status(401).json({ error: 'The account does not exist' });
+    }
+
+    if (user.userRole !== "Admin") {
+      return res.status(403).json({ error: 'You are not an Admin and you cannot log in' });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'The password is incorrect.' });
     }
 
     const payload = {

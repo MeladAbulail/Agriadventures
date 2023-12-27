@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2'
 
 const initialUserFormState = {
   firstName: '',
@@ -46,76 +47,345 @@ const UserTable = () => {
   };
   
   const deleteUser = (userId) => {
-    axios.delete(`http://localhost:4000/Delete_User_By_Id/${userId}`)
-      .then(res => {
-        setUsers(users.filter(user => user.userId !== userId));
-      })
-      .catch(err => {
-        console.log("Error deleting user:", err);
-      });
-  };
-
-  const banUser = (userId) => {
-    axios.put(`http://localhost:4000/Ban_User_By_Id/${userId}`)
-      .then(res => {
-        setBannedUsers([...bannedUsers, userId]); 
-      })
-      .catch(err => {
-        console.log("Error banning user:", err);
-      });
-  };
-
-  const unbanUser = (userId) => {
-    axios.put(`http://localhost:4000/UnBan_User_By_Id/${userId}`)
-    .then(res => {
-      setBannedUsers(bannedUsers.filter(bannedUserId => bannedUserId !== userId));
-    })
-    .catch(err => {
-      console.log("Error banning user:", err);
+    Swal.fire({
+      title: "Are You Sure?",
+      text: "This action will permanently delete the user. Are you sure you want to proceed?",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete user!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`http://localhost:4000/Delete_User_By_Id/${userId}`)
+          .then((res) => {
+            setUsers(users.filter((user) => user.userId !== userId));
+            Swal.fire({
+              title: 'Success!',
+              text: 'User has been deleted successfully.',
+              icon: 'success',
+            });
+          })
+          .catch((err) => {
+            console.log("Error deleting user:", err);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to delete the user. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
     });
   };
+  
+  const banUser = (userId) => {
+    Swal.fire({
+      title: "Are You Sure?",
+      text: "This action will ban the user. Are you sure you want to proceed?",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, ban user!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .put(`http://localhost:4000/Ban_User_By_Id/${userId}`)
+          .then((res) => {
+            setBannedUsers([...bannedUsers, userId]);
+            Swal.fire({
+              title: 'Success!',
+              text: 'User has been banned successfully.',
+              icon: 'success',
+            });
+          })
+          .catch((err) => {
+            console.log("Error banning user:", err);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to ban the user. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
+    });
+  };
+  
+  const unbanUser = (userId) => {
+    Swal.fire({
+      title: "Are You Sure?",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'question', 
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, unban!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // User confirmed, proceed with the API call
+        axios
+          .put(`http://localhost:4000/UnBan_User_By_Id/${userId}`)
+          .then((res) => {
+            setBannedUsers(bannedUsers.filter((bannedUserId) => bannedUserId !== userId));
+          })
+          .catch((err) => {
+            console.log("Error unbanning user:", err);
+          });
+      }
+    });
+  };
+  
 
   const userToAdmin = (userId) => {
-    axios.put(`http://localhost:4000/Make_User_Admin/${userId}`)
-      .then(res => {
-        setadminOrUser([...adminOrUser, userId]); 
-      })
-      .catch(err => {
-        console.log("Error adminOrUser user:", err);
-      });
-  };
-
-  const adminToUser = (userId) => {
-    axios.put(`http://localhost:4000/Make_Admin_User/${userId}`)
-    .then(res => {
-      setadminOrUser(adminOrUser.filter(adminOrUserId => adminOrUserId !== userId));
-    })
-    .catch(err => {
-      console.log("Error adminOrUser user:", err);
+    Swal.fire({
+      title: "Are You Sure?",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, make admin!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .put(`http://localhost:4000/Make_User_Admin/${userId}`)
+          .then((res) => {
+            setadminOrUser([...adminOrUser, userId]);
+            Swal.fire({
+              title: 'Success!',
+              text: 'User has been made an admin successfully.',
+              icon: 'success',
+            });
+          })
+          .catch((err) => {
+            console.log("Error making user an admin:", err);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to make the user an admin. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
     });
   };
+  
+
+  const adminToUser = (userId) => {
+    Swal.fire({
+      title: "Are You Sure?",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove admin role!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .put(`http://localhost:4000/Make_Admin_User/${userId}`)
+          .then((res) => {
+            setadminOrUser(adminOrUser.filter(adminOrUserId => adminOrUserId !== userId));
+            Swal.fire({
+              title: 'Success!',
+              text: 'Admin role has been removed successfully.',
+              icon: 'success',
+            });
+          })
+          .catch((err) => {
+            console.log("Error removing admin role:", err);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to remove admin role. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
+    });
+  };
+  
 
 
-  const addUser = () => {
-    if (userForm.password !== userForm.confirmPassword) {
-      setPasswordMatchError('Password and Confirm Password must match');
+  const addUser = async () => {
+    try {
+          // Validation - Check if required fields are present
+    if (!userForm.firstName || !userForm.lastName || !userForm.email || !userForm.password || !userForm.confirmPassword || !userForm.gender) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please fill in all required fields.',
+        icon: 'error',
+      });
       return;
     }
-  
+
+    // Validation - Check if the password and confirm password match
+    if (userForm.password !== userForm.confirmPassword) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Password and Confirm Password must match.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if the password meets the criteria
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,20}$/;
+    if (!passwordPattern.test(userForm.password)) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Password must have at least one lowercase letter, one uppercase letter, one special character, and be between 6 and 20 characters long.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if firstName adheres to the required pattern
+    const firstNamePattern = /^[a-zA-Z-_]+$/;
+    if (!firstNamePattern.test(userForm.firstName)) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'First Name must consist of only letters, hyphens, or underscores.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if lastName adheres to the required pattern
+    const lastNamePattern = /^[a-zA-Z-_]+$/;
+    if (!lastNamePattern.test(userForm.lastName)) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Last Name must consist of only letters, hyphens, or underscores.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Clear password match error
     setPasswordMatchError('');
   
-    axios.post("http://localhost:4000/Register", userForm)
-      .then(response => {
-        console.log('User added successfully:', response.data);
-        setUsers((prevUsers) => [...prevUsers, response.data.user]); 
+      // Make API call to register user
+      const response = await axios.post("http://localhost:4000/Register", {
+        firstName: userForm.firstName,
+        lastName: userForm.lastName,
+        email: userForm.email,
+        password: userForm.password,
+        gender: userForm.gender,
+        // Add other properties as needed
+      });
+  
+      // Check if the API call was successful
+      if (response.status === 200) {
+        console.log('User added successfully:', response.data.user);
+  
+        // Update local state with the new user
+        setUsers((prevUsers) => [...prevUsers, response.data.user]);
+  
+        // Clear the user form and hide the add user form
         setUserForm(initialUserFormState);
         setShowAddUserForm(false);
-      })
-      .catch(error => {
-        console.error('Error adding user:', error);
-      });
+  
+        Swal.fire({
+          title: 'Success!',
+          text: 'The user has been added successfully.',
+          icon: 'success',
+        });
+      } else {
+        throw new Error('Failed to add user. Server response: ' + response.data);
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error === 'Email is already in use.') {
+        // Email is already in use
+        Swal.fire({
+          title: 'Error',
+          text: 'This email is already registered. Please use a different email address.',
+          icon: 'error',
+        });
+      } else {
+        // Other errors
+        console.error('Error adding user:', error.message);
+  
+        Swal.fire({
+          title: 'Error',
+          text: error.message,
+          icon: 'error',
+        });
+      }
+    }
   };
-
+  
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -353,19 +623,19 @@ const UserTable = () => {
                 scope="col"
                 className="px-4 py-2 text-white sm:text-xs"
               >
-                User Delete
+                Role
               </th>
               <th
                 scope="col"
                 className="px-4 py-2 text-white sm:text-xs"
               >
-                User Role
+                Ban
               </th>
               <th
                 scope="col"
                 className="px-4 py-2 text-white sm:text-xs"
               >
-                User Block
+                Delete
               </th>
             </tr>
           </thead>
@@ -386,14 +656,6 @@ const UserTable = () => {
               </td>
               <td className="text-center sm:text-xs">
                 {user.email}
-              </td>
-              <td className="flex items-center space-x-2 sm:text-xs">
-                <a
-                  onClick={() => deleteUser(user.userId)}
-                  className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
-                >
-                  Delete
-                </a>
               </td>
               {adminOrUser.includes(user.userId) ? (
                 <td className="text-center sm:text-xs">
@@ -433,6 +695,14 @@ const UserTable = () => {
                   </a>
                 </td>
               )}
+                              <td className="flex items-center space-x-2 sm:text-xs">
+                <a
+                  onClick={() => deleteUser(user.userId)}
+                  className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
+                >
+                  Delete
+                </a>
+              </td>
             </tr>
           ))}
         </table>

@@ -154,6 +154,24 @@ const getAllLocationsPagination = async (req, res) => {
       offset: (page - 1) * itemsPerPage,
     });
 
+    const locationsConfirmOnly = await Locations.findAll({
+      where: {
+        isDeleted: false,
+        ViewThePlace: true,
+      },
+      order: [['createdAt', 'ASC']],
+      limit: itemsPerPage,
+      offset: (page - 1) * itemsPerPage,
+    });
+
+    const locationsNotConfirmOnly = await Locations.findAll({
+      where: {
+        isDeleted: false,
+        ViewThePlace: false,
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
     const totalItems = await Locations.count({
       where: {
         isDeleted: false,
@@ -179,7 +197,9 @@ const getAllLocationsPagination = async (req, res) => {
       locations: locations.rows,
       totalLocations: locations.count,
       totalPages,
+      locationsConfirmOnly,
       currentPage: page,
+      locationsNotConfirmOnly,
       locationsConfirm: locationsConfirm.map(locationsConfirm => locationsConfirm.locationId),
     });
   } catch (error) {
@@ -376,7 +396,6 @@ const notViewThePlace = async (req, res) => {
       });
     }
 
-    //! Soft delete the Location
     await Locations.update(
       { ViewThePlace: false },
       { where: { locationId: locationId } }
@@ -487,6 +506,37 @@ const getLocationCount = async (req, res) => {
   }
 };
 
+const getAllLocationsNotView = async (req, res) => {
+  try {
+    const locations = await Locations.findAll({
+      where: {
+        isDeleted: false,
+        ViewThePlace: false,
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    if (!locations || locations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Locations Found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Locations retrieved successfully",
+      locations: locations,
+    });
+  } catch (error) {
+    console.error("Error retrieving locations:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   addLocation,
   updateLocationById,
@@ -498,5 +548,6 @@ module.exports = {
   viewThePlace,
   getLocationCount,
   notViewThePlace,
-  getAllLocationsForHomePage
+  getAllLocationsForHomePage,
+  getAllLocationsNotView
 }

@@ -27,6 +27,22 @@ function NewEvents() {
     fetchData();
   }, []);
 
+  const handleTouchStart = (e) => {
+    setStartX(e.touches[0].pageX - containerRef.current.offsetLeft);
+    setScrollLeft(containerRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!startX) return;
+    const x = e.touches[0].pageX - containerRef.current.offsetLeft;
+    const walk = (x - startX) * 0.6;
+    containerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setStartX(0);
+  };
+
   const handleMouseDown = (e) => {
     setStartX(e.pageX - containerRef.current.offsetLeft);
     setScrollLeft(containerRef.current.scrollLeft);
@@ -50,13 +66,15 @@ function NewEvents() {
   return (
     <div className="flex flex-col mx-0 mt-5 md:mx-40">
       <div className="mb-4">
-        <h1 className="mb-4 text-4xl font-bold md:text-6xl">New Activities</h1>
+        <h1 className="mb-4 ml-4 text-4xl font-bold md:text-6xl">New Activities</h1>
       </div>
 
       <div
         ref={containerRef}
-        className="flex overflow-x-hidden scrolling-touch"
-        style={{ cursor: "grab", width: "100%" }}
+        className="flex overflow-x-auto scrolling-touch"
+        onTouchStart={(e) => handleTouchStart(e)}
+        onTouchMove={(e) => handleTouchMove(e)}
+        onTouchEnd={() => handleTouchEnd()}
         onMouseDown={(e) => handleMouseDown(e)}
         onMouseMove={(e) => handleMouseMove(e)}
         onMouseUp={() => handleMouseUp()}
@@ -71,7 +89,7 @@ function NewEvents() {
               style={{ textDecoration: "none" }}
             >
               <article
-                className="relative flex flex-col justify-end flex-shrink-0 w-64 h-64 px-4 pt-24 pb-4 mx-2 overflow-hidden md:px-8 md:mx-4 rounded-2xl md:w-96"
+                className="relative flex flex-col justify-end flex-shrink-0 w-64 h-64 px-4 pt-24 pb-4 mx-2 mb-4 overflow-hidden md:px-8 md:mx-4 rounded-2xl md:w-96"
                 draggable="false"
               >
                 <img
@@ -93,18 +111,20 @@ function NewEvents() {
       </div>
 
       <div className="mt-5 mb-10 ml-auto">
-        
         <div className="flex items-center">
-        <Link to='./Category'><img
-            className="w-6 h-6 grayscale"
-            draggable="false"
-            src="https://img.icons8.com/flat-round/000000/arrow-right"
-            alt="arrow-right"/></Link>
-            
-          <Link to='./Category'><p className="ml-2 text-lg md:text-xl">Explore all Activities</p></Link>
+          <Link to='./Category'>
+            <img
+              className="w-6 h-6 grayscale"
+              draggable="false"
+              src="https://img.icons8.com/flat-round/000000/arrow-right"
+              alt="arrow-right"
+            />
+          </Link>
+          <Link to='./Category'>
+            <p className="ml-2 mr-4 text-lg md:text-xl hover:underline text-[#224229]">Explore all Activities</p>
+          </Link>
         </div>
       </div>
-      
     </div>
   );
 }

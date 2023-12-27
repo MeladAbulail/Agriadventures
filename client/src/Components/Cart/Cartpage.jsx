@@ -11,6 +11,7 @@ const CartPage = () => {
 
   useEffect(() => {
     const token = Cookies.get("token");
+    window.scrollTo(0, 0);
     const config = {
       headers: {
         Authorization: `${token}`,
@@ -67,7 +68,7 @@ const CartPage = () => {
   const totalPrice = calculateTotal() + 4.99;
 
   const handleCheckout = () => {
-    console.log("Handling checkout...");
+    handleEmptyCart();
     navigate("/Payment", { state: { totalPrice } });
   };
 
@@ -92,21 +93,23 @@ const CartPage = () => {
     } catch (error) {
       console.error('Error deleting cart data from the server:', error);
     } finally {
-      updateLocalStorage();
+      
       console.log('Local storage updated');
     }
   };
 
-  const updateLocalStorage = () => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  };
+  
 
   return (
-    <div className="flex flex-col min-h-screen pb-10 bg-gray-100">
+    <div className="flex flex-col min-h-screen pb-10 bg-[#fcf9f3] ">
       <h1 className="my-20 mb-10 text-2xl font-bold text-center">Cart Items</h1>
       <div className="flex-grow max-w-5xl px-6 mx-auto md:flex md:space-x-6 xl:px-0">
         <div className="rounded-lg md:w-2/3">
-          {cart.map((cartItem) => (
+          {cart.length === 0 ? (
+            <p className="lg:pl-10 pl:5 text-sm lg:text-3xl text-center text-gray-700 min-w-[200px]  lg:min-w-[500px]">
+              Your cart is empty.
+            </p>
+          ) : cart.map((cartItem) => (
             <div
               key={cartItem.cartId}
               className="justify-between p-6 mb-6 bg-white rounded-lg shadow-md sm:flex sm:justify-start"
@@ -170,6 +173,7 @@ const CartPage = () => {
           ))}
         </div>
         {/* Subtotal */}
+        {cart.length > 0 && (
         <div className="sticky h-full p-6 bg-white border rounded-lg shadow-md top-20 md:w-1/3 min-w-[250px]">
           <div className="flex justify-between mb-2">
             <p className="text-gray-700">Subtotal</p>
@@ -184,7 +188,7 @@ const CartPage = () => {
             <p className="text-lg font-bold">Total </p>
             <div className="">
               <p className="mb-1 text-lg font-bold">
-                {calculateTotal() + 4.99} $
+              $ {calculateTotal() + 4.99} 
               </p>
               <p className="text-sm text-gray-700">Shipping Included</p>
             </div>
@@ -202,6 +206,7 @@ const CartPage = () => {
             Empty Cart
           </button>
         </div>
+      )}
       </div>
     </div>
   );

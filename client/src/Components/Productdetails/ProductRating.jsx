@@ -53,7 +53,7 @@ function ProductRating({ productId, productName }) {
       }, config);
   
       console.log('Rating submitted successfully', response.data);
-  
+      window.location.reload();
       setRating(4);
       setComment('');
     } catch (error) {

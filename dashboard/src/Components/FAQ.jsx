@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 const FAQ = () => {
   const [questions, setQuestions] = useState([]);
@@ -48,15 +49,38 @@ const FAQ = () => {
   };
 
   const deleteQuestion = async (questionId) => {
-    try {
-      await axios.delete(`http://localhost:4000/Delete_FAQ/${questionId}`);
-      setQuestions((prevQuestions) =>
-        prevQuestions.filter((q) => q.faqId !== questionId)
-      );
-    } catch (error) {
-      console.error('Error deleting question:', error);
-    }
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Deleting the question.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:4000/Delete_FAQ/${questionId}`);
+          setQuestions((prevQuestions) =>
+            prevQuestions.filter((q) => q.faqId !== questionId)
+          );
+          Swal.fire({
+            title: 'Success!',
+            text: 'The question has been deleted successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Error deleting question:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to delete the question. Please try again.',
+            icon: 'error',
+          });
+        }
+      }
+    });
   };
+  
 
   const handleAddQuestion = async () => {
     try {
@@ -200,7 +224,10 @@ const FAQ = () => {
                 Answer
               </th>
               <th scope="col" className="px-4 py-2 text-white sm:text-xs">
-                Actions
+                Edit
+              </th>
+              <th scope="col" className="px-4 py-2 text-white sm:text-xs">
+                Delete
               </th>
             </tr>
           </thead>
@@ -210,13 +237,15 @@ const FAQ = () => {
                 <td className="text-center sm:text-xs">{q.faqId}</td>
                 <td className="text-center sm:text-xs">{q.question}</td>
                 <td className="text-center sm:text-xs">{q.answer}</td>
-                <td className="flex items-center space-x-2">
+                <td className="text-center sm:text-xs">
                   <button
                     onClick={() => handleEditQuestion(q)}
                     className="w-full p-3 text-center text-green-500 rounded-full cursor-pointer sm:text-xs hover:text-green-600"
                   >
                     Edit
                   </button>
+                  </td>
+                  <td className="text-center sm:text-xs">
                   <button
                     onClick={() => deleteQuestion(q.faqId)}
                     className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 function MessageTable() {
   const [messages, setMessages] = useState([]);
@@ -32,39 +33,109 @@ function MessageTable() {
   };
   
   const deleteMessage = (contactUsId) => {
-    const apiUrl = 'http://localhost:4000/Delete_By_Id';
-    axios.delete(`${apiUrl}/${contactUsId}`)
-      .then(response => {
-        if (response.status === 200) {
-          setMessages(messages.filter(message => message.contactUsId !== contactUsId));
-        }
-      })
-      .catch(error => console.error('Error deleting message:', error));
-  };
-
-  const readabilityMessages = (contactUsId) => {
-    axios.put(`http://localhost:4000/Update_Message_Readability/${contactUsId}`)
-    .then(res => {
-      setReadabilityMessage([...readabilityMessage, contactUsId]);
-    })
-    .catch(err => {
-      console.log("Error Readability Message:", err);
+    Swal.fire({
+      title: "Are You Sure",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const apiUrl = 'http://localhost:4000/Delete_By_Id';
+        axios.delete(`${apiUrl}/${contactUsId}`)
+          .then(response => {
+            if (response.status === 200) {
+              setMessages(messages.filter(message => message.contactUsId !== contactUsId));
+              Swal.fire({
+                title: 'Success!',
+                text: 'The message has been deleted successfully.',
+                icon: 'success',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting message:', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to delete the message. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
     });
   };
+  
+
+  const readabilityMessages = (contactUsId) => {
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Marking the message as readable.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, mark as readable!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.put(`http://localhost:4000/Update_Message_Readability/${contactUsId}`)
+          .then(res => {
+            setReadabilityMessage([...readabilityMessage, contactUsId]);
+            Swal.fire({
+              title: 'Success!',
+              text: 'The message has been marked as readable successfully.',
+              icon: 'success',
+            });
+          })
+          .catch(err => {
+            console.log("Error Readability Message:", err);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to mark the message as readable. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
+    });
+  };
+  
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
   const notReadabilityMessage = (contactUsId) => {
-    axios.put(`http://localhost:4000/Update_Message_Not_Readability/${contactUsId}`)
-    .then(res => {
-      setReadabilityMessage(readabilityMessage.filter(readabilityMessageId => readabilityMessageId !== contactUsId));
-    })
-    .catch(err => {
-      console.log("Error Readability Message:", err);
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Marking the message as not readable.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, mark as not readable!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.put(`http://localhost:4000/Update_Message_Not_Readability/${contactUsId}`)
+          .then(res => {
+            setReadabilityMessage(readabilityMessage.filter(readabilityMessageId => readabilityMessageId !== contactUsId));
+            Swal.fire({
+              title: 'Success!',
+              text: 'The message has been marked as not readable successfully.',
+              icon: 'success',
+            });
+          })
+          .catch(err => {
+            console.log("Error Readability Message:", err);
+            Swal.fire({
+              title: 'Error',
+              text: 'Failed to mark the message as not readable. Please try again.',
+              icon: 'error',
+            });
+          });
+      }
     });
   };
+  
 
   const filteredMessages = messages.filter((message) =>
     message.email.toLowerCase().includes(searchEmail.toLowerCase())
@@ -83,8 +154,8 @@ function MessageTable() {
                   <th className="px-4 py-2">Username</th>
                   <th className="px-4 py-2">Email</th>
                   <th className="px-4 py-2 w-80">Message</th>
-                  <th className="px-4 py-2">Message Delete</th>
-                  <th className="px-4 py-2">Message Readable</th>
+                  <th className="px-4 py-2">Delete</th>
+                  <th className="px-4 py-2">Readable Or Unreadable</th>
                 </tr>
               </thead>
               <tbody>
@@ -119,7 +190,7 @@ function MessageTable() {
                         onClick={() => readabilityMessages(message.contactUsId)}
                         className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"
                       >
-                        Not Readable
+                        Unreadable
                       </a>
                     </td>
                   )}

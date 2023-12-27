@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 function ProductTable() {
   const navigate = useNavigate();
@@ -46,15 +47,54 @@ function ProductTable() {
     fetchProducts();
   }, [currentPage, itemsPerPage]);
 
-  const deleteProduct = (productId) => {
-    axios.delete(`http://localhost:4000/Delete_Product_By_Id/${productId}`)
-      .then((response) => {
-        if (response.status === 200) {
-          setProducts(products.filter((product) => product.productId !== productId));
+  const deleteProduct = async (productId) => {
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Please login to delete the product.",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(`http://localhost:4000/Delete_Product_By_Id/${productId}`);
+  
+          if (response.status === 200) {
+            setProducts(products.filter((product) => product.productId !== productId));
+            Swal.fire({
+              title: 'Success!',
+              text: 'The product has been deleted successfully.',
+              icon: 'success',
+            });
+          }
+        } catch (error) {
+          console.error('Error deleting product:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to delete the product. Please try again.',
+            icon: 'error',
+          });
         }
-      })
-      .catch((error) => console.error('Error deleting product:', error));
+      }
+    });
   };
+  
 
   const handleEditProduct = (product) => {
     setEditingProduct(product);
@@ -107,6 +147,52 @@ function ProductTable() {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
+  const cancelConfirm = async (productId) => {
+    Swal.fire({
+      title: "Are You Sure",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `,
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `,
+      },
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, cancel the view!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`http://localhost:4000/Not_View_The_Product/${productId}`);
+          setProducts(products.filter((product) => product.productId !== productId));
+          Swal.fire({
+            title: 'Success!',
+            text: 'The product view has been canceled successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.log('Error canceling the view of the product:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to cancel the view of the product. Please try again.',
+            icon: 'error',
+          });
+        }
+      }
+    });
+  };
+  
+  
 
   return (
     <>
@@ -169,7 +255,9 @@ function ProductTable() {
                     <th className="px-4 py-2">Category</th>
                     <th className="px-4 py-2">Description</th>
                     <th className="px-4 py-2">Price</th>
-                    <th className="px-4 py-2">Actions</th>
+                    <th className="px-4 py-2">Edit</th>
+                    <th className="px-4 py-2">Cancel View</th>
+                    <th className="px-4 py-2">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -204,6 +292,14 @@ function ProductTable() {
                         >
                           Edit
                         </a>
+                      </td>
+                      <td className="px-4 text-center sm:text-xs">
+                        <a
+                          onClick={() => cancelConfirm(product.productId)}
+                          className="cursor-pointer w-full text-center text-green-500 sm:text-xs green-full hover:text-green-600"
+                        >Cancel</a>
+                      </td>
+                      <td className="px-4 text-center sm:text-xs">
                         <a
                           onClick={() => deleteProduct(product.productId)}
                           className="w-full p-3 text-center text-red-500 rounded-full cursor-pointer sm:text-xs hover:text-red-600"

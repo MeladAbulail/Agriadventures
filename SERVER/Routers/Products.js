@@ -13,5 +13,6 @@ Router.delete('/Delete_Product_By_Id/:productId', Products.deleteProduct);
 Router.put('/View_The_Product/:productId', Products.viewTheProduct);
 Router.put('/Not_View_The_Product/:productId', Products.notViewTheProduct);
 Router.get('/Get_Product_Count', Products.getProductCount);
+Router.get('/Get_All_Products_Not_View', Products.getAllProductsNotView);
 
 module.exports = Router;

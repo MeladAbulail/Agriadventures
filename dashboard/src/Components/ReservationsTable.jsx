@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 function ReservationsTable() {
   const [reservations, setReservations] = useState([]);
@@ -35,35 +36,108 @@ function ReservationsTable() {
   };
   
   const deletereservation = (reservationId) => {
-    const apiUrl = 'http://localhost:4000/Delete_Reservations';
-    axios.delete(`${apiUrl}/${reservationId}`)
-      .then(response => {
-        if (response.status === 200) {
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Deleting the reservation.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const apiUrl = 'http://localhost:4000/Delete_Reservations';
+          await axios.delete(`${apiUrl}/${reservationId}`);
+  
           setReservations(reservations.filter(reservation => reservation.reservationId !== reservationId));
+  
+          console.log('Deletion success');
+          Swal.fire({
+            title: 'Success!',
+            text: 'The reservation has been deleted successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Deletion error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to delete the reservation. Please try again.',
+            icon: 'error',
+          });
         }
-      })
-      .catch(error => console.error('Error deleting reservation:', error));
+      }
+    });
   };
+  
 
   const complete = (reservationId) => {
-    axios.put(`http://localhost:4000/Update_Reservations_Complete/${reservationId}`)
-    .then(res => {
-      setcompleteOrIncomplete([...completeOrIncomplete, reservationId]);
-    })
-    .catch(err => {
-      console.log("Error Readability reservation:", err);
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Marking the reservation as complete.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, mark it as complete!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`http://localhost:4000/Update_Reservations_Complete/${reservationId}`);
+          setcompleteOrIncomplete([...completeOrIncomplete, reservationId]);
+  
+          console.log('Marking as complete success');
+          Swal.fire({
+            title: 'Success!',
+            text: 'The reservation has been marked as complete successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Marking as complete error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to mark the reservation as complete. Please try again.',
+            icon: 'error',
+          });
+        }
+      }
     });
   };
+  
 
   const incomplete = (reservationId) => {
-    axios.put(`http://localhost:4000/Update_Reservations_In_Complete/${reservationId}`)
-    .then(res => {
-      setcompleteOrIncomplete(completeOrIncomplete.filter(completeOrIncompleteId => completeOrIncompleteId !== reservationId));
-    })
-    .catch(err => {
-      console.log("Error Readability reservation:", err);
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Marking the reservation as incomplete.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, mark it as incomplete!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`http://localhost:4000/Update_Reservations_In_Complete/${reservationId}`);
+          setcompleteOrIncomplete(completeOrIncomplete.filter(completeOrIncompleteId => completeOrIncompleteId !== reservationId));
+  
+          console.log('Marking as incomplete success');
+          Swal.fire({
+            title: 'Success!',
+            text: 'The reservation has been marked as incomplete successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Marking as incomplete error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to mark the reservation as incomplete. Please try again.',
+            icon: 'error',
+          });
+        }
+      }
     });
   };
+  
 
   const filteredReservations = reservations.filter((reservation) =>
     reservation.locationName.toLowerCase().includes(searchEmail.toLowerCase())
@@ -82,8 +156,8 @@ function ReservationsTable() {
                   <th className="px-4 py-2">Number Of Visitors</th>
                   <th className="px-4 py-2">Location Name</th>
                   <th className="px-4 py-2 w-80">Price</th>
-                  <th className="px-4 py-2">Reservation Delete</th>
-                  <th className="px-4 py-2">Reservation Complete</th>
+                  <th className="px-4 py-2">Delete</th>
+                  <th className="px-4 py-2">Complete</th>
                 </tr>
               </thead>
               <tbody>

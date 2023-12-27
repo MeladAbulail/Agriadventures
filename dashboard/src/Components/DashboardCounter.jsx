@@ -116,22 +116,22 @@ const DashboardCounter = () => {
 
   const CounterCard = ({ count, label, color, borderColor }) => {
     return (
-      <div className={`rounded-md overflow-hidden border ${borderColor} shadow-default dark:border-strokedark dark:bg-boxdark ${color}`}>
-        <div className="p-4 flex items-center justify-between">
-          <div>
-            <h4 className="text-lg font-bold text-black dark:text-white">{count}</h4>
-            <span className="text-sm font-medium text-meta-3">{label}</span>
-          </div>
+      <div className={`rounded-md overflow-hidden border ${borderColor} shadow-default dark:border-strokedark dark:bg-boxdark ${color} flex-1 mx-2`}>
+        <div className="p-4 flex flex-col items-center justify-center h-full">
+          <h4 className="text-lg font-bold text-black dark:text-white mb-2">{count}</h4>
+          <span className="text-sm font-medium text-meta-3">{label}</span>
         </div>
       </div>
     );
   };
+  
+  
 
   return (
     <div>
       {/* Section 1 */}
-      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300">
-        <h2 className="section-title">Users</h2>
+      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300 text-center">
+      <h2 className="text-2xl font-bold mb-4 text-blue-800">Users</h2>
         <div className="flex justify-around">
           <CounterCard count={usersCounts.all} label="All Users" color="bg-blue-500" borderColor="border-blue-500" />
           <CounterCard count={usersCounts.users} label="Users" color="bg-red-500" borderColor="border-red-500" />
@@ -143,8 +143,8 @@ const DashboardCounter = () => {
       </div>
 
       {/* Section 2 */}
-      <div className="section mb-4 bg-gray-200 p-4 border border-gray-300">
-        <h2 className="section-title">Locations</h2>
+      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-blue-800">Locations</h2>
         <div className="flex justify-around mt-4">
           <CounterCard count={locationsCounts.all} label="All Locations" color="bg-green-500" borderColor="border-green-500" />
           <CounterCard count={locationsCounts.awaitingApproval} label="Locations Awaiting Approval" color="bg-yellow-500" borderColor="border-yellow-500" />
@@ -158,8 +158,8 @@ const DashboardCounter = () => {
       </div>
 
       {/* Section 3 */}
-      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300">
-        <h2 className="section-title">Products</h2>
+      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-blue-800">Products</h2>
         <div className="flex justify-around mt-4">
           <CounterCard count={productsCounts.all} label="All Products" color="bg-blue-500" borderColor="border-blue-500" />
           <CounterCard count={productsCounts.awaitingApproval} label="Products Awaiting Approval" color="bg-red-500" borderColor="border-red-500" />
@@ -171,8 +171,8 @@ const DashboardCounter = () => {
       </div>
 
       {/* Section 4 */}
-      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300">
-        <h2 className="section-title">Messages</h2>
+      <div className="section mb-4 bg-gray-100 p-4 border border-gray-300 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-blue-800">Messages</h2>
         <div className="flex justify-around mt-4">
           <CounterCard count={messagesCounts.all} label="All Messages" color="bg-blue-500" borderColor="border-blue-500" />
           <CounterCard count={messagesCounts.readable} label="Readable Messages" color="bg-red-500" borderColor="border-red-500" />
@@ -181,8 +181,8 @@ const DashboardCounter = () => {
       </div>
 
         {/* Section 5 */}
-        <div className="section mb-4 bg-gray-100 p-4 border border-gray-300">
-        <h2 className="section-title">Reservations</h2>
+        <div className="section mb-4 bg-gray-100 p-4 border border-gray-300 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-blue-800">Reservations</h2>
         <div className="flex justify-around mt-4">
           <CounterCard count={reservationsCounts.all} label="All Reservations" color="bg-blue-500" borderColor="border-blue-500" />
           <CounterCard count={reservationsCounts.complete} label="complete Reservations" color="bg-red-500" borderColor="border-red-500" />
@@ -191,8 +191,8 @@ const DashboardCounter = () => {
       </div>
 
         {/* Section 6 */}
-        <div className="section mb-4 bg-gray-100 p-4 border border-gray-300">
-        <h2 className="section-title">Orders</h2>
+        <div className="section mb-4 bg-gray-100 p-4 border border-gray-300 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-blue-800">Orders</h2>
         <div className="flex justify-around mt-4">
           <CounterCard count={ordersCounts.all} label="All Orders" color="bg-blue-500" borderColor="border-blue-500" />
           <CounterCard count={ordersCounts.received} label="Received Orders" color="bg-red-500" borderColor="border-red-500" />

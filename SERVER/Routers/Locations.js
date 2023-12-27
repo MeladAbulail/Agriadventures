@@ -14,5 +14,6 @@ Router.put('/View_The_Place/:locationId', Locations.viewThePlace);
 Router.put('/Not_View_The_Place/:locationId', Locations.notViewThePlace);
 Router.delete('/Delete_Location_By_Id/:locationId', Locations.deleteLocationById);
 Router.get('/Get_Locations_Count', Locations.getLocationCount);
+Router.get('/Get_All_Locations_Not_View', Locations.getAllLocationsNotView);
 
 module.exports = Router;

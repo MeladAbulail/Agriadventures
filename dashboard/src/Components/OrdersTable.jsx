@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
 function OrdersTable() {
   const [orders, setorders] = useState([]);
@@ -35,35 +36,106 @@ function OrdersTable() {
   };
   
   const deleteOrder = (orderId) => {
-    const apiUrl = 'http://localhost:4000/Delete_Order';
-    axios.delete(`${apiUrl}/${orderId}`)
-      .then(response => {
-        if (response.status === 200) {
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Deleting the order.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const apiUrl = 'http://localhost:4000/Delete_Order';
+          await axios.delete(`${apiUrl}/${orderId}`);
           setorders(orders.filter(message => message.orderId !== orderId));
+  
+          console.log('Deletion success');
+          Swal.fire({
+            title: 'Success!',
+            text: 'The order has been deleted successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Deletion error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to delete the order. Please try again.',
+            icon: 'error',
+          });
         }
-      })
-      .catch(error => console.error('Error deleting message:', error));
+      }
+    });
   };
+  
 
   const received = (orderId) => {
-    axios.put(`http://localhost:4000/Update_Order_Received/${orderId}`)
-    .then(res => {
-      setreceivedOrNot([...receivedOrNot, orderId]);
-    })
-    .catch(err => {
-      console.log("Error Received Or Not Received Order:", err);
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Marking the order as received.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, mark it as received!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`http://localhost:4000/Update_Order_Received/${orderId}`);
+          setreceivedOrNot([...receivedOrNot, orderId]);
+  
+          console.log('Marked as received successfully');
+          Swal.fire({
+            title: 'Success!',
+            text: 'The order has been marked as received successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Marking as received error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to mark the order as received. Please try again.',
+            icon: 'error',
+          });
+        }
+      }
     });
   };
-
+  
   const notReceived = (orderId) => {
-    axios.put(`http://localhost:4000/Update_Order_Not_Received/${orderId}`)
-    .then(res => {
-      setreceivedOrNot(receivedOrNot.filter(receivedOrNotId => receivedOrNotId !== orderId));
-    })
-    .catch(err => {
-      console.log("Error Received Or Not Received Order:", err);
+    Swal.fire({
+      title: "Are You Sure",
+      text: "Marking the order as not received.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, mark it as not received!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.put(`http://localhost:4000/Update_Order_Not_Received/${orderId}`);
+          setreceivedOrNot(receivedOrNot.filter(receivedOrNotId => receivedOrNotId !== orderId));
+  
+          console.log('Marked as not received successfully');
+          Swal.fire({
+            title: 'Success!',
+            text: 'The order has been marked as not received successfully.',
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('Marking as not received error:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to mark the order as not received. Please try again.',
+            icon: 'error',
+          });
+        }
+      }
     });
   };
+  
 
   const filteredOrders = orders.filter((message) =>
     message.email.toLowerCase().includes(searchEmail.toLowerCase())
@@ -82,8 +154,8 @@ function OrdersTable() {
                   <th className="px-4 py-2">Total Price</th>
                   <th className="px-4 py-2">Address</th>
                   <th className="px-4 py-2 w-80">Card holder</th>
-                  <th className="px-4 py-2">order Delete</th>
-                  <th className="px-4 py-2">Received Or Not</th>
+                  <th className="px-4 py-2">Delete</th>
+                  <th className="px-4 py-2">Received</th>
                 </tr>
               </thead>
               <tbody>
@@ -91,13 +163,13 @@ function OrdersTable() {
                   <tr key={message.orderId} className={message.orderId % 2 === 0 ? "bg-[#e5e7eb]" : "bg-[#d1d5db]"}>
                     <td className="px-4 py-2 text-center sm:text-xs">{message.email}</td>
                     <td className="px-4 py-2 text-center sm:text-xs">
-                      ${message.totalPrice}
+                      ${(message.totalPrice).toFixed(2)}
                     </td>
                     <td className="px-4 py-2 text-center sm:text-xs">{message.address}</td>
                     <td className="px-4 py-2 text-center break-all sm:text-xs">{message.cardholder}</td>
                     <td className="text-center sm:text-xs">
                       <a
-                        // onClick={() => deleteOrder(message.orderId)}4444
+                        onClick={() => deleteOrder(message.orderId)}
                         className="cursor-pointer w-full p-3 text-center text-red-500 rounded-full sm:text-xs hover:text-red-600"
                       >
                         Delete

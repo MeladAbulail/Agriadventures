@@ -4,6 +4,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import ProductRating from './ProductRating';
 import DisplayProductComment from './DisplayProductComment';
+import Swal from 'sweetalert2'
 
 const ProductDetailsPage = ({ setCart }) => {
   const { productId } = useParams();
@@ -30,6 +31,27 @@ const ProductDetailsPage = ({ setCart }) => {
   const addToCart = () => {
     const token = Cookies.get('token');
 
+    if (!token) {
+      Swal.fire({
+        title: "Please login to Purchase.",
+        showClass: {
+          popup: `
+            animate__animated
+            animate__fadeInUp
+            animate__faster
+          `
+        },
+        hideClass: {
+          popup: `
+            animate__animated
+            animate__fadeOutDown
+            animate__faster
+          `
+        }
+      });
+      return
+    }
+
     if (product.productId === undefined) {
       console.error('Product ID is undefined. Cannot add item to cart.');
       return;
@@ -52,6 +74,23 @@ const ProductDetailsPage = ({ setCart }) => {
       )
       .then((response) => {
         if (response.data.success) {
+          Swal.fire({
+            title: "Added to cart successfully.",
+            showClass: {
+              popup: `
+                animate__animated
+                animate__fadeInUp
+                animate__faster
+              `
+            },
+            hideClass: {
+              popup: `
+                animate__animated
+                animate__fadeOutDown
+                animate__faster
+              `
+            }
+          });
           console.log('Item added to cart:', response.data);
           setCart(response.data.cartItems);
         } else {
@@ -93,8 +132,24 @@ const ProductDetailsPage = ({ setCart }) => {
   const handleToggleFavorite = async () => {
     try {
       if (!token) {
-        setError('User not authenticated. Cannot toggle favorite status.');
-        return;
+        Swal.fire({
+          title: "Please login to Add.",
+          showClass: {
+            popup: `
+              animate__animated
+              animate__fadeInUp
+              animate__faster
+            `
+          },
+          hideClass: {
+            popup: `
+              animate__animated
+              animate__fadeOutDown
+              animate__faster
+            `
+          }
+        });
+        return
       }
   
       const config = {
@@ -145,7 +200,7 @@ const ProductDetailsPage = ({ setCart }) => {
             <p className="mb-2 text-lg">{`Category: ${product.category}`}</p>
             <p className="mb-2 text-lg">{`Price: ${product.price}$`}</p>
             <p className="mb-2 text-lg">{`description: ${product.description}`}</p>
-            <p className="mb-2 text-lg">{`evaluation: ${product.evaluation}`}</p>
+            <p className="mb-2 text-lg">{`evaluation: ${(product.evaluation).toFixed(1)}`}</p>
             <p className="mb-2 text-lg">{`owner: ${product.owner}`}</p>
             {/* Add more details as needed */}
           </div>

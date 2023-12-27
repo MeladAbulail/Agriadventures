@@ -9,3 +9,5 @@ const sequelize = new Sequelize({
 })
 
 module.exports = sequelize
+
+// pg_restore -U Agri_Adventure_Ayoub -d Agri_Adventure -F c -c C:\Users\Orange\Desktop\Agriadventures\Agri_Adventure.sql

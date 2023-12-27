@@ -17,16 +17,22 @@ function Navbar() {
     setMenuOpen(!isMenuOpen);
   };
 
+  const handleLogout = () => {
+    Cookies.remove('token');
+    Cookies.remove('userId');
+    window.location.href = '/';
+  };
+
   const isSignInOrRegisterPageNavbar =
     location.pathname === '/Signin' || location.pathname === '/Register';
 
   return (
-    <div className={`w-full ${isSignInOrRegisterPageNavbar ? "hidden" : ""} `}>
+    <div className={`w-full ${isSignInOrRegisterPageNavbar ? "hidden" : ""} bg-[#fcf9f3]`}>
       <nav className={`flex justify-between text-[#224229] bg-[#fcf9f3] fixed w-full top-0 z-50 border-b-2 border-[#e2e0da]	`}>
-        <div className="flex items-center w-full px-5 py-6 xl:px-12">
+        <div className="flex items-center w-full py-6 sm:px-5 xl:px-12" >
 
           <Link to="/">
-            <a className="text-3xl font-bold font-heading ">
+            <a className="ml-3 text-xl font-bold lg:text-3xl font-heading ">
               Agriadventures
             </a>
           </Link>
@@ -62,22 +68,15 @@ function Navbar() {
                 <a className="hover:text-[#018347] ">Contact Us</a>
               </li>
             </Link>
-
           </ul>
 
-
-
-
           <div className='flex flex-row '>
-
-
             <div className="items-center hidden space-x-5 lg:flex ">
               <Link to="/cart">
                 <a className="hover:text-[#018347]  ">
                   <FaShoppingCart size={24} />
                 </a>
               </Link>
-
 
               {isLoggedIn ? (<Link to="/Profile">
                 <a className="flex items-center hover:text-[#018347]">
@@ -95,8 +94,8 @@ function Navbar() {
               )}
             </div>
           </div>
-          
         </div>
+
 
         <a
           className="flex items-center mr-6 lg:hidden"
@@ -111,36 +110,65 @@ function Navbar() {
       </nav>
 
 
-      <div className={`xl:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
-        <ul className="p-4 text-[#224229] bg-[#fcf9f3]">
+      <div className={`xl:hidden ${isMenuOpen ? 'block' : 'hidden'} mt-[84px] `}>
+        <ul className="p-4 text-[#224229] bg-[#fcf9f3]  fixed w-full top-16 z-50">
           <Link to="/">
-            <li>
+            <li >
               <a className="uppercase hover:text-[#018347]">Home</a>
             </li>
           </Link>
+          <div className='bg-[#224229] h-[0.5px]'></div>
           <Link to="/Category">
-            <li>
+            <li className='mt-2'>
               <a className="uppercase hover:text-[#018347]">Category</a>
             </li>
+            <div className='bg-[#224229] h-[0.5px]'></div>
           </Link>
+
           <Link to="/Store">
-            <li>
+            <li className='mt-2'>
               <a className="uppercase hover:text-[#018347]">Shop</a>
             </li>
           </Link>
+          <div className='bg-[#224229] h-[0.5px]'></div>
           <Link to="/Gallery">
-            <li>
+            <li className='mt-2'>
               <a className="uppercase hover:text-[#018347]">Gallery</a>
             </li>
+            <div className='bg-[#224229] h-[0.5px]'></div>
+          </Link>
+          <Link to="/Aboutus">
+            <li className='mt-2'>
+              <a className="uppercase hover:text-[#018347]">About us</a>
+            </li>
+            <div className='bg-[#224229] h-[0.5px]'></div>
+          </Link>
+          <Link to="/Contactus">
+            <li className='mt-2'>
+              <a className="uppercase hover:text-[#018347]">Contact us</a>
+            </li>
+            <div className='bg-[#224229] h-[0.5px]'></div>
           </Link>
           {!isSignInOrRegisterPageNavbar && (
-            <Link to={isLoggedIn ? '/Profile' : '/Signin'}>
-              <li>
-                <a className="uppercase hover:text-[#018347]">
-                  {isLoggedIn ? 'Profile' : 'Sign In'}
-                </a>
-              </li>
-            </Link>
+            <>
+              <Link to={isLoggedIn ? '/Profile' : '/Signin'}>
+                <li className='mt-2'>
+                  <a className="uppercase hover:text-[#018347]">
+                    {isLoggedIn ? 'Profile' : 'Sign In'}
+                  </a>
+                </li>
+                <div className='bg-[#224229] h-[0.5px]'></div>
+              </Link>
+
+              <Link to={isLoggedIn ? '/' : ""}>
+                <li className='mt-2'>
+                  <a className="uppercase hover:text-[#018347]" onClick={isLoggedIn ? handleLogout : undefined}>
+                    {isLoggedIn ? 'Logout' : ''}
+                  </a>
+                </li>
+                <div className='bg-[#224229] h-[0.5px]'></div>
+              </Link>
+            </>
           )}
         </ul>
       </div>

@@ -17,6 +17,7 @@ import OrdersTable from './Components/OrdersTable';
 import ReservationsTable from './Components/ReservationsTable';
 
 import './App.css';
+import E404 from './Components/E404';
 
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -30,10 +31,12 @@ function App() {
     <div className="bg-white App">
       <div className="flex ">
         <BrowserRouter>
-          {isLoggedIn && <Sidebar className="w-10% h-full" />}
+          <Sidebar className="w-10% h-full"/>
           <div className='w-11/12'>
             <div className="w-full">
               <Routes>
+
+              
                 <Route path="/" element={<LoginPage setLoggedIn={setLoggedIn} />} />
                 <Route path="/UserTable" element={<UsersTable />} />
                 <Route path="/FAQ" element={<FAQ />} />
@@ -47,6 +50,7 @@ function App() {
                 <Route path="/OrdersTable" element={<OrdersTable />} />
                 <Route path="/ReservationsTable" element={<ReservationsTable />} />
                 <Route path="/DashboardCounter" element={<DashboardCounter />} />
+                <Route path="*" element={<E404 />} />
               </Routes>
             </div>
           </div>

@@ -396,6 +396,37 @@ const getProductCount = async (req, res) => {
   }
 };
 
+const getAllProductsNotView = async (req, res) => {
+  try {
+    const products = await Products.findAll({
+      where: {
+        isDeleted: false,
+        ViewTheProduct: false,
+      },
+      order: [['createdAt', 'ASC']],
+    });
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No products Found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "products retrieved successfully",
+      products: products,
+    });
+  } catch (error) {
+    console.error("Error retrieving products:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   addProduct,
   updateProduct,
@@ -406,7 +437,8 @@ module.exports = {
   getAllProducts,
   getProductCount,
   notViewTheProduct,
-  getAllProductsForHomePage
+  getAllProductsForHomePage,
+  getAllProductsNotView
 }
 
 

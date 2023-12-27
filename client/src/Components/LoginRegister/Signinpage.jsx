@@ -62,7 +62,7 @@ function Signinpage() {
       Swal.fire({
         position: "center",
         icon: "error",
-        title: "Login Failed",
+        title: error.response.data.error,
         showConfirmButton: false,
         timer: 1000
       });
@@ -74,8 +74,8 @@ function Signinpage() {
     <div className="flex items-stretch min-h-screen  bg-[#fcf9f3]">
       <div className="relative items-center hidden w-1/2 bg-gray-500 bg-no-repeat bg-cover lg:flex " style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1577495508048-b635879837f1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80)' }}>
         <div className="z-10 w-full px-24">
-          <h1 className="text-5xl font-bold tracking-wide text-left text-[#fcf9f3]">Keep it special</h1>
-          <p className="my-4 text-3xl text-[#fcf9f3]">Capture your personal memory in a unique way, anywhere.</p>
+          <h1 className="text-5xl font-bold tracking-wide text-left text-[#fcf9f3]">Welcome back</h1>
+          <p className="my-4 text-3xl text-[#fcf9f3]">Alot of new and fun activities are waiting for you.</p>
         </div>
         {/* <div className="absolute bottom-0 left-0 right-0 flex justify-center p-4 space-x-4 text-center">
           <span>
@@ -150,8 +150,6 @@ function Signinpage() {
               <button type="submit" className="w-full px-4 py-2 font-semibold text-white bg-[#224229] rounded-md hover:bg-[#314534] focus:outline-none focus:ring focus:ring-indigo-200">
                 Sign in
               </button>
-
-
               <button onClick={handleGoogleLogin} aria-label="Continue with google" role="button" class=" justify-center focus:outline-none justify-items-center focus:ring-1 focus:ring-offset-1 focus:ring-gray-700 py-2 px-4 border rounded-lg border-gray-700 flex items-center  w-full mt-4">
                 <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18.9892 10.1871C18.9892 9.36767 18.9246 8.76973 18.7847 8.14966H9.68848V11.848H15.0277C14.9201 12.767 14.3388 14.1512 13.047 15.0812L13.0289 15.205L15.905 17.4969L16.1042 17.5173C17.9342 15.7789 18.9892 13.221 18.9892 10.1871Z" fill="#4285F4" />

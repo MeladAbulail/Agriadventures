@@ -48,6 +48,63 @@ const Registerpage = () => {
   };
   const handleSignUp = async (e) => {
     e.preventDefault();
+     // Validation - Check if required fields are present
+     if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword || !formData.gender) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please fill in all required fields.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if the password and confirm password match
+    if (formData.password !== formData.confirmPassword) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Password and Confirm Password must match.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if the password meets the criteria
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,20}$/;
+    if (!passwordPattern.test(formData.password)) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Password must have at least one lowercase letter, one uppercase letter, one special character, and be between 6 and 20 characters long.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if firstName adheres to the required pattern
+    const firstNamePattern = /^[a-zA-Z-_]+$/;
+    if (!firstNamePattern.test(formData.firstName)) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'First Name must consist of only letters, hyphens, or underscores.',
+        icon: 'error',
+      });
+      return;
+    }
+
+    // Validation - Check if lastName adheres to the required pattern
+    const lastNamePattern = /^[a-zA-Z-_]+$/;
+    if (!lastNamePattern.test(formData.lastName)) {
+      // Display a SweetAlert message for the validation error
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Last Name must consist of only letters, hyphens, or underscores.',
+        icon: 'error',
+      });
+      return;
+    }
 
     if (validateForm()) {
       const { confirmPassword, ...formDataToSend } = formData;
@@ -98,8 +155,8 @@ const Registerpage = () => {
       <div className="flex items-stretch min-h-screen   bg-[#fcf9f3]">
         <div className="relative items-center hidden w-1/2 bg-gray-500 bg-no-repeat bg-cover lg:flex " style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1577495508048-b635879837f1?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80)' }}>
           <div className="z-10 w-full px-24">
-            <h1 className="text-5xl font-bold tracking-wide text-left text-[#fcf9f3]">Keep it special</h1>
-            <p className="my-4 text-3xl text-[#fcf9f3]">Capture your personal memory in a unique way, anywhere.</p>
+            <h1 className="text-5xl font-bold tracking-wide text-left text-[#fcf9f3]">Welcome to Agriadventures</h1>
+            <p className="my-4 text-3xl text-[#fcf9f3]">Join a world of Agritourism, we have wide selection of adventures for you!</p>
           </div>
           {/* <div className="absolute bottom-0 left-0 right-0 flex justify-center p-4 space-x-4 text-center">
             <span>

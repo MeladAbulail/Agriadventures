@@ -82,18 +82,18 @@ function PackageEvents() {
             <Link
               key={location.locationId}
               to={`/ActivitiesDetails/${location.locationId}`}
-              draggable="false" // Disable dragging on the Link element
-              style={{ textDecoration: 'none' }} // Optional: Remove the default link styling
+              draggable="false"
+              style={{ textDecoration: 'none' }} 
             >
               <article
                 className="relative flex flex-col justify-end flex-shrink-0 px-8 pt-40 pb-8 mx-4 overflow-hidden rounded-2xl w-96"
-                draggable="false" // Disable dragging on the article element
+                draggable="false" 
               >
                 <img
                   src={location.imageUrl}
                   alt={`Image ${location.locationName}`}
                   className="absolute inset-0 object-cover w-full h-full"
-                  draggable="false" // Disable dragging on the image element
+                  draggable="false" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                 <h3 className="z-10 mt-3 text-3xl font-bold text-white">{location.locationName}</h3>
